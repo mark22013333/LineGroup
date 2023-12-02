@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(/TncNBrXq2qstTx5EI16YRDPOkPj4I2acfEgwS96hI8G8bwKoTPpdcp1PsLVEwXXPAzfPjb2nhK/gAXMbPF48Tc79Y6cag7gv6nj1/c9yRcC4oAKTNe4rhH7LIvHt+OhrxSJVnpfkrVGLaQcCmibUTWygmMjKD0pJehr7tVZIEqjc0olbWd6QUK74WOYYVLBcnwqjYrfilW/S2t9Ycxt8lL2wYEa7IQX+lHjKyilaJIOO8ehwWv91VAKDC8xdny9UZpD0B/XscU=)
+    username: ENC(7+G7M9ghLZhhvvWjBY3x6HkXBOZ24F4btKi/vOZjid8=)
+    password: ENC(BI/xcH2NcCBYakJapCYiG8ADcAIAJ7Xe)
+    hikari:
+      idle-timeout: 120000
+      max-lifetime: 300000
+      maximum-pool-size: 50
+      minimum-idle: 5
+      connection-timeout: 60000
+      connection-test-query: SELECT 1
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: true

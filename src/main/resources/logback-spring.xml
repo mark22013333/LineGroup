@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<configuration scan="true" scanPeriod="10 seconds" debug="false">
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+
+    <!-- 彩色日誌格式化輸出：%d表示日期，%thread表示執行緒名，%-5level：級別從左顯示5個字元寬度%msg：日誌訊息，%n是換行 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- } line:%4line){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+    <!-- 统一日誌格式 -->
+    <property name="COMMON_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"/>
+
+    <!-- 定義日誌檔案的儲存位置 -->
+    <property name="LOG_HOME" value="logs" />
+    <!--    <property name="LOG_HOME" value="/usr/tomcat/lineGroup" />-->
+
+    <!-- 控制台輸出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 按照每天產生日誌檔案 -->
+    <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日誌檔案輸出的檔名-->
+            <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd-HH-a}-JetBlog.log</FileNamePattern>
+            <!--日誌檔案保留天數-->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${COMMON_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!--日誌檔案最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- Info -->
+    <appender name="info_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--  <appender>true</appender> -->
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!-- 每天產生日誌檔案 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd-a}.info.log</fileNamePattern>
+            <!-- 日誌檔案保留15天 -->
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <!-- 格式化輸出 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${COMMON_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--debug  -->
+    <appender name="debug_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- <appender>true</appender> -->
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>debug</level>
+            <!--  <onMatch>ACCEPT</onMatch>
+             <onMismatch>DENY</onMismatch>  -->
+        </filter>
+        <!-- 每天產生日誌檔案 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd-a}.debug.log</fileNamePattern>
+            <!-- 日誌檔案保留15天 -->
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <!-- 格式化輸出 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${COMMON_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--    <appender name="info_async" class="ch.qos.logback.classic.AsyncAppender">
+           <discardingThreshold>3000</discardingThreshold>
+           <queueSize>10000</queueSize>
+           <appender-ref ref="info" />
+       </appender> -->
+
+    <!-- Show parameters for hibernate sql log -->
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder"  level="TRACE" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor"  level="DEBUG" />
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.engine.QueryParameters" level="DEBUG" />
+    <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />
+
+    <!-- Mybatis sql log configure -->
+    <logger name="com.apache.ibatis" level="TRACE"/>
+    <logger name="java.sql.Connection" level="DEBUG"/>
+    <logger name="java.sql.Statement" level="DEBUG"/>
+    <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+
+    <!-- 日誌輸出級別 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="info_log" />
+        <appender-ref ref="debug_log" />
+    </root>
+    <!--    日誌非同步到資料庫 -->
+    <!--    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
+    <!--    &lt;!&ndash;日誌非同步到資料庫 &ndash;&gt;-->
+    <!--    <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">-->
+    <!--    &lt;!&ndash;連線池 &ndash;&gt;-->
+    <!--    <dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource">-->
+    <!--    <driverClass>com.mysql.jdbc.Driver</driverClass>-->
+    <!--    <url>jdbc:mysql://127.0.0.1:3306/databaseName</url>-->
+    <!--    <user>root</user>-->
+    <!--    <password>root</password>-->
+    <!--    </dataSource>-->
+    <!--    </connectionSource>-->
+    <!--    </appender>-->
+
+</configuration>

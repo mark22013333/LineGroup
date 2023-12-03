@@ -1,5 +1,6 @@
 package com.cheng.linegroup.config;
 
+import com.cheng.linegroup.utils.JasyptUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -20,7 +21,7 @@ public class JasyptConfig {
         log.info("============== Jasypt StringEncryptor ==============");
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(System.getProperty("jasypt.encryptor.password"));
+        config.setPassword(JasyptUtils.KEY);
         config.setAlgorithm("PBEWITHMD5ANDDES");
         config.setKeyObtentionIterations("1000");
         config.setPoolSize("4");

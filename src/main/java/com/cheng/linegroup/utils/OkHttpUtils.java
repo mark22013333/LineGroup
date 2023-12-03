@@ -136,7 +136,7 @@ public class OkHttpUtils {
         return this;
     }
 
-    public OkHttpUtils addLinePushHeader(String token) {
+    public OkHttpUtils addLineAuthHeader(String token) {
         addHeader(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token));
         return this;
     }

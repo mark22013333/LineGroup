@@ -14,4 +14,5 @@ import org.springframework.context.annotation.Configuration;
 public class LineNotify {
     private String selfToken;
     private String apiDomain;
+    private String centralControlGroupToken;
 }

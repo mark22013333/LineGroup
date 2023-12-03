@@ -35,7 +35,7 @@ public class LineService {
             String encode = JacksonUtils.encode(lineMessage);
             ObjectNode jsonNodes = JacksonUtils.toObjectNode(encode);
 
-            ApiResponse apiResponse = OkHttpUtils.builder().addLinePushHeader(channelToken)
+            ApiResponse apiResponse = OkHttpUtils.builder().addLineAuthHeader(channelToken)
                     .addParam(jsonNodes)
                     .post(url).sync();
 

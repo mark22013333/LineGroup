@@ -13,6 +13,18 @@ public enum Api implements Uri {
 
     LINE_MESSAGE_PUSH("/bot/message/push"),
 
+    /**
+     * Get group chat summary
+     * param-1: groupId
+     */
+    LINE_GROUP_SUMMARY("bot/group/%s/summary"),
+
+    /**
+     * Get group chat member profile
+     * param-1: groupId
+     * param-2: userId
+     */
+    LINE_GROUP_MEMBER_PROFILE("bot/group/%s/member/%s"),
     ;
 
     private final String uri;

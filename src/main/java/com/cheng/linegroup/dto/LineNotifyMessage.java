@@ -12,6 +12,7 @@ import java.net.URL;
 @Data
 @Accessors(chain = true)
 public class LineNotifyMessage {
+    private String token;
     private String message;
     private URL imageUrl;
 

@@ -2,6 +2,7 @@ package com.cheng.linegroup.controller;
 
 import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.common.domain.Line;
+import com.cheng.linegroup.common.domain.LineNotify;
 import com.cheng.linegroup.dto.LineNotifyMessage;
 import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.service.LineService;
@@ -29,6 +30,7 @@ public class ApiTestController {
 
     private final Line line;
     private final LineService lineService;
+    private final LineNotify lineNotify;
     private final LineNotifyService lineNotifyService;
 
     @GetMapping("notify")
@@ -36,6 +38,7 @@ public class ApiTestController {
         log.info("test/notify");
         lineNotifyService.notifyMessage(
                 new LineNotifyMessage()
+                        .setToken(lineNotify.getSelfToken())
                         .setMessage("test notify")
                         .setImageUrl(new URL("https://s4.aconvert.com/convert/p3r68-cdx67/abfqv-0f59i.webp"))
         );

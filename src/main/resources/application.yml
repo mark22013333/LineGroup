@@ -24,4 +24,5 @@ line:
     channel-token: ENC(lxn6WeK+PE3/3gHf1Cn7HwwEnZ3+pEaYSgAXsP9d7+V31BAZYifzdW118l2ky5ihsIBb0+/zE7SbKDrrRY99n7MmjxzkGMQKbEd0P0tAy27jtZcmd616FF7ShKjyCg2DCSkeXSKlR+ubOfnNmo6JS2zTd9+i0186zH9rxRBfTsw5PBAeWOhZ/7U2/FD70YBFr/duLzb19EZf9Zh1PFJOR1ehvFr22BoytNRvLAaV1wuT7jx8FpaVmIyhit0tEMfh)
   notify:
     api-domain: https://notify-api.line.me
+    central-control-group-token: GoeKEgHE0U73ls9ZI4DulfMHeZTqeTOEqjSneF0DWme
     self-token: ENC(7BGyYLbr6mVUCqKWT23S4HGSFMec3IwsacUtFXxlzq6dxn3mV7h4iO0qALmWszxeGLmFyiqXEtwUfjUocG8Eng==)

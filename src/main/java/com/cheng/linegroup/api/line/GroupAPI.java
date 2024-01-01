@@ -43,7 +43,7 @@ public class GroupAPI {
         String resultData = apiResponse.getResultData();
         if (httpStatusCode == HttpStatus.OK.value()) {
             log.info("resultData:{}", resultData);
-            return JacksonUtils.decode(resultData, responseType);
+            return JacksonUtils.decodeFromJson(resultData, responseType);
         } else {
             throw BizException.error(httpStatusCode, resultData);
         }

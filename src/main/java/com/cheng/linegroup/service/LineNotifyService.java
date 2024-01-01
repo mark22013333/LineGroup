@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,14 +35,25 @@ public class LineNotifyService {
     @Async
     @LogApi(description = "通知中控群組")
     public void notifyCentralControlGroup(WebhookEvent event) {
-        WebhookEvent.Event e = event.getEvents().get(0);
+        List<WebhookEvent.Event> events = event.getEvents();
+        if (events.isEmpty()){
+            log.info("events:{}", events);
+            log.info("===> events is empty, skip");
+            return;
+        }
+        WebhookEvent.Event e = events.get(0);
         WebhookEvent.Event.Source source = e.getSource();
         String groupId = source.getGroupId();
         if (Objects.isNull(groupId)) {
             log.info("===> group is null, skip");
             return;
         }
-        String text = e.getMessage().getText();
+        WebhookEvent.Event.Message message = e.getMessage();
+        if (Objects.isNull(message)){
+            log.info("===> message is null, skip");
+            return;
+        }
+        String text = message.getText();
         String userId = source.getUserId();
         String groupToken = lineNotify.getCentralControlGroupToken();
 

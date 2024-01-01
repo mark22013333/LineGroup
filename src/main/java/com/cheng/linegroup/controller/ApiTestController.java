@@ -4,6 +4,7 @@ import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.common.domain.LineNotify;
 import com.cheng.linegroup.dto.LineNotifyMessage;
+import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.service.LineService;
 import com.cheng.linegroup.service.dto.LineMessage;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author cheng
@@ -32,6 +35,19 @@ public class ApiTestController {
     private final LineService lineService;
     private final LineNotify lineNotify;
     private final LineNotifyService lineNotifyService;
+
+    @GetMapping("member/ids")
+    public ResponseEntity<R> testMemberIds() {
+        String groupId = "Cb8f920d5c155f93d5a44464a5d46439b";
+        Set<String> groupAllMemberIds;
+        try {
+            groupAllMemberIds = lineService.getGroupAllMemberIds(groupId);
+        } catch (IOException e) {
+            throw BizException.error(e, e.getMessage());
+        }
+
+        return ResponseEntity.ok(R.success(groupAllMemberIds));
+    }
 
     @GetMapping("notify")
     public ResponseEntity<R> testNotify() throws MalformedURLException {

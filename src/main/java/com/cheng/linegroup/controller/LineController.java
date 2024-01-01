@@ -27,7 +27,7 @@ public class LineController {
     @PostMapping("webhook")
     public ResponseEntity<Object> webhook(@RequestBody String data) throws ExecutionException, InterruptedException {
         log.info("rawData = {}", data);
-        WebhookEvent event = JacksonUtils.decode(data, WebhookEvent.class);
+        WebhookEvent event = JacksonUtils.decodeFromJson(data, WebhookEvent.class);
         log.info("event:{}", event);
         Assert.notNull(event, "webhook event can not be null");
 

@@ -20,11 +20,25 @@ public enum Api implements Uri {
     LINE_GROUP_SUMMARY("bot/group/%s/summary"),
 
     /**
+     * <a href="https://developers.line.biz/en/reference/messaging-api/#get-group-member-profile">
      * Get group chat member profile
-     * param-1: groupId
+     * </a>
+     * <p>
+     * param-1: groupId<br>
      * param-2: userId
      */
     LINE_GROUP_MEMBER_PROFILE("bot/group/%s/member/%s"),
+
+    /**
+     * <a href="https://developers.line.biz/en/reference/messaging-api/#get-group-member-user-ids">
+     * Get group chat member user IDs
+     * </a>
+     * <p>
+     * param-1: groupId<br>
+     * param-2: nextToken<br>
+     * (A continuation token to get the next array of user IDs of the members in the group chat. Returned only when there are remaining user IDs that were not returned in memberIds in the original request.)
+     */
+    LINE_GROUP_MEMBER_IDS("bot/group/%s/members/ids"),
     ;
 
     private final String uri;

@@ -39,7 +39,7 @@ public class JacksonUtils {
     /**
      * 序列化
      */
-    public static <T> String encode(T obj) {
+    public static <T> String encodeToJson(T obj) {
         if (Objects.isNull(obj)) {
             return null;
         }
@@ -54,7 +54,7 @@ public class JacksonUtils {
     /**
      * 反序列化
      */
-    public static <T> T decode(String json, Class<T> valueType) {
+    public static <T> T decodeFromJson(String json, Class<T> valueType) {
         if (!StringUtils.isBlank(json) && !Objects.isNull(valueType)) {
             try {
                 return MAPPER.readValue(json, valueType);
@@ -70,6 +70,18 @@ public class JacksonUtils {
     }
 
     /**
+     * 將任何 Java 物件轉換為 Jackson 的 JsonNode。
+     * 此方法使用 ObjectMapper 的 valueToTree 方法來將物件轉換成 JsonNode。
+     *
+     * @param <T> 輸入物件的類型。
+     * @param obj 要轉換成 JsonNode 的物件。可以是任何自訂或內建類型。
+     * @return 轉換後的 JsonNode 。
+     */
+    public static <T> JsonNode toNode(T obj) {
+        return MAPPER.valueToTree(obj);
+    }
+
+    /**
      * 將 JSON 陣列字串轉換成指定類型的物件列表。
      *
      * @param jsonArray JSON 陣列字串
@@ -80,6 +92,13 @@ public class JacksonUtils {
     public static <T> List<T> convertJsonArrayToList(String jsonArray, Class<T> clazz) throws IOException {
         JavaType type = MAPPER.getTypeFactory().constructCollectionType(List.class, clazz);
         return MAPPER.readValue(jsonArray, type);
+    }
+
+    /**
+     * 反序列化成ObjectNode
+     */
+    public static ObjectNode decodeObject(String json) throws IOException {
+        return (ObjectNode) MAPPER.readTree(json);
     }
 
     /**
@@ -120,7 +139,7 @@ public class JacksonUtils {
     }
 
     public static Map<String, String> toMap(String json) {
-        return decode(json, Map.class);
+        return decodeFromJson(json, Map.class);
     }
 
     public static ObjectNode genJsonObject() {

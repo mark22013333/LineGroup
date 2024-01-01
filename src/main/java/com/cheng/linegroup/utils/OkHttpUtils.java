@@ -185,11 +185,13 @@ public class OkHttpUtils {
             Map<String, String> paramMap = JacksonUtils.toMap(JacksonUtils.toJsonString(paramObj));
             if (MapUtils.isNotEmpty(paramMap)) {
                 paramMap.forEach((k, v) -> {
-                    log.info("===>[FormBody] key:{}, value:{}", k, v);
+                    log.info("key:{}, value:{}", k, v);
                     Optional.ofNullable(v).ifPresent(val -> formBody.add(k, val));
                 });
             }
-            requestBody = formBody.build();
+            FormBody fb = formBody.build();
+            requestBody = fb;
+            log.info("===>[FormBody]:{}", fb);
         }
         request = new Request.Builder().post(requestBody).url(url);
         return this;

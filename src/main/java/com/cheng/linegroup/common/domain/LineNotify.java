@@ -12,7 +12,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "line.notify")
 public class LineNotify {
+    private String clientId;
+    private String clientSecret;
     private String selfToken;
     private String apiDomain;
+    private String oauthDomain;
     private String centralControlGroupToken;
+    private String callbackDomain;
 }

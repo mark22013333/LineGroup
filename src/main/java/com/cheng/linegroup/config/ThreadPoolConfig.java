@@ -17,6 +17,7 @@ public class ThreadPoolConfig {
 
     private static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
     private static final int MAX_POOL_SIZE = Math.max(CORE_POOL_SIZE * 4, 256);
+
     // 執行緒空閒時間 (單位:秒)
     private static final int KEEP_ALIVE_TIME = 10;
     private static final int QUEUE_CAPACITY = 1000;

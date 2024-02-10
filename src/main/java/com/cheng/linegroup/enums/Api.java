@@ -11,6 +11,15 @@ public enum Api implements Uri {
 
     LINE_NOTIFY_PUSH("/api/notify"),
 
+    /**
+     * OAuth2 authorization endpoint URI
+     */
+    LINE_NOTIFY_OAUTH("/oauth/authorize"),
+
+    LINE_NOTIFY_TOKEN("/oauth/token"),
+
+    LINE_NOTIFY_CALLBACK("/notify/authCode"),
+
     LINE_MESSAGE_PUSH("/bot/message/push"),
 
     /**

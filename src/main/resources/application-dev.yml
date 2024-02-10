@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(/TncNBrXq2qstTx5EI16YRDPOkPj4I2acfEgwS96hI8G8bwKoTPpdcp1PsLVEwXXPAzfPjb2nhK/gAXMbPF48Tc79Y6cag7gv6nj1/c9yRcC4oAKTNe4rhH7LIvHt+OhrxSJVnpfkrVGLaQcCmibUTWygmMjKD0pJehr7tVZIEqjc0olbWd6QUK74WOYYVLBcnwqjYrfilW/S2t9Ycxt8lL2wYEa7IQX+lHjKyilaJIOO8ehwWv91VAKDC8xdny9UZpD0B/XscU=)
+    url: ENC(kXOCZnrnuYR8imQuBCKygbD9ltnQeS2RKWnK18X0KwlthntIqKX/x1YLhYXHwhH7MuJKg6kRpElpRekUlmkFASfLeZiLft1hkVgWaVcomxesCqvaIiq7ZdgtfkGErF7t0js0bTY8vqSxwU04gLfzjLz39a2o81e/zdds8CdIR0gMD4GZ01illlkA0DOX7O52k3eFjTgKgJx/zmc3PrZaIMOdpA8lQLOCdn0YVcaKETA=)
     username: ENC(7+G7M9ghLZhhvvWjBY3x6HkXBOZ24F4btKi/vOZjid8=)
     password: ENC(BI/xcH2NcCBYakJapCYiG8ADcAIAJ7Xe)
     hikari:

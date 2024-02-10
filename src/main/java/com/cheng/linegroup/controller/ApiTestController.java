@@ -36,6 +36,12 @@ public class ApiTestController {
     private final LineNotify lineNotify;
     private final LineNotifyService lineNotifyService;
 
+    @GetMapping("oauth")
+    public ResponseEntity<R> oauth(){
+        lineNotifyService.notifyOauth();
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("member/ids")
     public ResponseEntity<R> testMemberIds() {
         String groupId = "Cb8f920d5c155f93d5a44464a5d46439b";

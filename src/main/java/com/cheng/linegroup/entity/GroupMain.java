@@ -25,17 +25,15 @@ public class GroupMain {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(100)")
+    @Column(columnDefinition = "VARCHAR(100)")
     private String name;
 
-    @Column(
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
             insertable = false,
             updatable = false)
     private LocalDateTime createTime;
 
-    @Column(
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
             insertable = false)
     @LastModifiedDate
     private LocalDateTime modifyTime;

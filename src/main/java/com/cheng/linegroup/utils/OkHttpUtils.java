@@ -45,6 +45,7 @@ public class OkHttpUtils {
     private static volatile OkHttpClient okHttpClient = null;
     private static volatile Semaphore semaphore = null;
     private Map<String, String> headerMap;
+    private Map<String, String> paramMap;
     private ObjectNode paramObj;
     private Request.Builder request;
 
@@ -124,6 +125,11 @@ public class OkHttpUtils {
         return this;
     }
 
+    public OkHttpUtils addParam(Map<String, String> params) {
+        paramMap = Optional.ofNullable(params).orElse(new HashMap<>(10));
+        return this;
+    }
+
     public OkHttpUtils addHeader(String key, String value) {
         headerMap = Optional.ofNullable(headerMap).orElse(new HashMap<>(10));
         headerMap.put(key, value);
@@ -150,7 +156,12 @@ public class OkHttpUtils {
 
     public String combinedUrlParams(String url) {
         request = new Request.Builder().get();
-        Map<String, String> map = JacksonUtils.toMap(JacksonUtils.toJsonString(paramObj));
+        Map<String, String> map;
+        if (paramMap == null || paramMap.isEmpty()) {
+            map = JacksonUtils.toMap(JacksonUtils.toJsonString(paramObj));
+        } else {
+            map = paramMap;
+        }
         String encodingParams = ApiUtils.encodingParams(map);
         encodingParams = (StringUtils.isBlank(encodingParams) ? "" : "?") + encodingParams;
         return String.format("%s%s", url, encodingParams);
@@ -182,9 +193,14 @@ public class OkHttpUtils {
             requestBody = RequestBody.create(json, mediaType);
         } else {
             FormBody.Builder formBody = new FormBody.Builder();
-            Map<String, String> paramMap = JacksonUtils.toMap(JacksonUtils.toJsonString(paramObj));
-            if (MapUtils.isNotEmpty(paramMap)) {
-                paramMap.forEach((k, v) -> {
+            Map<String, String> params;
+            if (paramMap == null || paramMap.isEmpty()) {
+                params = JacksonUtils.toMap(JacksonUtils.toJsonString(paramObj));
+            } else {
+                params = paramMap;
+            }
+            if (MapUtils.isNotEmpty(params)) {
+                params.forEach((k, v) -> {
                     log.info("key:{}, value:{}", k, v);
                     Optional.ofNullable(v).ifPresent(val -> formBody.add(k, val));
                 });

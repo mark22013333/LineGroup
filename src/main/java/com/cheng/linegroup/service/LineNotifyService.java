@@ -5,6 +5,8 @@ import com.cheng.linegroup.api.line.GroupAPI;
 import com.cheng.linegroup.api.response.LineGroupResponse;
 import com.cheng.linegroup.common.domain.LineNotify;
 import com.cheng.linegroup.dto.LineNotifyMessage;
+import com.cheng.linegroup.dto.LineNotifyOauth;
+import com.cheng.linegroup.dto.LineNotifyToken;
 import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.utils.ApiUtils;
@@ -18,6 +20,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -36,7 +39,7 @@ public class LineNotifyService {
     @LogApi(description = "通知中控群組")
     public void notifyCentralControlGroup(WebhookEvent event) {
         List<WebhookEvent.Event> events = event.getEvents();
-        if (events.isEmpty()){
+        if (events.isEmpty()) {
             log.info("events:{}", events);
             log.info("===> events is empty, skip");
             return;
@@ -49,7 +52,7 @@ public class LineNotifyService {
             return;
         }
         WebhookEvent.Event.Message message = e.getMessage();
-        if (Objects.isNull(message)){
+        if (Objects.isNull(message)) {
             log.info("===> message is null, skip");
             return;
         }
@@ -85,6 +88,49 @@ public class LineNotifyService {
                 .addParam(params)
                 .post(url, false)
                 .sync();
+    }
+
+    public void notifyOauth() {
+        String oauthUrl = ApiUtils.getUrl(lineNotify.getOauthDomain(), Api.LINE_NOTIFY_OAUTH);
+        log.info("oauthUrl:{}", oauthUrl);
+
+        String redirectUrl = ApiUtils.getUrl(lineNotify.getCallbackDomain(), Api.LINE_NOTIFY_CALLBACK);
+        log.info("redirectUrl:{}", redirectUrl);
+
+        Map<String, String> params = Map.of(
+                "response_type", "code",
+                "client_id", lineNotify.getClientId(),
+                "redirect_uri", redirectUrl,
+                "state", "123456",
+                "scope", "notify",
+                "response_mode", "form_post"
+        );
+
+        OkHttpUtils.builder().addParam(params).get(oauthUrl).sync();
+    }
+
+    public String notifyToken(LineNotifyOauth oauth) {
+        String tokenUrl = ApiUtils.getUrl(lineNotify.getOauthDomain(), Api.LINE_NOTIFY_TOKEN);
+        String redirectUrl = ApiUtils.getUrl(lineNotify.getCallbackDomain(), Api.LINE_NOTIFY_CALLBACK);
+        String clientId = lineNotify.getClientId();
+        String clientSecret = lineNotify.getClientSecret();
+        Map<String, String> params = Map.of(
+                "grant_type", "authorization_code",
+                "code", oauth.getCode(),
+                "redirect_uri", redirectUrl,
+                "client_id", clientId,
+                "client_secret", clientSecret
+        );
+
+        log.info("tokenUrl:{}", tokenUrl);
+
+        String resultData = OkHttpUtils.builder().addParam(params).post(tokenUrl, false).sync().getResultData();
+
+        LineNotifyToken lineNotifyToken = JacksonUtils.decodeFromJson(resultData, LineNotifyToken.class);
+        log.info("lineNotifyToken:{}", lineNotifyToken);
+
+        assert lineNotifyToken != null;
+        return lineNotifyToken.getAccessToken();
     }
 
 }

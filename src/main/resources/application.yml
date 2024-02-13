@@ -13,6 +13,9 @@ logging:
   config: classpath:logback-spring.xml
 
 line:
+  header:
+    signature: x-line-signature
+    request-id: x-line-request-id
   api-domain: https://api.line.me/v2
   login:
     channel-id: ENC(gTTUHkjCwHfTIjTM1oHTJPLtS2kcTmKzPI4Gsjpcphk=)
@@ -29,4 +32,4 @@ line:
     oauth-domain: https://notify-bot.line.me
     central-control-group-token: 8GVaqQS4AcIrSccW3qfNuWbqFpZ53DqDTQGeWOnEltO
     self-token: ENC(7BGyYLbr6mVUCqKWT23S4HGSFMec3IwsacUtFXxlzq6dxn3mV7h4iO0qALmWszxeGLmFyiqXEtwUfjUocG8Eng==)
-    callback-domain: https://19b8-1-34-8-160.ngrok-free.app
+    callback-domain: https://325d-1-34-8-160.ngrok-free.app

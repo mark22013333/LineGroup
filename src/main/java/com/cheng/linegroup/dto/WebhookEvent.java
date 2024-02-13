@@ -46,6 +46,10 @@ public class WebhookEvent {
             private String packageId;
             private String stickerResourceType;
             private List<String> keywords;
+            // 位置訊息專有屬性
+            private Double latitude;
+            private Double longitude;
+            private String address;
         }
     }
 }

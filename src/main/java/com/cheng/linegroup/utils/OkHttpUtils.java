@@ -1,6 +1,6 @@
 package com.cheng.linegroup.utils;
 
-import com.cheng.linegroup.enums.LineHeader;
+import com.cheng.linegroup.common.domain.LineHeader;
 import com.cheng.linegroup.utils.dto.ApiResponse;
 import com.cheng.linegroup.utils.dto.IpProxy;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,8 +13,10 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -42,12 +44,21 @@ public class OkHttpUtils {
 
     public static final String CHARSET_BIG5 = "Big5";
 
+    private String requestIdHeader = SpringUtils.getBean(LineHeader.class).getRequestId();
     private static volatile OkHttpClient okHttpClient = null;
     private static volatile Semaphore semaphore = null;
     private Map<String, String> headerMap;
     private Map<String, String> paramMap;
     private ObjectNode paramObj;
     private Request.Builder request;
+
+    private static class LazyHolder {
+        static final OkHttpUtils INSTANCE = new OkHttpUtils();
+    }
+
+    public static OkHttpUtils getInstance() {
+        return LazyHolder.INSTANCE;
+    }
 
     private OkHttpUtils() {
         init(null);
@@ -103,7 +114,7 @@ public class OkHttpUtils {
      * 若要使用代理IP需要使用{@link OkHttpUtils#builder(IpProxy)}
      */
     public static OkHttpUtils builder() {
-        return new OkHttpUtils();
+        return getInstance();
     }
 
     public static OkHttpUtils builder(IpProxy ipProxy) {
@@ -238,7 +249,7 @@ public class OkHttpUtils {
         setHeader(request);
         try (Response response = okHttpClient.newCall(request.build()).execute()) {
             int code = response.code();
-            String lineRequestId = response.header(LineHeader.LINE_REQUEST_ID.getName());
+            String lineRequestId = response.header(requestIdHeader);
             String data = Objects.requireNonNull(response.body()).string();
             ApiResponse apiResponse = ApiResponse.builder()
                     .httpStatusCode(code)

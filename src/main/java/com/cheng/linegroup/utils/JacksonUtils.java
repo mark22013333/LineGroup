@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,11 +60,8 @@ public class JacksonUtils {
             try {
                 return MAPPER.readValue(json, valueType);
             } catch (Exception e) {
-                log.error(
-                        "json decode fail,jsonString={}, type={}, ERR={}",
-                        json,
-                        valueType.getName(),
-                        ExceptionUtils.getStackTrace(e));
+                log.error("json decode fail,jsonString={}, type={}, ERR={}",
+                        json, valueType.getName(), ExceptionUtils.getStackTrace(e));
             }
         }
         return null;
@@ -117,7 +115,7 @@ public class JacksonUtils {
             }
         }
         log.warn("####=> decode FAIL. return null");
-        return null;
+        return Collections.emptyList();
     }
 
 
@@ -131,9 +129,7 @@ public class JacksonUtils {
             return MAPPER.readValue(json, clazz);
         } catch (Exception e) {
             log.error("json map2object fail, map={}, ClassName={}, ERR={}",
-                    json,
-                    clazz.getName(),
-                    ExceptionUtils.getStackTrace(e));
+                    json, clazz.getName(), ExceptionUtils.getStackTrace(e));
             return null;
         }
     }

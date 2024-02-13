@@ -5,6 +5,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.beans.PropertyDescriptor;
@@ -29,6 +30,10 @@ public class SpringUtils implements ApplicationContextAware {
 
     public static <T> T getBean(Class<T> tClass) {
         return applicationContext.getBean(tClass);
+    }
+
+    public static ThreadPoolTaskExecutor getThreadPoolTaskExecutor(String beanName) {
+        return applicationContext.getBean(beanName, ThreadPoolTaskExecutor.class);
     }
 
     public static String[] getNullPropertyNames(Object source) {

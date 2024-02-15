@@ -2,39 +2,29 @@ package com.cheng.linegroup.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 
 /**
  * @author cheng
  * @since 2023/12/3 12:22 AM
  **/
+@Data
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class GroupMain {
+@Table(indexes = {
+        @Index(name = "idx_gid", columnList = "gid", unique = true)
+})
+public class GroupMain extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(columnDefinition = "VARCHAR(50)")
+    private String gid;
 
-    @Column(columnDefinition = "VARCHAR(100)")
+    @Column(columnDefinition = "VARCHAR(200)")
     private String name;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            insertable = false,
-            updatable = false)
-    private LocalDateTime createTime;
+    @Column(columnDefinition = "BIT")
+    private boolean isExist;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
-            insertable = false)
-    @LastModifiedDate
-    private LocalDateTime modifyTime;
 }

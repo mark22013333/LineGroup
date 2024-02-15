@@ -1,5 +1,7 @@
 package com.cheng.linegroup.service;
 
+import com.cheng.linegroup.api.line.GroupAPI;
+import com.cheng.linegroup.api.response.LineGroupResponse;
 import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.enums.ApiResult;
@@ -30,6 +32,7 @@ import java.util.Set;
 public class LineService {
 
     private final Line line;
+    private final GroupAPI groupAPI;
 
     public void pushMessage(LineMessage lineMessage) {
         String channelToken = line.getMessage().getChannelToken();
@@ -58,6 +61,10 @@ public class LineService {
 
     }
 
+    public String getGroupName(String gid) {
+        LineGroupResponse groupChatSummary = groupAPI.getGroupChatSummary(gid, LineGroupResponse.class);
+        return groupChatSummary.getGroupName();
+    }
 
     /**
      * <b>此 API 僅能讓已驗證的 OA 使用</b>

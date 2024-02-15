@@ -22,10 +22,10 @@ public class MessageStrategyManager {
         this.strategies = strategies;
     }
 
-    public void handle(WebhookEvent.Event.Message message) {
+    public void handle(WebhookEvent.Event event) {
         for (MessageStrategy strategy : strategies) {
-            if (strategy.canHandle(message)) {
-                strategy.handle(message);
+            if (strategy.canHandle(event.getMessage())) {
+                strategy.handle(event);
                 break;
             }
         }

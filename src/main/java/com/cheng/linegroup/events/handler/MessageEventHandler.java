@@ -22,7 +22,7 @@ public class MessageEventHandler implements EventHandler {
     @Override
     public void handle(WebhookEvent.Event e) {
         log.info("MessageEventHandler");
-        messageStrategyManager.handle(e.getMessage());
+        messageStrategyManager.handle(e);
     }
 
     @Override

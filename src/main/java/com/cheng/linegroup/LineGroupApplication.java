@@ -10,11 +10,13 @@ import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.net.InetAddress;
 
 @Slf4j
 @SpringBootApplication
+@EnableJpaAuditing
 @EnableEncryptableProperties
 public class LineGroupApplication implements ApplicationListener<WebServerInitializedEvent> {
 

@@ -22,6 +22,8 @@ public enum Api implements Uri {
 
     LINE_MESSAGE_PUSH("/bot/message/push"),
 
+    LINE_GET_USER_PROFILE("/profile"),
+
     /**
      * Get group chat summary
      * param-1: groupId

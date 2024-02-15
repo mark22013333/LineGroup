@@ -19,7 +19,7 @@ public class ImageMessageStrategy implements MessageStrategy {
     }
 
     @Override
-    public boolean handle(WebhookEvent.Event.Message msg) {
+    public boolean handle(WebhookEvent.Event event) {
         log.info("Image handle");
         return false;
     }

@@ -34,11 +34,11 @@ public class LineService {
     private final Line line;
     private final GroupAPI groupAPI;
 
-    public void pushMessage(LineMessage lineMessage) {
+    public void CallMessageAPI(LineMessage lineMessage, Api api) {
         String channelToken = line.getMessage().getChannelToken();
 
         try {
-            String url = ApiUtils.getUrl(line.getApiDomain(), Api.LINE_MESSAGE_PUSH);
+            String url = ApiUtils.getUrl(line.getApiDomain(), api);
             String encode = JacksonUtils.encodeToJson(lineMessage);
             ObjectNode jsonNodes = JacksonUtils.toObjectNode(encode);
 

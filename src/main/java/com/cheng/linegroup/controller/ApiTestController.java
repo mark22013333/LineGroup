@@ -4,6 +4,7 @@ import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.common.domain.LineNotify;
 import com.cheng.linegroup.dto.LineNotifyMessage;
+import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.service.LineService;
@@ -84,7 +85,7 @@ public class ApiTestController {
                 ))
                 .build();
 
-        lineService.pushMessage(lineMessage);
+        lineService.CallMessageAPI(lineMessage, Api.LINE_MESSAGE_PUSH);
         return ResponseEntity.ok(R.success());
     }
 }

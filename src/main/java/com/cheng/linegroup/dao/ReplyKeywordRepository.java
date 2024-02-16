@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReplyKeywordRepository extends JpaRepository<ReplyKeyword, Integer> {
 
-    ReplyKeyword getReplyKeywordByKeyword(String keyword);
+    ReplyKeyword getReplyKeywordByKeywordAndUidAndGid(String keyword, String uid, String gid);
 
 }

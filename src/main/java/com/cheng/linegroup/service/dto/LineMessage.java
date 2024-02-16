@@ -18,6 +18,7 @@ public class LineMessage {
 
     @JsonProperty("to")
     private String uid;
+    private String replyToken;
     private List<Message> messages;
     private List<String> customAggregationUnits;
 

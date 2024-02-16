@@ -22,6 +22,8 @@ public enum Api implements Uri {
 
     LINE_MESSAGE_PUSH("/bot/message/push"),
 
+    LINE_MESSAGE_REPLY("/bot/message/reply"),
+
     LINE_GET_USER_PROFILE("/profile"),
 
     /**

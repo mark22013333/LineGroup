@@ -18,7 +18,11 @@ public class ReplyKeywordService {
     private final ReplyKeywordRepository replyKeywordRepository;
 
     public ReplyKeyword getReplyKeywordByKeywordAndUidAndGid(String keyword, String uid, String gid) {
-        gid = gid == null ? "personal" : gid;
+        if (gid != null) {
+            return replyKeywordRepository.getReplyKeywordByKeyword(keyword);
+        } else {
+            gid = "personal";
+        }
         return replyKeywordRepository.getReplyKeywordByKeywordAndUidAndGid(keyword, uid, gid);
     }
 

@@ -13,4 +13,5 @@ public interface ReplyKeywordRepository extends JpaRepository<ReplyKeyword, Inte
 
     ReplyKeyword getReplyKeywordByKeywordAndUidAndGid(String keyword, String uid, String gid);
 
+    ReplyKeyword getReplyKeywordByKeyword(String keyword);
 }

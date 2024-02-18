@@ -1,10 +1,12 @@
 server:
   port: 8080
   servlet:
-    context-path: /
+    context-path: /TangDong
 spring:
   thymeleaf:
     mode: HTML
+  config:
+    import: line-config.yml
   profiles:
     active: dev
   messages:
@@ -12,24 +14,3 @@ spring:
 logging:
   config: classpath:logback-spring.xml
 
-line:
-  header:
-    signature: x-line-signature
-    request-id: x-line-request-id
-  api-domain: https://api.line.me/v2
-  login:
-    channel-id: ENC(gTTUHkjCwHfTIjTM1oHTJPLtS2kcTmKzPI4Gsjpcphk=)
-    channel-secret: ENC(taGyrEW1LFQy9NkrkE0P7ISsJojjgU31Mt55uIdu72tywJU07vSrBGjhZkn6EMdZwCrx/jXuU/U=)
-  message:
-    self-uid: U418d31259be6c881f451e9e6cbfb2045
-    channel-id: ENC(KbhFPKrGW+akycxkiwGJX726eoYLQLyaTFrUBvUf2Zc=)
-    channel-secret: ENC(vfvrcW9il2DJgGsmWXRbA8beK4HfGvC3wPLab2CfGkwGEx2iBsVwgQuof1mEPk7O0ibH3dSRCAE=)
-    channel-token: ENC(PnFlQcI2BrsC+JDl8QlkDVIoFdXQL58r+od65/RpQ2VIORR/9HgRbbc6rkTNcR94wFsNAZ+f0BTfB2fvGv8VWYpuIxp3M/zjCU4s/TqJXbvGfd6tmV7D2pQQ07O3oSfZ8gVljaEn/e0KYCPHgUMtCsms1JweBlVrIGq1fIfglcNFJ2iEP5SnK9y/0T9Bbkq2Wbte+mTI+CNgnOj+nnT48Ohm5fq+8QlWSsMauqrdyqibI8jU6mJfgTt6NxF3Plyb)
-  notify:
-    client-id: Vpk9dSKkUorPf5IGgf751K
-    client-secret: M8HXMmicoDRl92jAE0bJCDlUvI7gLOnhPilzP6LcALo
-    api-domain: https://notify-api.line.me
-    oauth-domain: https://notify-bot.line.me
-    central-control-group-token: 8GVaqQS4AcIrSccW3qfNuWbqFpZ53DqDTQGeWOnEltO
-    self-token: ENC(7BGyYLbr6mVUCqKWT23S4HGSFMec3IwsacUtFXxlzq6dxn3mV7h4iO0qALmWszxeGLmFyiqXEtwUfjUocG8Eng==)
-    callback-domain: https://85d2-1-34-8-160.ngrok-free.app

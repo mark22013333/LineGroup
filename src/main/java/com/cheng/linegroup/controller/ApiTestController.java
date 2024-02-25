@@ -1,5 +1,6 @@
 package com.cheng.linegroup.controller;
 
+import com.cheng.linegroup.api.response.MessageContentResponse;
 import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.common.domain.LineNotify;
@@ -9,14 +10,19 @@ import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.service.LineService;
 import com.cheng.linegroup.service.dto.LineMessage;
+import com.cheng.linegroup.utils.JacksonUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -87,5 +93,31 @@ public class ApiTestController {
 
         lineService.CallMessageAPI(lineMessage, Api.LINE_MESSAGE_PUSH);
         return ResponseEntity.ok(R.success());
+    }
+
+    @GetMapping("msg/content/{messageId}")
+    public void testMsgContent(@PathVariable String messageId, HttpServletResponse response) {
+        log.info("test/msg/content/{}", messageId);
+        MessageContentResponse result = lineService.getMessageContent(messageId);
+
+        if (result.getContentType() == null) {
+            response.setContentType("application/json");
+            try (PrintWriter writer = response.getWriter()) {
+                String jsonResponse = JacksonUtils.encodeToJson(result);
+                writer.write(jsonResponse);
+                writer.flush();
+            } catch (IOException e) {
+                throw new RuntimeException("Error writing JSON response", e);
+            }
+        } else {
+            response.setContentType(result.getContentType());
+            response.setContentLength(result.getBinaryData().length);
+            try (OutputStream out = response.getOutputStream()) {
+                out.write(result.getBinaryData());
+                out.flush();
+            } catch (IOException e) {
+                throw new RuntimeException("Error writing binary response", e);
+            }
+        }
     }
 }

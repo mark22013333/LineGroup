@@ -1,7 +1,9 @@
 package com.cheng.linegroup.service;
 
 import com.cheng.linegroup.api.line.GroupAPI;
+import com.cheng.linegroup.api.line.MessageContentAPI;
 import com.cheng.linegroup.api.response.LineGroupResponse;
+import com.cheng.linegroup.api.response.MessageContentResponse;
 import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.enums.ApiResult;
@@ -33,6 +35,7 @@ public class LineService {
 
     private final Line line;
     private final GroupAPI groupAPI;
+    private final MessageContentAPI messageContentAPI;
 
     public void CallMessageAPI(LineMessage lineMessage, Api api) {
         String channelToken = line.getMessage().getChannelToken();
@@ -110,5 +113,9 @@ public class LineService {
 
     public Set<String> getGroupAllMemberIds(String groupId) throws IOException {
         return getGroupMemberIds(groupId, null, new HashSet<>(), 0);
+    }
+
+    public MessageContentResponse getMessageContent(String messageId) {
+        return messageContentAPI.getMessageContent(messageId, MessageContentResponse.class);
     }
 }

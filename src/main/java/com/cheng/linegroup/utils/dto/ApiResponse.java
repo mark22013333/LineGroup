@@ -27,12 +27,14 @@ public class ApiResponse {
     private JsonNode previewData;
     // Apache Commons CSV
     private List<CSVRecord> csvRecords;
+    private String contentType;
+    private byte[] binaryData;
 
     public ApiResponse preview() throws IOException {
         return this.setPreviewData(JacksonUtils.toJsonNode(this.getResultData()));
     }
 
-    public static ApiResponse empty(){
+    public static ApiResponse empty() {
         return ApiResponse.builder().build();
     }
 

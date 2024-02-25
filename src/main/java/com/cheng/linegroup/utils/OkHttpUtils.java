@@ -13,10 +13,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;

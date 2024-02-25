@@ -39,8 +39,7 @@ public class LineService {
 
         try {
             String url = ApiUtils.getUrl(line.getApiDomain(), api);
-            String encode = JacksonUtils.encodeToJson(lineMessage);
-            ObjectNode jsonNodes = JacksonUtils.toObjectNode(encode);
+            ObjectNode jsonNodes = JacksonUtils.toNode(lineMessage);
 
             ApiResponse apiResponse = OkHttpUtils.builder().addLineAuthHeader(channelToken)
                     .addParam(jsonNodes)

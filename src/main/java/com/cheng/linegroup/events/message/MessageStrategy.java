@@ -7,7 +7,8 @@ import com.cheng.linegroup.dto.WebhookEvent;
  * @since 2024/2/11 20:07
  **/
 public interface MessageStrategy {
-    boolean canHandle(WebhookEvent.Event.Message msg);
-    boolean handle(WebhookEvent.Event event);
 
+    boolean canHandle(WebhookEvent.Event.Message msg);
+
+    boolean handle(WebhookEvent.Event event);
 }

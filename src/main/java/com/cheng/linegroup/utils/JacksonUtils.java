@@ -75,7 +75,7 @@ public class JacksonUtils {
      * @param obj 要轉換成 JsonNode 的物件。可以是任何自訂或內建類型。
      * @return 轉換後的 JsonNode 。
      */
-    public static <T> JsonNode toNode(T obj) {
+    public static <T> ObjectNode toNode(T obj) {
         return MAPPER.valueToTree(obj);
     }
 

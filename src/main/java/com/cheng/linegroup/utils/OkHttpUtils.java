@@ -246,14 +246,29 @@ public class OkHttpUtils {
     public ApiResponse sync() {
         setHeader(request);
         try (Response response = okHttpClient.newCall(request.build()).execute()) {
+
             int code = response.code();
             String lineRequestId = response.header(requestIdHeader);
-            String data = Objects.requireNonNull(response.body()).string();
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .httpStatusCode(code)
-                    .lineRequestId(lineRequestId)
-                    .resultData(data)
-                    .build();
+            String contentType = response.header("Content-Type");
+
+            ApiResponse apiResponse;
+            if ("application/json".equals(contentType)) {
+                String data = Objects.requireNonNull(response.body()).string();
+                apiResponse = ApiResponse.builder()
+                        .httpStatusCode(code)
+                        .lineRequestId(lineRequestId)
+                        .resultData(data)
+                        .contentType(contentType)
+                        .build();
+            } else {
+                byte[] data = Objects.requireNonNull(response.body()).bytes();
+                apiResponse = ApiResponse.builder()
+                        .httpStatusCode(code)
+                        .lineRequestId(lineRequestId)
+                        .contentType(contentType)
+                        .binaryData(data)
+                        .build();
+            }
             int httpStatusCode = apiResponse.getHttpStatusCode();
             if (httpStatusCode != HttpStatus.OK.value()) {
                 log.info("===> API httpStatusCode:{} Response:{}", httpStatusCode, apiResponse);

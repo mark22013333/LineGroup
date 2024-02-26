@@ -9,24 +9,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * @author cheng
- * @since 2024/2/12 00:17
- **/
+ * @author Vincent Ta
+ * @since 2024/2/25
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ImageMessageStrategy implements MessageStrategy {
+public class AudioMessageStrategy implements MessageStrategy {
 
     private final MessageEventRecordService messageEventRecordService;
 
     @Override
     public boolean canHandle(WebhookEvent.Event.Message msg) {
-        return MessageType.IMAGE.name().equalsIgnoreCase(msg.getType());
+        return MessageType.AUDIO.name().equalsIgnoreCase(msg.getType());
     }
 
     @Override
     public boolean handle(WebhookEvent.Event event) {
-        log.info("Image handle");
+        log.info("Audio handle");
         MessageEventRecord messageEventRecord = MessageEventRecord.builder()
                 .messageId(event.getMessage().getId())
                 .messageType(event.getMessage().getType())

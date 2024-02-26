@@ -3,6 +3,7 @@ line:
     signature: x-line-signature
     request-id: x-line-request-id
   api-domain: https://api.line.me/v2
+  api-data-domain: https://api-data.line.me/v2
   login:
     channel-id: ENC(gTTUHkjCwHfTIjTM1oHTJPLtS2kcTmKzPI4Gsjpcphk=)
     channel-secret: ENC(taGyrEW1LFQy9NkrkE0P7ISsJojjgU31Mt55uIdu72tywJU07vSrBGjhZkn6EMdZwCrx/jXuU/U=)

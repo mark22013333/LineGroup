@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "line")
 public class Line {
     private String apiDomain;
+    private String apiDataDomain;
     private Login login;
     private Message message;
 

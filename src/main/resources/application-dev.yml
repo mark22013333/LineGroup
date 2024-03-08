@@ -20,3 +20,29 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
     open-in-view: true
+  data:
+    redis:
+      database: 1
+      host: ENC(V+gsQ5//ZpSKWOyIl1rHcMVRU+rRf6Ts/7rjifnvKqMxtyrOBjdD/w==)
+      port: ENC(96Yv1gtb5/tqCPWGisYsHALL8uMEZuiL)
+      password: ENC(ZzNA24hVjFBka6oNEk5FVVQ5rpsYgxb5)
+      timeout: 10s
+      lettuce:
+        pool:
+          # 連線池最大連線數 預設:8 (負數表示沒有限制)
+          max-active: 8
+          # 連線池最大阻塞等待時間 (使用負值表示沒有限制) 預設:-1
+          max-wait: -1
+          # 連線池中的最大空閒連線 預設:8
+          max-idle: 8
+          # 連線池中的最小空閒連線 預設:0
+          min-idle: 0
+  cache:
+    enabled: false
+    # 快取類型 redis、none (不使用快取)
+    type: redis
+    # 快取時間 (單位:ms)
+    redis:
+      time-to-live: 3600000
+      # 快取null值，防止快取穿透
+      cache-null-values: true

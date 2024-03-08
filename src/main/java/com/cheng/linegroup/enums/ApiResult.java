@@ -23,6 +23,14 @@ public enum ApiResult {
     TAG_IS_ALREADY_IN_STATES(HttpStatus.NO_CONTENT.value(), "===> Already in this state"),
 
     AUTH_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "===> Auth type Not Found"),
+    ACCESS_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "===>Access unauthorized"),
+    TOKEN_INVALID(HttpStatus.UNAUTHORIZED.value(), "===>The token has expired or is invalid"),
+    TOKEN_BLOCK(HttpStatus.UNAUTHORIZED.value(), "===>The token has been blocked"),
+    TOKEN_ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN.value(), "===>The token does not have permission to access this resource"),
+
+    USERNAME_OR_PASSWORD_ERROR(HttpStatus.BAD_REQUEST.value(), "===>The username or password is incorrect"),
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "The requested resource does not exist"),
+
 
     ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "===> ERROR: %s"),
     SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "===> SYSTEM ERROR: %s"),

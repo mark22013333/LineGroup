@@ -5,6 +5,7 @@ import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.common.domain.LineNotify;
 import com.cheng.linegroup.dto.LineNotifyMessage;
+import com.cheng.linegroup.entity.LineUser;
 import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.LineNotifyService;
@@ -14,6 +15,7 @@ import com.cheng.linegroup.utils.JacksonUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,9 +44,22 @@ public class ApiTestController {
     private final LineService lineService;
     private final LineNotify lineNotify;
     private final LineNotifyService lineNotifyService;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @GetMapping("r")
+    public ResponseEntity<R> testR() {
+        LineUser user = new LineUser();
+        user.setId(2);
+        user.setNickname("試試水溫");
+        redisTemplate.opsForValue().set("user", user);
+
+        LineUser userCache = (LineUser) redisTemplate.opsForValue().get("user");
+        log.info("userCache:{}", userCache);
+        return ResponseEntity.ok(R.success(userCache));
+    }
 
     @GetMapping("oauth")
-    public ResponseEntity<R> oauth(){
+    public ResponseEntity<R> oauth() {
         lineNotifyService.notifyOauth();
         return ResponseEntity.ok().build();
     }

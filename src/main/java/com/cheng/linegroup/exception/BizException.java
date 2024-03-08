@@ -2,6 +2,7 @@ package com.cheng.linegroup.exception;
 
 
 import com.cheng.linegroup.enums.ApiResult;
+import lombok.Getter;
 
 /**
  * 業務邏輯處理異常
@@ -9,6 +10,7 @@ import com.cheng.linegroup.enums.ApiResult;
  * @author cheng
  * @since 2022/7/6 16:26
  **/
+@Getter
 public class BizException extends RuntimeException {
     private final int code;
 
@@ -49,8 +51,5 @@ public class BizException extends RuntimeException {
         return new BizException(status.getCode(), msg);
     }
 
-    public int getCode() {
-        return code;
-    }
 }
 

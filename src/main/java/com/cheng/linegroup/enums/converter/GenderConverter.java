@@ -1,6 +1,7 @@
 package com.cheng.linegroup.enums.converter;
 
-import com.cheng.linegroup.enums.Gender;
+import com.cheng.linegroup.enums.Base;
+import com.cheng.linegroup.enums.common.Gender;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
@@ -17,6 +18,7 @@ public class GenderConverter implements AttributeConverter<Gender, Integer> {
 
     @Override
     public Gender convertToEntityAttribute(Integer integer) {
-        return null;
+        return Base.getEnumByValue(integer, Gender.class)
+                .orElse(Gender.values()[integer]);
     }
 }

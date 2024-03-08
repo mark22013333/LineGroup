@@ -48,6 +48,54 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- JJWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+
+        <!-- 因為 javax.xml.bind.DatatypeConverter 這個類在 Java 9 及以上版本中不再包含在預設的類路徑中。
+        這是由於 Java 9 導入了模塊系統（Jigsaw），導致一些之前屬於 Java SE 的包不再直接可用 -->
+        <!-- ==================================================================== -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.3</version>
+        </dependency>
+        <!-- ==================================================================== -->
+
+        <!-- Spring Security -->
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Spring Cache -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
         <!-- okhttp3 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

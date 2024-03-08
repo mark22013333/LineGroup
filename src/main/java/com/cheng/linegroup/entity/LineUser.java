@@ -1,6 +1,6 @@
 package com.cheng.linegroup.entity;
 
-import com.cheng.linegroup.enums.Gender;
+import com.cheng.linegroup.enums.common.Gender;
 import com.cheng.linegroup.enums.converter.GenderConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

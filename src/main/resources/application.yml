@@ -14,3 +14,6 @@ spring:
 logging:
   config: classpath:logback-spring.xml
 
+jwt:
+  secret: ENC(sznOzQ+OGRh2/DsoZUHlgoZapI6Dr5sbmwnOIlPgqXrHvejT8EU9LA==)
+  expire: 3600

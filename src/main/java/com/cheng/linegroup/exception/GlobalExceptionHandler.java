@@ -1,9 +1,9 @@
 package com.cheng.linegroup.exception;
 
-import com.cheng.linegroup.common.BaseResponse;
 import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.service.LineNotifyService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -21,7 +21,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -81,6 +80,21 @@ public class GlobalExceptionHandler {
 //                DEVELOPER);
         return ResponseEntity.internalServerError().body(R.error(e.getMessage()));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<R> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("參數異常:{}", e.getMessage(), e);
+        return ResponseEntity.badRequest().body(R.failed(BizException.error(HttpStatus.BAD_REQUEST.value(), e.getMessage())));
+    }
+
+    @ExceptionHandler(JsonProcessingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<R> handleJsonProcessingException(JsonProcessingException e) {
+        log.error("Json轉換異常:{}", e.getMessage(), e);
+        return ResponseEntity.badRequest().body(R.failed(BizException.error(HttpStatus.BAD_REQUEST.value(), e.getMessage())));
+    }
+
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

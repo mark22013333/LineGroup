@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @since 2024/2/15 00:35
  **/
 @Repository
-public interface GroupMainRepository extends JpaRepository<GroupMain, Integer> {
+public interface GroupMainRepository extends JpaRepository<GroupMain, Long> {
 
     @Query("SELECT g FROM GroupMain g WHERE g.gid = ?1")
     GroupMain findByGid(String gid);

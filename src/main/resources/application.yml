@@ -16,4 +16,4 @@ logging:
 
 jwt:
   secret: ENC(sznOzQ+OGRh2/DsoZUHlgoZapI6Dr5sbmwnOIlPgqXrHvejT8EU9LA==)
-  expire: 3600
+  expire: 1800000

@@ -20,10 +20,6 @@ import lombok.NoArgsConstructor;
 })
 public class ReplyKeyword extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
     @Column(columnDefinition = "varchar(50) comment '設定者'")
     private String uid;
 

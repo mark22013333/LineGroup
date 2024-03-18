@@ -1,4 +1,4 @@
-package com.cheng.linegroup.security.exception;
+package com.cheng.linegroup.exception.security;
 
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.utils.ResponseUtils;
@@ -21,7 +21,7 @@ public class SystemAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         int status = response.getStatus();
-        if (status == response.SC_NOT_FOUND) {
+        if (status == HttpServletResponse.SC_NOT_FOUND) {
             ResponseUtils.writeErrMsg(response, ApiResult.RESOURCE_NOT_FOUND);
         } else {
             if (authException instanceof BadCredentialsException) {

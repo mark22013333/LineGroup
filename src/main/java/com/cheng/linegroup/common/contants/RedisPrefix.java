@@ -1,13 +1,16 @@
 package com.cheng.linegroup.common.contants;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @author cheng
  * @since 2024/3/8 22:41
  **/
-public interface RedisPrefix {
+@UtilityClass
+public class RedisPrefix {
 
     /**
      * Token 黑名單
      */
-    String BLACKLIST_TOKEN = "token:blacklist:";
+    public static final String BLACKLIST_TOKEN = "token:blacklist:";
 }

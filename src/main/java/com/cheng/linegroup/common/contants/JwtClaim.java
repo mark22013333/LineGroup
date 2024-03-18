@@ -4,19 +4,23 @@ package com.cheng.linegroup.common.contants;
  * @author cheng
  * @since 2024/3/7 23:31
  **/
-public interface JwtClaim {
+public final class JwtClaim {
 
-    String ISSUER = "iss";
-    String SUBJECT = "sub";
-    String AUDIENCE = "aud";
-    String EXPIRES_AT = "exp";
-    String NOT_BEFORE = "nbf";
-    String ISSUED_AT = "iat";
-    String JWT_ID = "jti";
-    String USER_ID = "userId";
+    private JwtClaim() {
+
+    }
+
+    public static final String ISSUER = "iss";
+    public static final String SUBJECT = "sub";
+    public static final String AUDIENCE = "aud";
+    public static final String EXPIRES_AT = "exp";
+    public static final String NOT_BEFORE = "nbf";
+    public static final String ISSUED_AT = "iat";
+    public static final String JWT_ID = "jti";
+    public static final String USER_ID = "userId";
 
     /**
      * 權限（角色集合）
      */
-    String AUTHORITIES = "authorities";
+    public static final String AUTHORITIES = "authorities";
 }

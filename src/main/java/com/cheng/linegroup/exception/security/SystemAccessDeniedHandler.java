@@ -1,4 +1,4 @@
-package com.cheng.linegroup.security.exception;
+package com.cheng.linegroup.exception.security;
 
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.utils.ResponseUtils;

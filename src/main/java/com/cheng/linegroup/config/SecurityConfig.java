@@ -2,8 +2,8 @@ package com.cheng.linegroup.config;
 
 import com.cheng.linegroup.enums.Security;
 import com.cheng.linegroup.filter.JwtValidationFilter;
-import com.cheng.linegroup.security.exception.SystemAccessDeniedHandler;
-import com.cheng.linegroup.security.exception.SystemAuthenticationEntryPoint;
+import com.cheng.linegroup.exception.security.SystemAccessDeniedHandler;
+import com.cheng.linegroup.exception.security.SystemAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

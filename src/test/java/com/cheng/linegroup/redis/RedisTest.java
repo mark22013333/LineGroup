@@ -21,7 +21,7 @@ class RedisTest {
     @Test
     void testRedisSerializer() {
         LineUser user = new LineUser();
-        user.setId(2);
+        user.setId(2L);
         user.setNickname("試試水溫");
         redisTemplate.opsForValue().set("user", user);
 

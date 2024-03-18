@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * @since 2024/2/15 23:24
  **/
 @Repository
-public interface ReplyKeywordRepository extends JpaRepository<ReplyKeyword, Integer> {
+public interface ReplyKeywordRepository extends JpaRepository<ReplyKeyword, Long> {
 
     ReplyKeyword getReplyKeywordByKeywordAndUidAndGid(String keyword, String uid, String gid);
 

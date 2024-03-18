@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @since 2024/2/14 01:11
  **/
 @Repository
-public interface LineUserRepository extends JpaRepository<LineUser, Integer> {
+public interface LineUserRepository extends JpaRepository<LineUser, Long> {
 
     @Query("SELECT l FROM LineUser l WHERE l.uid = ?1")
     LineUser findByUid(String uid);

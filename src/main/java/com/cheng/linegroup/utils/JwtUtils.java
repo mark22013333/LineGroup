@@ -1,14 +1,16 @@
 package com.cheng.linegroup.utils;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.cheng.linegroup.common.contants.JwtClaim;
 import com.cheng.linegroup.common.contants.OAuth2;
+import com.cheng.linegroup.common.contants.Sign;
+import com.cheng.linegroup.dto.auth.LoginUser;
 import com.cheng.linegroup.dto.security.SysUserDetails;
 
 import java.util.*;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,42 +53,34 @@ public class JwtUtils {
 
     /**
      * 建立Token
-     * <p>
-     * 認證成功後的使用者資訊會被封裝到 Authentication 物件中，然後透過 JwtTokenProvider#createToken(Authentication) 方法建立 Token
      *
      * @param authentication 使用者認證信息
      * @return Token
      */
-    public String generateToken(Authentication authentication) {
+    public static String generateToken(Authentication authentication) {
 
-        SysUserDetails userDetails = (SysUserDetails) authentication.getPrincipal();
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
 
         Map<String, Object> payload = new HashMap<>();
-        payload.put(JwtClaim.USER_ID, userDetails.getUserId());
+        payload.put(JwtClaim.USER_ID, loginUser.getUser().getId());
 
-        Set<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
+        List<String> roles = loginUser.getAuthorities().stream().distinct()
+                .map(GrantedAuthority::getAuthority).toList();
         payload.put(JwtClaim.AUTHORITIES, roles);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + expire);
-        return Jwts.builder()
-                .setHeaderParam("type", "JWT")
-                .setId(UUID.randomUUID().toString().replace("-", ""))
-                .setSubject(authentication.getName())
-                .setIssuedAt(now)
-                .setExpiration(validity)
-                .setClaims(payload)
-                .signWith(SignatureAlgorithm.HS512, secret)
-                .compact();
+        return JWT.create()
+                .withJWTId(UUID.randomUUID().toString().replace("-", ""))
+                .withSubject(authentication.getName())
+                .withIssuedAt(now)
+                .withExpiresAt(validity)
+                .withPayload(payload)
+                .sign(Algorithm.HMAC256(secret));
     }
 
-    private static Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
+    private static Map<String, Claim> getClaims(String token) {
+        return JWT.decode(token).getClaims();
     }
 
     /**
@@ -105,7 +99,7 @@ public class JwtUtils {
                 token = token.replace(OAuth2.BEARER, StringUtils.EMPTY);
             }
 
-            Claims claims = getClaims(token);
+            Map<String, Claim> claims = getClaims(token);
             return claims.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (Exception e) {
@@ -117,12 +111,13 @@ public class JwtUtils {
 
     public static UsernamePasswordAuthenticationToken getAuthentication(Map<String, Object> payload) {
         SysUserDetails userDetails = new SysUserDetails();
-        userDetails.setUserId((Long) payload.get(JwtClaim.USER_ID));
+        long userId = Long.parseLong(String.valueOf(payload.get(JwtClaim.USER_ID)));
+        userDetails.setUserId(userId);
+
         userDetails.setUsername(String.valueOf(payload.get(JwtClaim.SUBJECT)));
 
-        Set<String> rawAuthorities = ((Set<String>) payload.get(JwtClaim.AUTHORITIES));
-
-        Set<SimpleGrantedAuthority> authorities = rawAuthorities.stream()
+        Set<SimpleGrantedAuthority> authorities = Arrays.stream(String.valueOf(payload.get(JwtClaim.AUTHORITIES)).split(Sign.COMMA))
+                .map(String::trim)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toSet());
 

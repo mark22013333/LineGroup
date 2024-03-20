@@ -158,10 +158,18 @@
             <version>1.10.0</version>
         </dependency>
 
+        <!-- Guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>32.1.2-jre</version>
+        </dependency>
+
+        <!-- Open API (Swagger) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.4.0</version>
         </dependency>
 
         <dependency>

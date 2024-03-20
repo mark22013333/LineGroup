@@ -2,6 +2,7 @@ package com.cheng.linegroup.common;
 
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.exception.BizException;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -16,12 +17,36 @@ import java.io.Serializable;
 @Data
 @Builder
 @Accessors(chain = true)
+@Schema(description = "API 回傳結果")
 public class R implements BaseResponse, Serializable {
+
     @Serial
     private static final long serialVersionUID = 1;
 
+    @Schema(
+            title = "code",
+            description = "回應代號",
+            format = "int32",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private int code;
+
+    @Schema(
+            title = "msg",
+            description = "回傳的訊息",
+            format = "String",
+            accessMode = Schema.AccessMode.READ_ONLY,
+            example = "Success or Error",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String msg;
+
+    @Schema(
+            title = "data",
+            description = "回傳的資料",
+            format = "Object",
+            accessMode = Schema.AccessMode.READ_ONLY
+    )
     private Object data;
 
     public static R success() {

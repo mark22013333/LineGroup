@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: framework
   servlet:
     context-path: /TangDong
 spring:
@@ -17,3 +18,16 @@ logging:
 jwt:
   secret: ENC(sznOzQ+OGRh2/DsoZUHlgoZapI6Dr5sbmwnOIlPgqXrHvejT8EU9LA==)
   expire: 1800000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.cheng.linegroup
+  default-flat-param-object: true

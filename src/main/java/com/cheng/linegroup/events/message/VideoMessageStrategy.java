@@ -21,7 +21,7 @@ public class VideoMessageStrategy implements MessageStrategy {
 
     @Override
     public boolean canHandle(WebhookEvent.Event.Message msg) {
-        return MessageType.VIDEO.name().equalsIgnoreCase(msg.getType());
+        return MessageType.video.name().equalsIgnoreCase(msg.getType());
     }
 
     @Override

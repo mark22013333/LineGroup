@@ -1,5 +1,6 @@
 package com.cheng.linegroup.service.dto;
 
+import com.cheng.linegroup.enums.MessageType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -28,7 +29,7 @@ public class LineMessage {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Message {
         @Builder.Default
-        private String type = "text";
+        private MessageType type = MessageType.text;
         @JsonProperty("text")
         private String msg;
         private String originalContentUrl;

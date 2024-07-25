@@ -21,7 +21,7 @@ public class AudioMessageStrategy implements MessageStrategy {
 
     @Override
     public boolean canHandle(WebhookEvent.Event.Message msg) {
-        return MessageType.AUDIO.name().equalsIgnoreCase(msg.getType());
+        return MessageType.audio.name().equalsIgnoreCase(msg.getType());
     }
 
     @Override

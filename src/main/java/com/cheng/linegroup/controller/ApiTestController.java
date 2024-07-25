@@ -7,6 +7,7 @@ import com.cheng.linegroup.common.domain.LineNotify;
 import com.cheng.linegroup.dto.LineNotifyMessage;
 import com.cheng.linegroup.entity.LineUser;
 import com.cheng.linegroup.enums.Api;
+import com.cheng.linegroup.enums.MessageType;
 import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.service.LineService;
@@ -102,6 +103,11 @@ public class ApiTestController {
                                 .build(),
                         LineMessage.Message.builder()
                                 .msg("測試一下囉")
+                                .build(),
+                        LineMessage.Message.builder()
+                                .type(MessageType.image)
+                                .originalContentUrl("https://unsplash.it/800/600?image=1008")
+                                .previewImageUrl("https://unsplash.it/800/600?image=1008")
                                 .build()
                 ))
                 .build();

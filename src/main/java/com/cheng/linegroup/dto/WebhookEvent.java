@@ -15,6 +15,7 @@ public class WebhookEvent {
 
     @Data
     public static class Event {
+        private String TraceId;
         private String type;
         private String webhookEventId;
         private DeliveryContext deliveryContext;

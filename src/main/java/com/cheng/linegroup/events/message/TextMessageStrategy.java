@@ -26,7 +26,7 @@ public class TextMessageStrategy implements MessageStrategy {
 
     @Override
     public boolean canHandle(WebhookEvent.Event.Message msg) {
-        return MessageType.TEXT.name().equalsIgnoreCase(msg.getType());
+        return MessageType.text.name().equalsIgnoreCase(msg.getType());
     }
 
     @Override

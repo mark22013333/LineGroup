@@ -8,6 +8,7 @@ import com.cheng.linegroup.events.EventHandler;
 import com.cheng.linegroup.events.EventHandlerRegistry;
 import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.utils.JacksonUtils;
+import com.cheng.linegroup.utils.TraceUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 /**
  * @author cheng
@@ -52,7 +52,9 @@ public class LineController {
             log.info("event:{}", event);
             Assert.notNull(event, "webhook event can not be null");
 
+            String traceId = TraceUtils.getTraceId();
             for (WebhookEvent.Event e : event.getEvents()) {
+                e.setTraceId(traceId);
                 EventHandler eventHandler = eventHandlerRegistry.getEventHandler(LineEvent.getEvent(e.getType()));
                 executor.execute(() -> eventHandler.handle(e));
             }

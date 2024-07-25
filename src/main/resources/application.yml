@@ -31,3 +31,6 @@ springdoc:
       paths-to-match: '/**'
       packages-to-scan: com.cheng.linegroup
   default-flat-param-object: true
+
+image:
+  base-path: /Users/cheng/Downloads/pic/

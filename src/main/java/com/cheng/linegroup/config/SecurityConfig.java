@@ -40,7 +40,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requestMatcherRegistry ->
                         requestMatcherRegistry.requestMatchers(
                                         Security.LOGIN.getUri(),
+                                        "/api/test/**",
                                         "/webhook",
+                                        "/img/**",
                                         "/webjars/**",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",

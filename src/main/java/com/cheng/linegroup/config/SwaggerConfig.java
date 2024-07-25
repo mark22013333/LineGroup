@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.servers.Server;
 
 /**
  * @author cheng
@@ -26,6 +27,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
                         url = "https://www.apache.org/licenses/LICENSE-2.0.html"
                 )
         ),
+        servers = {
+                @Server(
+                        url = "https://cheng.tplinkdns.com/TangDong",
+                        description = "General Url"
+                )
+        },
         security = @SecurityRequirement(name = "JWT"))
 public class SwaggerConfig {
 

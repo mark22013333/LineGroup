@@ -97,7 +97,7 @@ public class TraceUtils {
      *
      * @param traceId traceId
      */
-    private static void setTraceId(String traceId) {
+    public static void setTraceId(String traceId) {
         MDC.put(TRACE_ID, traceId);
     }
 

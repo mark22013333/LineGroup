@@ -12,5 +12,6 @@ public interface TextMessageBehavior {
 
     boolean canHandle(String text);
 
-    void performAction(WebhookEvent.Event event, ReplyKeywordService replyKeywordService, LineService lineService);
+    boolean performAction(WebhookEvent.Event event, ReplyKeywordService replyKeywordService, LineService lineService);
+
 }

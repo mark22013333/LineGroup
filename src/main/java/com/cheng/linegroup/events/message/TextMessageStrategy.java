@@ -34,7 +34,10 @@ public class TextMessageStrategy implements MessageStrategy {
         String text = event.getMessage().getText();
         for (TextMessageBehavior behavior : behaviors) {
             if (behavior.canHandle(text)) {
-                behavior.performAction(event, replyKeywordService, lineService);
+                boolean isInterruptHandling = behavior.performAction(event, replyKeywordService, lineService);
+                if (isInterruptHandling) {
+                    return false;
+                }
             }
         }
         return true;

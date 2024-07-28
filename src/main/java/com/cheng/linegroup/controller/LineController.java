@@ -56,7 +56,14 @@ public class LineController {
             for (WebhookEvent.Event e : event.getEvents()) {
                 e.setTraceId(traceId);
                 EventHandler eventHandler = eventHandlerRegistry.getEventHandler(LineEvent.getEvent(e.getType()));
-                executor.execute(() -> eventHandler.handle(e));
+                executor.execute(() -> {
+                    try {
+                        TraceUtils.setTraceId(traceId);
+                        eventHandler.handle(e);
+                    } finally {
+                        TraceUtils.clearTrace();
+                    }
+                });
             }
 
             // Method for tasks handled by a thread pool

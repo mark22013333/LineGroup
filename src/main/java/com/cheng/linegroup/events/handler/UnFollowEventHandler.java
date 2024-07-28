@@ -30,6 +30,7 @@ public class UnFollowEventHandler implements EventHandler {
 
         LineUser user = existingUser.orElseGet(() -> LineUser.builder().uid(userId).build());
         user.setFriend(false);
+        log.info("User unfollow:{}", user);
 
         LineUser savedUser = lineUserService.save(user);
         log.info("User save:{}", savedUser);

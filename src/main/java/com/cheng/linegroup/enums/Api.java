@@ -24,7 +24,14 @@ public enum Api implements Uri {
 
     LINE_MESSAGE_REPLY("/bot/message/reply"),
 
-    LINE_GET_USER_PROFILE("/profile"),
+    /**
+     * <a href="https://developers.line.biz/en/reference/messaging-api/#get-profile">
+     * Get profile
+     * </a>
+     * <p>
+     * param-1: line user id
+     */
+    LINE_GET_USER_PROFILE("/bot/profile/%s"),
 
     /**
      * Get group chat summary

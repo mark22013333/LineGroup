@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @Table(indexes = {
         @Index(name = "idx_uid", columnList = "uid", unique = true)
 })
@@ -44,6 +46,9 @@ public class LineUser extends BaseEntity {
 
     @Column(columnDefinition = "VARCHAR(100)")
     private String email;
+
+    @Column(columnDefinition = "VARCHAR(200)")
+    private String statusMessage;
 
     @Column(columnDefinition = "BIT")
     private boolean isFriend;

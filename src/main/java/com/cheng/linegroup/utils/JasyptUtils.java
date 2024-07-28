@@ -52,8 +52,9 @@ public class JasyptUtils {
     }
 
     public static void main(String[] args) {
-        String encVal = encryptVal(KEY, "test");
-        String decVal = decryptVal(KEY, "s7eiBxm219FzkR526Shrd+Adne1JNzCT");
+        String key = System.getProperty("jasypt.encryptor.password");
+        String encVal = encryptVal(key, "test");
+        String decVal = decryptVal(key, "s7eiBxm219FzkR526Shrd+Adne1JNzCT");
 
         System.out.printf("encVal = ENC(%s)%n", encVal);
         System.out.printf("decVal = %s", decVal);

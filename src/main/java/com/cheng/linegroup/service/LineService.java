@@ -9,6 +9,7 @@ import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.dto.LineMessage;
+import com.cheng.linegroup.service.dto.LineUserDto;
 import com.cheng.linegroup.utils.ApiUtils;
 import com.cheng.linegroup.utils.JacksonUtils;
 import com.cheng.linegroup.utils.OkHttpUtils;
@@ -36,6 +37,29 @@ public class LineService {
     private final Line line;
     private final GroupAPI groupAPI;
     private final MessageContentAPI messageContentAPI;
+
+    public LineUserDto getUserProfile(String uid) {
+        String channelToken = line.getMessage().getChannelToken();
+        try {
+            String url = ApiUtils.getUrl(line.getApiDomain(), Api.LINE_GET_USER_PROFILE, uid);
+            ApiResponse resp = OkHttpUtils.builder().addLineAuthHeader(channelToken)
+                    .get(url).sync().preview();
+            if (resp.getHttpStatusCode() == HttpStatus.OK.value()) {
+                return LineUserDto.builder()
+                        .userId(uid)
+                        .displayName(resp.getPreviewData().get("displayName").asText())
+                        .language(resp.getPreviewData().get("language").asText())
+                        .pictureUrl(resp.getPreviewData().get("pictureUrl").asText())
+                        .statusMessage(resp.getPreviewData().get("statusMessage").asText())
+                        .build();
+            } else {
+                throw BizException.error(resp.getHttpStatusCode(), String.format(ApiResult.ERROR.getMsg(), resp.getResultData()));
+            }
+        } catch (Exception e) {
+            log.error("ERR:{}", ExceptionUtils.getStackTrace(e));
+            return null;
+        }
+    }
 
     public void CallMessageAPI(LineMessage lineMessage, Api api) {
         String channelToken = line.getMessage().getChannelToken();

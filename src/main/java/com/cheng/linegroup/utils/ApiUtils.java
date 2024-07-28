@@ -81,6 +81,10 @@ public class ApiUtils {
         return getUrl(url, uri.getUri());
     }
 
+    public static String getUrl(String url, Uri uri, Object... args) {
+        return getUrl(url, String.format(uri.getUri(), args));
+    }
+
     public static String getUrl(String url, String uri) {
         if (StringUtils.isEmpty(url)) {
             throw BizException.create(ApiResult.PARAM_ERROR, "url not found");

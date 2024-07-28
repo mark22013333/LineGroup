@@ -25,8 +25,10 @@ public class MessageStrategyManager {
     public void handle(WebhookEvent.Event event) {
         for (MessageStrategy strategy : strategies) {
             if (strategy.canHandle(event.getMessage())) {
-                strategy.handle(event);
-                break;
+                if (!strategy.handle(event)) {
+                    // 當 isInterruptHandling 結果為 false 就表示不繼續走流程
+                    break;
+                }
             }
         }
     }

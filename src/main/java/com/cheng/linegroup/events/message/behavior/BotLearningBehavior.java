@@ -33,7 +33,7 @@ public class BotLearningBehavior implements TextMessageBehavior {
     }
 
     @Override
-    public void performAction(WebhookEvent.Event event, ReplyKeywordService replyKeywordService, LineService lineService) {
+    public boolean performAction(WebhookEvent.Event event, ReplyKeywordService replyKeywordService, LineService lineService) {
         log.info("===>TextMessageStrategy handle");
         String userId = event.getSource().getUserId();
         String groupId = event.getSource().getGroupId();
@@ -68,6 +68,7 @@ public class BotLearningBehavior implements TextMessageBehavior {
             log.error("Error processing the message", e);
         }
 
+        return false;
     }
 
     private String removeKeywords(String text) {

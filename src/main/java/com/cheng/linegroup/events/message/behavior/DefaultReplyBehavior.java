@@ -27,11 +27,11 @@ public class DefaultReplyBehavior implements TextMessageBehavior {
     }
 
     @Override
-    public void performAction(WebhookEvent.Event event, ReplyKeywordService replyKeywordService, LineService lineService) {
+    public boolean performAction(WebhookEvent.Event event, ReplyKeywordService replyKeywordService, LineService lineService) {
         String userId = event.getSource().getUserId();
         String groupId = event.getSource().getGroupId();
         String text = event.getMessage().getText();
-        
+
         ReplyKeyword replyKeywordByKeyword = replyKeywordService.getReplyKeywordByKeywordAndUidAndGid(text, userId, groupId);
         if (replyKeywordByKeyword != null) {
             String reply = replyKeywordByKeyword.getReply();
@@ -40,6 +40,12 @@ public class DefaultReplyBehavior implements TextMessageBehavior {
                             LineMessage.Message.builder().msg(reply).build())
                     ).build();
             lineService.CallMessageAPI(lineMessage, Api.LINE_MESSAGE_REPLY);
+        } else {
+            return false;
         }
+
+        return true;
     }
+
+
 }

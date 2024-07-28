@@ -13,11 +13,17 @@ import jakarta.persistence.Converter;
 public class GenderConverter implements AttributeConverter<Gender, Integer> {
     @Override
     public Integer convertToDatabaseColumn(Gender gender) {
+        if (gender == null) {
+            return 0;
+        }
         return gender.ordinal();
     }
 
     @Override
     public Gender convertToEntityAttribute(Integer integer) {
+        if (integer == null) {
+            integer = 0;
+        }
         return Base.getEnumByValue(integer, Gender.class)
                 .orElse(Gender.values()[integer]);
     }

@@ -4,7 +4,9 @@ import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.entity.LineUser;
 import com.cheng.linegroup.enums.LineEvent;
 import com.cheng.linegroup.events.EventHandler;
+import com.cheng.linegroup.service.LineService;
 import com.cheng.linegroup.service.LineUserService;
+import com.cheng.linegroup.service.dto.LineUserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,22 +23,48 @@ import java.util.Optional;
 public class FollowEventHandler implements EventHandler {
 
     private final LineUserService lineUserService;
+    private final LineService lineService;
 
     @Override
     public void handle(WebhookEvent.Event e) {
         log.info("FollowEventHandler");
         String userId = e.getSource().getUserId();
-        Optional<LineUser> existingUser = Optional.ofNullable(lineUserService.findByUid(userId));
+        LineUser savedUser;
 
-        LineUser user = existingUser.orElseGet(() -> LineUser.builder().uid(userId).build());
-        user.setFriend(true);
-
-        LineUser savedUser = lineUserService.save(user);
-        log.info("User save:{}", savedUser);
+        try {
+            savedUser = saveOrUpdateUser(userId);
+            log.info("User saved: {}", savedUser);
+        } catch (Exception ex) {
+            log.error("===> ERR handling FollowEvent for user ID {}: {}", userId, ex.getMessage(), ex);
+        }
     }
 
     @Override
     public LineEvent getSupportedEventType() {
         return LineEvent.FOLLOW;
+    }
+
+    private LineUser saveOrUpdateUser(String userId) {
+        LineUser existingUser = lineUserService.findByUid(userId);
+log.info("existingUser: {}", existingUser);
+        LineUserDto userProfile = lineService.getUserProfile(userId);
+
+        if (existingUser != null) {
+            existingUser.setFriend(true)
+                    .setAvatar(userProfile.getPictureUrl())
+                    .setNickname(userProfile.getDisplayName())
+                    .setStatusMessage(userProfile.getStatusMessage());
+
+            return lineUserService.save(existingUser);
+        } else {
+            LineUser newUser = LineUser.builder()
+                    .uid(userId)
+                    .avatar(userProfile.getPictureUrl())
+                    .nickname(userProfile.getDisplayName())
+                    .statusMessage(userProfile.getStatusMessage())
+                    .isFriend(true)
+                    .build();
+            return lineUserService.save(newUser);
+        }
     }
 }

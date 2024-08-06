@@ -1,5 +1,6 @@
 package com.cheng.linegroup.service;
 
+import com.cheng.linegroup.common.contants.RedisPrefix;
 import com.cheng.linegroup.dao.ReplyKeywordRepository;
 import com.cheng.linegroup.entity.ReplyKeyword;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class ReplyKeywordService {
         if (gid != null) {
             return replyKeywordRepository.getReplyKeywordByKeywordAndGid(keyword, gid);
         } else {
-            gid = "personal";
+            gid = RedisPrefix.PERSONAL;
         }
         return replyKeywordRepository.getReplyKeywordByKeywordAndUidAndGid(keyword, uid, gid);
     }

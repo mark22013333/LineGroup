@@ -9,9 +9,9 @@ line:
     channel-secret: ENC(taGyrEW1LFQy9NkrkE0P7ISsJojjgU31Mt55uIdu72tywJU07vSrBGjhZkn6EMdZwCrx/jXuU/U=)
   message:
     self-uid: U2c4b24b25fe4de46a9875a2c83c94063
-    channel-id: ENC(KbhFPKrGW+akycxkiwGJX726eoYLQLyaTFrUBvUf2Zc=)
-    channel-secret: ENC(vfvrcW9il2DJgGsmWXRbA8beK4HfGvC3wPLab2CfGkwGEx2iBsVwgQuof1mEPk7O0ibH3dSRCAE=)
-    channel-token: ENC(PnFlQcI2BrsC+JDl8QlkDVIoFdXQL58r+od65/RpQ2VIORR/9HgRbbc6rkTNcR94wFsNAZ+f0BTfB2fvGv8VWYpuIxp3M/zjCU4s/TqJXbvGfd6tmV7D2pQQ07O3oSfZ8gVljaEn/e0KYCPHgUMtCsms1JweBlVrIGq1fIfglcNFJ2iEP5SnK9y/0T9Bbkq2Wbte+mTI+CNgnOj+nnT48Ohm5fq+8QlWSsMauqrdyqibI8jU6mJfgTt6NxF3Plyb)
+    channel-id: ENC(MYz7sKMrVagGaO7m7jkKIC0qR5Z5qyKpEOzJD+nYEGE=)
+    channel-secret: ENC(6Ky5Ls9l1QbhigcKp7LUV4Jj4pLVnGLGTl/1r5mNR5dMkKvLfRTMsTHTi2O2XtrwUKmK4BT1AEg=)
+    channel-token: ENC(L9WHvqmHfcv1hm6eqPqyAMnIckuwrqF7bIn+/7aWblBPDkZRfvth3PEsasdLFa7MonOfUmUZ0tl8QFLod+bUd4PBvDj1edhK3zuI4OhwLEFzpxcsNqU2p50eA6oYne6Sp9R4sTvOnJjbNlVRDu4xmh6KJJq1vX0y0eZfe26xumeTF4lpqlu+gbCNtRkKVDgslkhAGZTejSh+gHMscFQE8fFkaapaKua8QTXK1rJyiEu+wepeYLte3/z9NdZNDGgR)
   notify:
     client-id: Vpk9dSKkUorPf5IGgf751K
     client-secret: M8HXMmicoDRl92jAE0bJCDlUvI7gLOnhPilzP6LcALo

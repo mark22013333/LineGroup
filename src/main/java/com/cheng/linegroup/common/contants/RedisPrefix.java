@@ -13,4 +13,6 @@ public class RedisPrefix {
      * Token 黑名單
      */
     public static final String BLACKLIST_TOKEN = "token:blacklist:";
+
+    public static final String PERSONAL = "personal";
 }

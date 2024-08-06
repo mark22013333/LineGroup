@@ -38,7 +38,7 @@ public class LineService {
     private final GroupAPI groupAPI;
     private final MessageContentAPI messageContentAPI;
 
-    public LineUserDto getUserProfile(String uid) {
+    public LineUserDto getUserProfile(String uid) throws IOException {
         String channelToken = line.getMessage().getChannelToken();
         try {
             String url = ApiUtils.getUrl(line.getApiDomain(), Api.LINE_GET_USER_PROFILE, uid);
@@ -57,7 +57,7 @@ public class LineService {
             }
         } catch (Exception e) {
             log.error("ERR:{}", ExceptionUtils.getStackTrace(e));
-            return null;
+            throw e;
         }
     }
 
@@ -83,6 +83,7 @@ public class LineService {
 
         } catch (Exception e) {
             log.error("ERR:{}", ExceptionUtils.getStackTrace(e));
+            throw e;
         }
 
     }

@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.io.IOException;
 
 /**
  * @author cheng
@@ -44,9 +44,8 @@ public class FollowEventHandler implements EventHandler {
         return LineEvent.FOLLOW;
     }
 
-    private LineUser saveOrUpdateUser(String userId) {
+    private LineUser saveOrUpdateUser(String userId) throws IOException {
         LineUser existingUser = lineUserService.findByUid(userId);
-log.info("existingUser: {}", existingUser);
         LineUserDto userProfile = lineService.getUserProfile(userId);
 
         if (existingUser != null) {

@@ -16,6 +16,10 @@ import org.springframework.stereotype.Service;
 public class ImageSentRecordsService {
     private final ImageSentRecordsRepository imageSentRecordsRepository;
 
+    public void deleteAll(){
+        imageSentRecordsRepository.deleteAll();
+    }
+
     public void saveImageSentRecords(String userId, String groupId, String imageLink) {
         imageSentRecordsRepository.save(ImageSentRecords.builder()
                 .uid(userId).groupId(groupId).imageLink(imageLink).build());

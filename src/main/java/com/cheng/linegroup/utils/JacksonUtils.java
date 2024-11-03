@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,20 @@ public class JacksonUtils {
         return Collections.emptyList();
     }
 
+    /**
+     * 將 InputStream 轉換為指定類型的物件
+     */
+    public static <T> T streamToObject(InputStream is, Class<T> clazz) {
+        try {
+            return MAPPER.readValue(is, clazz);
+        } catch (Exception e) {
+            log.error("stream to object fail, is={}, classType={}, ERR={}",
+                    is,
+                    clazz.getName(),
+                    ExceptionUtils.getStackTrace(e));
+            return null;
+        }
+    }
 
     /**
      * map轉class物件

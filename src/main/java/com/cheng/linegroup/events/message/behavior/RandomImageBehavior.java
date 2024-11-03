@@ -4,6 +4,7 @@ import com.cheng.linegroup.common.contants.RedisPrefix;
 import com.cheng.linegroup.controller.ImageController;
 import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.enums.Api;
+import com.cheng.linegroup.enums.BehaviorKeyword;
 import com.cheng.linegroup.enums.MessageType;
 import com.cheng.linegroup.service.ImageSentRecordsService;
 import com.cheng.linegroup.service.LineService;
@@ -21,15 +22,17 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
+ * 隨機發送圖片，當使用者輸入關鍵字「抽」時，系統將從指定的路徑隨機選取一張圖片並進行推播。
+ *
  * @author Cheng
  * @since 2024/7/28 02:33
  **/
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RandomImage implements TextMessageBehavior {
+public class RandomImageBehavior implements TextMessageBehavior {
 
-    private static final String[] KEYWORDS = {"抽"};
+    private static final String[] KEYWORDS = BehaviorKeyword.RANDOM_IMAGE.getKeywords();
 
     @Value("${image.domain}")
     private String domain;

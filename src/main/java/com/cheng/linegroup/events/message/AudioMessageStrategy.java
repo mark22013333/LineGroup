@@ -20,8 +20,8 @@ public class AudioMessageStrategy implements MessageStrategy {
     private final MessageEventRecordService messageEventRecordService;
 
     @Override
-    public boolean canHandle(WebhookEvent.Event.Message msg) {
-        return MessageType.audio.name().equalsIgnoreCase(msg.getType());
+    public boolean canHandle(WebhookEvent.Event e) {
+        return MessageType.audio.name().equalsIgnoreCase(e.getMessage().getType());
     }
 
     @Override

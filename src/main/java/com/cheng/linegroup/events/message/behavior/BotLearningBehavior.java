@@ -3,6 +3,7 @@ package com.cheng.linegroup.events.message.behavior;
 import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.entity.ReplyKeyword;
 import com.cheng.linegroup.enums.Api;
+import com.cheng.linegroup.enums.BehaviorKeyword;
 import com.cheng.linegroup.exception.BizException;
 import com.cheng.linegroup.service.LineService;
 import com.cheng.linegroup.service.ReplyKeywordService;
@@ -15,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
+ * 透過指令讓機器人記住關鍵字和需要回覆的內容。
+ *
  * @author cheng
  * @since 2024/2/25 22:57
  **/
@@ -23,7 +26,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class BotLearningBehavior implements TextMessageBehavior {
 
-    private static final String[] KEYWORDS = {"欸唐董看到", "唐董", "唐懂", "唐墥", "唐"};
+    private static final String[] KEYWORDS = BehaviorKeyword.BOT_LEARNING.getKeywords();
 
     private static final String[] SPLIT_KEYWORDS = {"就回", "就說", ":", "："};
 
@@ -85,7 +88,7 @@ public class BotLearningBehavior implements TextMessageBehavior {
                     格式錯誤，請用以下範例讓唐董學習
                     KEYWORDS = {"欸唐董看到", "唐董", "唐懂", "唐墥", "唐"}
                     SPLIT_KEYWORDS = {"就回", "就說", ":", "："};
-                    例如：欸唐董看到A就回B、唐董A就說B、唐A:B、唐A：B""");
+                    例如：欸唐董看到A就回B | 唐董A就說B | 唐A:B | 唐A：B""");
         }
         String keyword = keywordSplitString[0];
         ReplyKeyword replyKeywordByKeyword = replyKeywordService.getReplyKeywordByKeywordAndUidAndGid(keyword, userId, groupId);

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 
 /**
+ * 透過指令設定關鍵字，當收到特定關鍵字時，機器人將自動回覆預設的內容。
+ *
  * @author cheng
  * @since 2024/2/25 23:05
  **/

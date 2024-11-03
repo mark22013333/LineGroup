@@ -10,6 +10,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author cheng
@@ -113,6 +114,19 @@ public class TimeUtils {
         }
         ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
         return Date.from(zonedDateTime.toInstant());
+    }
+
+    public static String toLDTString(LocalDateTime date) {
+        return Optional.ofNullable(date)
+                .map(DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)::format)
+                .orElse("");
+    }
+
+    public static LocalDateTime toLDT(String date) {
+        return Optional.ofNullable(date)
+                .map(DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)::parse)
+                .map(LocalDateTime::from)
+                .orElse(null);
     }
 
     /**

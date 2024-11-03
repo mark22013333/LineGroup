@@ -6,7 +6,6 @@ import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.enums.LineEvent;
 import com.cheng.linegroup.events.EventHandler;
 import com.cheng.linegroup.events.EventHandlerRegistry;
-import com.cheng.linegroup.service.LineNotifyService;
 import com.cheng.linegroup.utils.JacksonUtils;
 import com.cheng.linegroup.utils.TraceUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +39,6 @@ public class LineController {
     private final Line line;
     private final LineHeader lineHeader;
     private final EventHandlerRegistry eventHandlerRegistry;
-    private final LineNotifyService lineNotifyService;
     private final ThreadPoolTaskExecutor executor;
 
     @PostMapping("webhook")

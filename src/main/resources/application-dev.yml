@@ -1,4 +1,13 @@
 spring:
+  ai:
+    openai:
+      api-key: ENC(SkoevxLe9vAxfGecJzhDSHYRbG0URh1hM9L+Fmu3EnGUjFBZXEtLv3Fsd4haxThOW2m38H54DpeR2uM3LsavpJeKly5f7fNuphSV0BpNS6Q=)
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama-3.1-70b-versatile
+  config:
+    import: line-config-dev.yml
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ENC(kXOCZnrnuYR8imQuBCKygbD9ltnQeS2RKWnK18X0KwlthntIqKX/x1YLhYXHwhH7MuJKg6kRpElpRekUlmkFASfLeZiLft1hkVgWaVcomxesCqvaIiq7ZdgtfkGErF7t0js0bTY8vqSxwU04gLfzjLz39a2o81e/zdds8CdIR0gMD4GZ01illlkA0DOX7O52k3eFjTgKgJx/zmc3PrZaIMOdpA8lQLOCdn0YVcaKETA=)

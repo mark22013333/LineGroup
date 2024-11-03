@@ -20,8 +20,8 @@ public class ImageMessageStrategy implements MessageStrategy {
     private final MessageEventRecordService messageEventRecordService;
 
     @Override
-    public boolean canHandle(WebhookEvent.Event.Message msg) {
-        return MessageType.image.name().equalsIgnoreCase(msg.getType());
+    public boolean canHandle(WebhookEvent.Event e) {
+        return MessageType.image.name().equalsIgnoreCase(e.getMessage().getType());
     }
 
     @Override

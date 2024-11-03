@@ -6,9 +6,8 @@ server:
 spring:
   thymeleaf:
     mode: HTML
-  config:
-    import: line-config.yml
   profiles:
+#    active: local
     active: dev
   messages:
     basename: i18n/messages

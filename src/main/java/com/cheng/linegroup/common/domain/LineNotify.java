@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "line.notify")
+@Deprecated(since = "2024-11-02", forRemoval = true)
 public class LineNotify {
     private String clientId;
     private String clientSecret;

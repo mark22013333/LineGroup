@@ -30,7 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,6 +77,7 @@ public class OkHttpUtils {
                     TrustManager[] trustManagers = buildTrustManagers();
                     OkHttpClient.Builder builder =
                             new OkHttpClient.Builder()
+                                    .addInterceptor(logging)
                                     .connectTimeout(10, TimeUnit.SECONDS)
                                     .writeTimeout(8, TimeUnit.SECONDS)
                                     .readTimeout(8, TimeUnit.SECONDS)
@@ -83,7 +86,8 @@ public class OkHttpUtils {
                                     .hostnameVerifier((hostName, session) -> true)
                                     .retryOnConnectionFailure(true)
 //                                    .cookieJar(new OkHttpCookieManager())
-                                    .addInterceptor(logging);
+                                    .dispatcher(new Dispatcher(new ThreadPoolExecutor(10, 10, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000))))
+                                    .connectionPool(new ConnectionPool(5, 5, TimeUnit.MINUTES));
                     if (ipProxy != null) {
                         builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ipProxy.getIp(), ipProxy.getPort())));
                     }

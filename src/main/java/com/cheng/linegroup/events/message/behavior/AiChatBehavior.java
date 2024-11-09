@@ -3,6 +3,7 @@ package com.cheng.linegroup.events.message.behavior;
 import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.enums.BehaviorKeyword;
+import com.cheng.linegroup.service.ChatService;
 import com.cheng.linegroup.service.LineService;
 import com.cheng.linegroup.service.ReplyKeywordService;
 import com.cheng.linegroup.service.dto.LineMessage;
@@ -28,6 +29,7 @@ public class AiChatBehavior implements TextMessageBehavior {
     private static final String[] KEYWORDS = BehaviorKeyword.AI_CHAT.getKeywords();
 
     private final ChatModel chatModel;
+    private final ChatService chatService;
 
     @Override
     public boolean canHandle(String text) {
@@ -42,12 +44,14 @@ public class AiChatBehavior implements TextMessageBehavior {
         log.info("User ID: {}", userId);
         log.info("Group ID: {}", groupId);
         String text = event.getMessage().getText();
+        String chatId = String.format("%s-%s", groupId, userId);
+        String aiResponse = chatService.chat(chatId, text);
 
-        String aiResponse = chatModel.call(new Prompt(text,
-                OpenAiChatOptions.builder()
-                        .withFunction("CurrentDateTime")
-                        .build())
-        ).getResult().getOutput().getContent();
+//        String aiResponse = chatModel.call(new Prompt(text,
+//                OpenAiChatOptions.builder()
+//                        .withFunction("CurrentDateTime")
+//                        .build())
+//        ).getResult().getOutput().getContent();
 
         LineMessage lineMessage = LineMessage.builder()
                 .replyToken(event.getReplyToken())

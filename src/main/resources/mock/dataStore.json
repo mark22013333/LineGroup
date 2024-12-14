@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "result": [
+    {
+      "capid": "TWC_water_202412070540",
+      "capCode": "TWC_water",
+      "effective": "2024-12-07T05:34:42",
+      "expires": "2024-12-07T10:00:00",
+      "description": "楊梅區梅獅路二段汰換管線 斷管連絡(如遇雨順延)"
+    },
+    {
+      "capid": "TWC_water_202412051640",
+      "capCode": "TWC_water",
+      "effective": "2024-12-05T16:26:33",
+      "expires": "2024-12-07T17:00:00",
+      "description": "為辦理良皇建設新裝工程之民生用水斷管連絡"
+    }
+  ]
+}

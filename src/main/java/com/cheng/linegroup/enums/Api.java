@@ -1,5 +1,6 @@
 package com.cheng.linegroup.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -7,7 +8,23 @@ import lombok.Getter;
  * @since 2023/12/3 2:04 PM
  **/
 @Getter
+@AllArgsConstructor
 public enum Api implements Uri {
+
+    /**
+     * 示警訊息查詢
+     */
+    DATASET("api/dataset"),
+
+    /**
+     * 查詢即時示警訊息清單
+     */
+    DATA_STORE("api/datastore"),
+
+    /**
+     * 查詢示警訊息內容
+     */
+    DUMP_DATA_STORE("api/dump/datastore"),
 
     LINE_NOTIFY_PUSH("/api/notify"),
 
@@ -87,7 +104,4 @@ public enum Api implements Uri {
 
     private final String uri;
 
-    Api(String uri) {
-        this.uri = uri;
-    }
 }

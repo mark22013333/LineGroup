@@ -1,0 +1,82 @@
+{
+  "identifier": "MOENV_airQuality_202410111610_003",
+  "sender": "airtw.moenv.gov.tw",
+  "sent": "2024-10-11T16:10:00+08:00",
+  "status": "Actual",
+  "msgType": "Alert",
+  "source": "",
+  "scope": "Public",
+  "info": {
+    "language": "zh-TW",
+    "category": "Env",
+    "event": "空氣品質",
+    "responseType": "Avoid",
+    "urgency": "Future",
+    "severity": "Moderate",
+    "certainty": "Observed",
+    "eventCode": {
+      "valueName": "profile:CAP-TWP:Event:1.0",
+      "value": "airQuality"
+    },
+    "effective": "2024-10-11T16:10:00+08:00",
+    "onset": "2024-10-11T16:10:00+08:00",
+    "expires": "2024-12-11T17:10:00+08:00",
+    "senderName": "環境部",
+    "headline": "空氣品質不良",
+    "description": "【AQI大於150】環境部提醒金門及馬祖地區紅色警示(對所有族群不健康，宜減少在戶外活動)",
+    "instruction": "1.一般民眾如果有不適，如眼痛，咳嗽或喉嚨痛等，應減少體力消耗，特別是減少戶外活動。 2.學生應避免長時間劇烈運動，進行其他戶外活動時應增加休息時間。3.有心臟、呼吸道及心血管疾病患者、孩童及老年人，建議留在室內並減少體力消耗活動，必要外出應配戴口罩。 4.具有氣喘的人可能需增加使用吸入劑的頻率。",
+    "web": "https://airtw.moenv.gov.tw",
+    "parameter": [
+      {
+        "valueName": "alert_title",
+        "value": "空氣品質不良"
+      },
+      {
+        "valueName": "severity_level",
+        "value": "對所有族群不健康"
+      },
+      {
+        "valueName": "alert_color",
+        "value": "紅色"
+      }
+    ],
+    "area": [
+      {
+        "areaDesc": "桃園市平鎮區北華里",
+        "geocode": {
+          "valueName": "Taiwan_Geocode_107",
+          "value": "68000100041"
+        }
+      },
+      {
+        "areaDesc": "桃園市平鎮區新富里",
+        "geocode": {
+          "valueName": "Taiwan_Geocode_107",
+          "value": "68000100008"
+        }
+      },
+      {
+        "areaDesc": "桃園市平鎮區北興里",
+        "geocode": {
+          "valueName": "Taiwan_Geocode_107",
+          "value": "68000100010"
+        }
+      },
+      {
+        "areaDesc": "桃園市平鎮區北勢里",
+        "geocode": {
+          "valueName": "Taiwan_Geocode_107",
+          "value": "68000100009"
+        }
+      },
+      {
+        "areaDesc": "桃園市平鎮區金陵里",
+        "geocode": {
+          "valueName": "Taiwan_Geocode_107",
+          "value": "68000100039"
+        }
+      }
+    ]
+  }
+}
+

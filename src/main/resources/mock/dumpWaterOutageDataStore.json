@@ -1,0 +1,142 @@
+{
+  "identifier": "TWC_water_202412051640",
+  "sender": "https://web.water.gov.tw",
+  "sent": "2024-12-05T16:40:01+08:00",
+  "status": "Actual",
+  "msgType": "Alert",
+  "scope": "Public",
+  "references": null,
+  "info": [
+    {
+      "sections": null,
+      "description": "平鎮區上海路與上海路124巷口 路面滲水施工",
+      "language": "zh-TW",
+      "category": "Infra",
+      "event": "停水",
+      "responseType": null,
+      "urgency": "Future",
+      "severity": "Minor",
+      "certainty": "Observed",
+      "eventCode": {
+        "valueName": "profile:CAP-TWP:Event:1.0",
+        "value": "water"
+      },
+      "effective": "2024-12-10T08:46:45+08:00",
+      "expires": "2024-12-10T18:00:00+08:00",
+      "senderName": "台灣自來水公司",
+      "headline": "停水",
+      "instruction": null,
+      "web": "https://web.water.gov.tw/",
+      "parameter": [
+        {
+          "valueName": "alert_title",
+          "value": "停水"
+        }
+      ],
+      "area": [
+        {
+          "areaDesc": "桃園市平鎮區平南里",
+          "geocode": [
+            {
+              "valueName": "Taiwan_Geocode_107",
+              "value": "68000100046"
+            }
+          ],
+          "circle": null,
+          "polygon": null
+        }
+      ]
+    },
+    {
+      "sections": null,
+      "description": "修漏管線改接",
+      "language": "zh-TW",
+      "category": "Infra",
+      "event": "停水",
+      "responseType": null,
+      "urgency": "Future",
+      "severity": "Minor",
+      "certainty": "Observed",
+      "eventCode": {
+        "valueName": "profile:CAP-TWP:Event:1.0",
+        "value": "water"
+      },
+      "effective": "2024-12-10T08:48:56+08:00",
+      "expires": "2024-12-10T17:00:00+08:00",
+      "senderName": "台灣自來水公司",
+      "headline": "停水",
+      "instruction": null,
+      "web": "https://web.water.gov.tw/",
+      "parameter": [
+        {
+          "valueName": "alert_title",
+          "value": "停水"
+        }
+      ],
+      "area": [
+        {
+          "areaDesc": "彰化縣員林市大饒里",
+          "geocode": [
+            {
+              "valueName": "Taiwan_Geocode_107",
+              "value": "10007100022"
+            }
+          ],
+          "circle": null,
+          "polygon": null
+        },
+        {
+          "areaDesc": "彰化縣員林市溝皂里",
+          "geocode": [
+            {
+              "valueName": "Taiwan_Geocode_107",
+              "value": "10007100021"
+            }
+          ],
+          "circle": null,
+          "polygon": null
+        }
+      ]
+    },
+    {
+      "sections": null,
+      "description": "為辦理良皇建設新裝工程之民生用水斷管連絡",
+      "language": "zh-TW",
+      "category": "Infra",
+      "event": "停水",
+      "responseType": null,
+      "urgency": "Future",
+      "severity": "Minor",
+      "certainty": "Observed",
+      "eventCode": {
+        "valueName": "profile:CAP-TWP:Event:1.0",
+        "value": "water"
+      },
+      "effective": "2024-12-05T16:26:33+08:00",
+      "expires": "2024-12-07T17:00:00+08:00",
+      "senderName": "台灣自來水公司",
+      "headline": "停水",
+      "instruction": null,
+      "web": "https://web.water.gov.tw/",
+      "parameter": [
+        {
+          "valueName": "alert_title",
+          "value": "停水"
+        }
+      ],
+      "area": [
+        {
+          "areaDesc": "桃園市大園區南港里",
+          "geocode": [
+            {
+              "valueName": "Taiwan_Geocode_107",
+              "value": "68000060019"
+            }
+          ],
+          "circle": null,
+          "polygon": null
+        }
+      ]
+    }
+  ]
+}

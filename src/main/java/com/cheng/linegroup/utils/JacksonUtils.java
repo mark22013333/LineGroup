@@ -6,16 +6,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author cheng
@@ -36,6 +34,36 @@ public class JacksonUtils {
         MAPPER.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         MAPPER.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         MAPPER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+    }
+
+    /**
+     * 從 {@link ObjectNode} 中取得指定鍵的字串值。
+     * 如果該鍵不存在或其值為 null，則返回提供的預設值。
+     *
+     * @param node         要從中取得值的 {@link ObjectNode}，不得為 null。
+     * @param key          要在 {@link ObjectNode} 中查找的鍵，不得為 null。
+     * @param defaultValue 當鍵不存在或其值為 null 時返回的預設值。
+     * @return 指定鍵對應的字串值；如果該鍵不存在，則返回預設值。
+     * @throws NullPointerException 如果 {@code node} 或 {@code key} 為 null，則拋出此例外。
+     */
+    public static String getStringOrDefault(ObjectNode node, String key, String defaultValue) {
+        return Optional.ofNullable(node.get(key))
+                .map(JsonNode::asText)
+                .orElse(defaultValue);
+    }
+
+    /**
+     * 確保 {@link ObjectNode} 中存在指定的鍵。如果該鍵不存在，則使用提供的預設值新增該鍵。
+     *
+     * @param node         要修改的 {@link ObjectNode}，不得為 null。
+     * @param key          要檢查或新增的鍵，不得為 null。
+     * @param defaultValue 如果該鍵不存在，則新增該鍵並設置為此預設值。
+     * @throws NullPointerException 如果 {@code node} 或 {@code key} 為 null，則拋出此例外。
+     */
+    public static void ensureKey(ObjectNode node, String key, String defaultValue) {
+        if (!node.has(key)) {
+            node.put(key, defaultValue);
+        }
     }
 
     /**
@@ -176,6 +204,44 @@ public class JacksonUtils {
 
     public static ArrayNode toArrayNode(String jsonStr) throws IOException {
         return (ArrayNode) MAPPER.readTree(jsonStr);
+    }
+
+    public static ArrayNode toArrayNode(HttpServletRequest req) throws IOException {
+        return (ArrayNode) MAPPER.readTree(req.getInputStream());
+    }
+
+    /**
+     * 將 JsonNode 轉換為目標物件清單
+     *
+     * @param arrayNode  要轉換的 JsonNode (必須是 ArrayNode)
+     * @param targetType 目標類型的 Class
+     * @param <T>        目標類型
+     * @return List<T> 轉換後的物件清單
+     */
+    public static <T> List<T> toList(ArrayNode arrayNode, Class<T> targetType) {
+        if (arrayNode == null || !arrayNode.isArray()) {
+            throw new IllegalArgumentException("JsonNode 必須是 ArrayNode 類型");
+        }
+
+        return MAPPER.convertValue(arrayNode,
+                MAPPER.getTypeFactory().constructCollectionType(List.class, targetType)
+        );
+    }
+
+    /**
+     * 將 JsonNode 轉換為目標物件清單 (適用於非 ArrayNode 的 JsonNode)
+     *
+     * @param jsonNode   JsonNode
+     * @param targetType 目標類型的 Class
+     * @param <T>        目標類型
+     * @return List<T> 轉換後的物件清單
+     */
+    public static <T> List<T> toList(JsonNode jsonNode, Class<T> targetType) {
+        if (jsonNode == null || !jsonNode.isArray()) {
+            throw new IllegalArgumentException("JsonNode 必須是 ArrayNode 類型");
+        }
+
+        return toList((ArrayNode) jsonNode, targetType);
     }
 
     public static JsonNode toJsonNode(String jsonStr) throws IOException {

@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "result": [
+    {
+      "name": "空氣品質",
+      "capCode": "airQuality",
+      "gov": "EPA"
+    },
+    {
+      "name": "電力中斷",
+      "capCode": "electric",
+      "gov": "TPC"
+    },
+    {
+      "name": "停水",
+      "capCode": "TPE_water",
+      "gov": "TWD"
+    },
+    {
+      "name": "停水",
+      "capCode": "TWC_water",
+      "gov": "TWC"
+    }
+  ]
+}

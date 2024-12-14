@@ -82,6 +82,13 @@ public class ApiUtils {
     }
 
     public static String getUrl(String url, Uri uri, Object... args) {
+        int placeholderCount = countPlaceholders(uri.getUri());
+
+        // 檢查參數數量是否正確
+        if (placeholderCount > 0 && args.length != placeholderCount) {
+            throw BizException.create(ApiResult.PARAM_ERROR,
+                    String.format("Expected %d arguments but found %d", placeholderCount, args.length));
+        }
         return getUrl(url, String.format(uri.getUri(), args));
     }
 
@@ -125,10 +132,8 @@ public class ApiUtils {
         return params.entrySet().stream()
                 .map(e -> {
                     try {
-                        return String.format("%s=%s", e.getKey(), URLEncoder.encode(e.getValue().toString(), StandardCharsets.UTF_8.name()));
-                    } catch (UnsupportedEncodingException unsupportedEncodingException) {
-                        log.warn("###url encode error ===> {}:{}", e.getKey(), e.getValue());
-                        return null;
+                        String value = e.getValue() != null ? (String) e.getValue() : "";
+                        return String.format("%s=%s", e.getKey(), URLEncoder.encode(value, StandardCharsets.UTF_8));
                     } catch (Exception ex) {
                         log.error("ERROR:", ex);
                         return null;
@@ -136,5 +141,12 @@ public class ApiUtils {
                 })
                 .filter(StringUtils::isNoneBlank)
                 .collect(Collectors.joining("&"));
+    }
+
+    private static int countPlaceholders(String input) {
+        if (input == null || input.isEmpty()) {
+            return 0;
+        }
+        return input.split("%s", -1).length - 1;
     }
 }

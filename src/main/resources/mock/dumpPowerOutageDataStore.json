@@ -1,0 +1,90 @@
+
+  {
+    "identifier": "TPC_electric_202410311131",
+    "sender": "www.taipower.com.tw",
+    "sent": "2024-10-31T11:31:38+08:00",
+    "status": "Actual",
+    "msgType": "Alert",
+    "source": "",
+    "scope": "Public",
+    "info": {
+      "language": "zh-TW",
+      "category": "Infra",
+      "event": "電力中斷",
+      "responseType": "Monitor",
+      "urgency": "Future",
+      "severity": "Moderate",
+      "certainty": "Observed",
+      "eventCode": {
+        "valueName": "profile:CAP-TWP:Event:1.0",
+        "value": "electric"
+      },
+      "effective": "2024-10-31T11:31:38+08:00",
+      "expires": "2024-10-31T23:00:00+08:00",
+      "senderName": "台灣電力公司",
+      "headline": "災害性停電",
+      "description": "2024年10月31日11時31分台灣電力公司發布災害性停電, 影響區域為: 宜蘭縣:28戶,花蓮縣:8406戶,南投縣:338戶,苗栗縣:1141戶,桃園市:6496戶,高雄市:975戶,雲林縣:1397戶,新北市:1140戶,新竹縣:1598戶,嘉義市:28戶,嘉義縣:3500戶,彰化縣:1213戶,臺中市:4499戶,臺北市:2789戶,臺東縣:11634戶,臺南市:735戶",
+      "instruction": "",
+      "web": "http://www.taipower.com.tw",
+      "parameter": [
+        {
+          "valueName": "alert_title",
+          "value": "災害性停電"
+        },
+        {
+          "valueName": "alert_color",
+          "value": "橘色"
+        },
+        {
+          "valueName": "website_color",
+          "value": "255,126,0"
+        },
+        {
+          "valueName": "Now_Stop_Cust_Town",
+          "value": "楊梅區:1518戶"
+        },
+        {
+          "valueName": "Now_Stop_Cust_Town",
+          "value": "蘆竹區:714戶"
+        },
+        {
+          "valueName": "Now_Stop_Cust_Town",
+          "value": "大園區:2367戶"
+        },
+        {
+          "valueName": "Now_Stop_Cust_Town",
+          "value": "復興區:1897戶"
+        }
+      ],
+      "area": [
+        {
+          "areaDesc": "楊梅區",
+          "geocode": {
+            "valueName": "Taiwan_Geocode_106",
+            "value": "68000040"
+          }
+        },
+        {
+          "areaDesc": "蘆竹區",
+          "geocode": {
+            "valueName": "Taiwan_Geocode_106",
+            "value": "68000050"
+          }
+        },
+        {
+          "areaDesc": "大園區",
+          "geocode": {
+            "valueName": "Taiwan_Geocode_106",
+            "value": "68000060"
+          }
+        },
+        {
+          "areaDesc": "復興區",
+          "geocode": {
+            "valueName": "Taiwan_Geocode_106",
+            "value": "68000130"
+          }
+        }
+      ]
+    }
+  }

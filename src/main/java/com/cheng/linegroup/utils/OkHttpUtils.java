@@ -26,21 +26,64 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * OkHttp 工具類
+ * <pre>
+ * 版本歷史：
+ * - 1.0: 初始版本
+ * - 1.1: 增加異步方法支持
+ * - 1.2: 新增LINE_REQUEST_ID_HEADER
+ * - 1.3: 新增CSV解析方法
+ * - 1.4: 修復{@link #addParam(Map)}, {@link #addParam(ObjectNode)}問題，避免參數被覆蓋
+ *        增加對{@link #addParam(Map)}的參數判斷，避免空參數導致問題
+ *        重構{@link #addHeader(String, String)}，用簡單的判斷方式提升效率
+ * - 1.5: 修正單例模式的問題，避免將之前的參數附加上下一次的請求
+ * </pre>
+ *
  * @author cheng
  * @since 2023/12/3 12:01 PM
  **/
 @Slf4j
 public class OkHttpUtils {
+
+    private static final List<VersionInfo> VERSION_HISTORY = new ArrayList<>();
+
+    static {
+        VERSION_HISTORY.add(new VersionInfo(1.0, "初始版本", LocalDate.of(2023, 12, 3)));
+        VERSION_HISTORY.add(new VersionInfo(1.1, "增加異步方法支持", LocalDate.of(2023, 12, 4)));
+        VERSION_HISTORY.add(new VersionInfo(1.2, "新增 LINE_REQUEST_ID_HEADER", LocalDate.of(2023, 12, 5)));
+        VERSION_HISTORY.add(new VersionInfo(1.3, "新增 CSV 解析方法", LocalDate.of(2023, 12, 6)));
+        VERSION_HISTORY.add(new VersionInfo(1.4, """
+                修復 addParam(Map), addParam(ObjectNode) 問題，避免參數被覆蓋
+                增加對 addParam(Map) 的參數判斷，避免空參數導致問題
+                重構 addHeader(String, String)，用簡單的判斷方式提升效率
+                """, LocalDate.of(2024, 12, 7)));
+        VERSION_HISTORY.add(new VersionInfo(1.5, "修正單例模式的問題，避免將之前的參數附加上下一次的請求", LocalDate.of(2024, 12, 11)));
+
+    }
+
+    public static void printVersionHistory() {
+        log.info("OkHttpUtils 版本歷史：");
+        VERSION_HISTORY.forEach(version ->
+                log.info("版本: {}, 日期: {}, 描述: {}", version.version(), version.date(), version.description()));
+    }
+
+    private record VersionInfo(double version, String description, LocalDate date) {
+    }
+
+//    @Data
+//    private static class VersionInfo {
+//        private final double version;
+//        private final String description;
+//        private final LocalDate date;
+//    }
 
     public static final String CHARSET_BIG5 = "Big5";
 
@@ -52,15 +95,7 @@ public class OkHttpUtils {
     private ObjectNode paramObj;
     private Request.Builder request;
 
-    private static class LazyHolder {
-        static final OkHttpUtils INSTANCE = new OkHttpUtils();
-    }
-
-    public static OkHttpUtils getInstance() {
-        return LazyHolder.INSTANCE;
-    }
-
-    private OkHttpUtils() {
+    OkHttpUtils() {
         init(null);
     }
 
@@ -115,8 +150,24 @@ public class OkHttpUtils {
     /**
      * 若要使用代理IP需要使用{@link OkHttpUtils#builder(IpProxy)}
      */
+    // 不使用池的方法
+//    public static OkHttpUtils builder() {
+//        return new OkHttpUtils();
+//    }
     public static OkHttpUtils builder() {
-        return getInstance();
+        try {
+            return OkHttpUtilsPool.borrow();
+        } catch (Exception e) {
+            log.error("===>ERR:", e);
+            return new OkHttpUtils();
+        }
+    }
+
+    public void release() {
+        paramMap = null;
+        paramObj = null;
+        headerMap = null;
+        OkHttpUtilsPool.release(this);
     }
 
     public static OkHttpUtils builder(IpProxy ipProxy) {
@@ -134,17 +185,32 @@ public class OkHttpUtils {
     }
 
     public OkHttpUtils addParam(ObjectNode params) {
-        paramObj = params;
+        if (paramObj == null) {
+            paramObj = JacksonUtils.genJsonObject();
+        }
+        if (params != null) {
+            paramObj.setAll(params);
+        }
         return this;
     }
 
     public OkHttpUtils addParam(Map<String, String> params) {
-        paramMap = Optional.ofNullable(params).orElse(new HashMap<>(10));
+        if (paramMap == null) {
+            paramMap = new HashMap<>(10);
+        }
+        if (params != null) {
+            paramMap.putAll(params);
+        }
         return this;
     }
 
     public OkHttpUtils addHeader(String key, String value) {
-        headerMap = Optional.ofNullable(headerMap).orElse(new HashMap<>(10));
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Header key and value must not be null");
+        }
+        if (headerMap == null) {
+            headerMap = new HashMap<>(10);
+        }
         headerMap.put(key, value);
         return this;
     }
@@ -256,7 +322,7 @@ public class OkHttpUtils {
             String contentType = response.header("Content-Type");
 
             ApiResponse apiResponse;
-            if ("application/json".equals(contentType)) {
+            if (contentType != null && contentType.contains("application/json")) {
                 String data = Objects.requireNonNull(response.body()).string();
                 apiResponse = ApiResponse.builder()
                         .httpStatusCode(code)
@@ -281,6 +347,8 @@ public class OkHttpUtils {
         } catch (IOException e) {
             log.error("ERR:{}", ExceptionUtils.getStackTrace(e));
             return ApiResponse.empty();
+        } finally {
+            release();
         }
     }
 
@@ -295,23 +363,29 @@ public class OkHttpUtils {
                             @Override
                             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                                 buffer.append("ERROR:").append(e.getMessage());
+                                release();
                             }
 
                             @Override
                             public void onResponse(@NotNull Call call, @NotNull Response response)
                                     throws IOException {
-                                builder.httpStatusCode(response.code());
-                                buffer.append(Objects.requireNonNull(response.body()).string());
-                                getSemaphoreInstance().release();
+                                try {
+                                    builder.httpStatusCode(response.code());
+                                    buffer.append(Objects.requireNonNull(response.body()).string());
+                                } finally {
+                                    release();
+                                }
+//                                getSemaphoreInstance().release();
                             }
                         });
 
-        try {
-            getSemaphoreInstance().acquire();
-        } catch (InterruptedException e) {
-            log.info("ERR:{}", ExceptionUtils.getStackTrace(e));
-            Thread.currentThread().interrupt();
-        }
+        // async 版本無需使用 Semaphore，直接返回結果
+//        try {
+//            getSemaphoreInstance().acquire();
+//        } catch (InterruptedException e) {
+//            log.info("ERR:{}", ExceptionUtils.getStackTrace(e));
+//            Thread.currentThread().interrupt();
+//        }
 
         return builder.resultData(buffer.toString()).build();
     }
@@ -322,13 +396,21 @@ public class OkHttpUtils {
                 new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        callBack.onFailure(call, e.getMessage());
+                        try {
+                            callBack.onFailure(call, e.getMessage());
+                        } finally {
+                            release();
+                        }
                     }
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response)
                             throws IOException {
-                        callBack.onSuccessful(call, Objects.requireNonNull(response.body()).string());
+                        try {
+                            callBack.onSuccessful(call, Objects.requireNonNull(response.body()).string());
+                        } finally {
+                            release();
+                        }
                     }
                 });
     }

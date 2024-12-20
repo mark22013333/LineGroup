@@ -23,7 +23,8 @@ public class OkHttpUtilsPool {
         config.setMaxIdle(10);  // 最大閒置物件數量
         config.setBlockWhenExhausted(true); // 當物件用盡時是否阻塞
         config.setMaxWait(Duration.ofSeconds(15)); // 阻塞時最大等待時間
-        config.setMinEvictableIdleDuration(Duration.ofMinutes(10)); // 最小閒置存活時間
+        config.setMinEvictableIdleDuration(Duration.ofMinutes(10)); // 設定最小閒置存活時間
+        config.setTimeBetweenEvictionRuns(Duration.ofMinutes(5));   // 設定清理間隔時間
 
         POOL = new GenericObjectPool<>(new BasePooledObjectFactory<>() {
             @Override

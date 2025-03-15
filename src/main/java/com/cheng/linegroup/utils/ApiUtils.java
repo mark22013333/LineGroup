@@ -7,17 +7,15 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
 public class ApiUtils {
 
     private static final int USABLE = -1;
-    private static final Map<String, Map<Integer, LocalDateTime>> TYPE_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, LinkedHashMap<Integer, LocalDateTime>> TYPE_MAP = new ConcurrentHashMap<>();
 
     /**
      * 控制API使用限制
@@ -41,12 +39,11 @@ public class ApiUtils {
      **/
     public static int notCallApi(String type, int usableLimit, int minAfterUse) {
         LocalDateTime now = LocalDateTime.now();
-        AtomicInteger count = new AtomicInteger();
 
-        Map<Integer, LocalDateTime> useMap = TYPE_MAP.computeIfAbsent(type, k -> new HashMap<>());
-        useMap.keySet().forEach(count::set);
+        Map<Integer, LocalDateTime> useMap = TYPE_MAP.computeIfAbsent(type, k -> new LinkedHashMap<>());
+        int count = useMap.size();
 
-        if (count.get() >= usableLimit) {
+        if (count >= usableLimit) {
             LocalDateTime beforeTime = useMap.get(usableLimit);
             LocalDateTime end = beforeTime.plusMinutes(minAfterUse);
             Duration duration = Duration.between(now, end);
@@ -58,7 +55,7 @@ public class ApiUtils {
                 return min;
             }
         } else {
-            useMap.put(count.incrementAndGet(), now);
+            useMap.put(++count, now);
         }
 
         log.info("typeMap = {}", TYPE_MAP);
@@ -72,7 +69,7 @@ public class ApiUtils {
      * @param now  當前時間
      */
     private static void resetTypeMap(String type, LocalDateTime now) {
-        Map<Integer, LocalDateTime> newMap = new HashMap<>();
+        LinkedHashMap<Integer, LocalDateTime> newMap = new LinkedHashMap<>();
         newMap.put(1, now);
         TYPE_MAP.put(type, newMap);
     }

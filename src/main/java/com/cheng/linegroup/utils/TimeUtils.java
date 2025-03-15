@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author cheng
@@ -21,6 +23,42 @@ public class TimeUtils {
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
     public static final String YYYY_MM_DD = "yyyy-MM-dd";
     public static final String HH_MM_SS = "HH:mm:ss";
+
+    /**
+     * 轉換台灣民國年格式的日期為西元日期格式（yyyy-MM-dd）。
+     * <p>
+     * 支援以下格式：
+     * <ul>
+     *     <li>112年05月03日</li>
+     *     <li>112 年 5 月 3 日</li>
+     *     <li>民國99年12月25日</li>
+     *     <li>191 年 1 月 9 日</li>
+     *     <li>114.2.14</li>
+     *     <li>民國 114 年 02 月 14 日</li>
+     *     <li>112/10/03</li>
+     * </ul>
+     * <p>
+     * 無論是否有額外空格、是否有「民國」字串，或是分隔符號為「年」、「.」或「/」都能正確解析。
+     *
+     * @param input 轉換的民國年格式日期字串，例如 "112年05月03日"、"民國 112 年 5 月 3 日" 或 "112/10/03"
+     * @return 轉換後的西元日期字串，格式為 "yyyy-MM-dd"；若格式不符則回傳原始輸入字串
+     */
+    public static String convertTaiwanDate(String input) {
+        // 調整正規表達式，允許分隔符號為 年、. 或 /
+        Pattern pattern = Pattern.compile("^(?:民國\\s*)?(\\d{2,3})\\s*[年./]\\s*(\\d{1,2})\\s*[月./]\\s*(\\d{1,2})(?:\\s*日)?$");
+        Matcher matcher = pattern.matcher(input.trim());
+
+        if (matcher.find()) {
+            int taiwanYear = Integer.parseInt(matcher.group(1));
+            int month = Integer.parseInt(matcher.group(2));
+            int day = Integer.parseInt(matcher.group(3));
+
+            int gregorianYear = taiwanYear + 1911;
+            return String.format("%04d-%02d-%02d", gregorianYear, month, day);
+        }
+
+        return input;
+    }
 
     /**
      * 取得今天日期

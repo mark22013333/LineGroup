@@ -164,10 +164,14 @@ public class OkHttpUtils {
     }
 
     public void release() {
-        paramMap = null;
-        paramObj = null;
-        headerMap = null;
-        OkHttpUtilsPool.release(this);
+        try {
+            paramMap = null;
+            paramObj = null;
+            headerMap = null;
+            OkHttpUtilsPool.release(this);
+        } catch (Exception e) {
+            log.error("Failed to release OkHttpUtils back to pool", e);
+        }
     }
 
     public static OkHttpUtils builder(IpProxy ipProxy) {
@@ -379,7 +383,7 @@ public class OkHttpUtils {
                             }
                         });
 
-        // async 版本無需使用 Semaphore，直接返回結果
+        // async 版本無需使用 Semaphore，直接返回結果 (如果非同步操作需要同步完成，則應啟用)
 //        try {
 //            getSemaphoreInstance().acquire();
 //        } catch (InterruptedException e) {

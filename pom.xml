@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -14,9 +15,23 @@
     <packaging>war</packaging>
     <name>LineGroup</name>
     <description>LineGroup</description>
+
     <properties>
         <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 版本號統一管理 -->
+        <spring.retry.version>2.0.10</spring.retry.version>
+        <mysql.connector.version>8.3.0</mysql.connector.version>
+        <jackson.databind.version>2.15.1</jackson.databind.version>
+        <commons.collections4.version>4.4</commons.collections4.version>
+        <commons.pool2.version>2.12.0</commons.pool2.version>
+        <commons.csv.version>1.10.0</commons.csv.version>
+        <guava.version>32.1.2-jre</guava.version>
+        <springdoc.version>2.6.0</springdoc.version>
+        <thumbnailator.version>0.4.20</thumbnailator.version>
+        <jhlabs.filters.version>2.0.235-1</jhlabs.filters.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -28,6 +43,8 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!-- 如無特別需求使用 snapshot 版本，可考慮移除 spring-snapshots repository -->
     <repositories>
         <repository>
             <id>spring-milestones</id>
@@ -79,7 +96,7 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
-            <version>2.0.10</version>
+            <version>${spring.retry.version}</version>
         </dependency>
 
         <!-- Spring AOP -->
@@ -95,9 +112,7 @@
             <version>4.3.0</version>
         </dependency>
 
-        <!-- 因為 javax.xml.bind.DatatypeConverter 這個類在 Java 9 及以上版本中不再包含在預設的類路徑中。
-        這是由於 Java 9 導入了模塊系統（Jigsaw），導致一些之前屬於 Java SE 的包不再直接可用 -->
-        <!-- ==================================================================== -->
+        <!-- javax.xml.bind 相關依賴 -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -115,10 +130,8 @@
             <artifactId>jaxb-impl</artifactId>
             <version>2.3.3</version>
         </dependency>
-        <!-- ==================================================================== -->
 
         <!-- Spring Security -->
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -154,7 +167,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.15.1</version>
+            <version>${jackson.databind.version}</version>
         </dependency>
 
         <!-- JPA -->
@@ -167,7 +180,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.3.0</version>
+            <version>${mysql.connector.version}</version>
         </dependency>
 
         <!-- Jasypt -->
@@ -177,64 +190,60 @@
             <version>3.0.5</version>
         </dependency>
 
-
         <!-- Apache Commons Lang -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- Apache Commons collections4 -->
+        <!-- Apache Commons Collections4 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
+            <version>${commons.collections4.version}</version>
         </dependency>
 
         <!-- Apache Commons Pool -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-            <version>2.12.0</version>
+            <version>${commons.pool2.version}</version>
         </dependency>
 
         <!-- Apache Commons CSV -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.10.0</version>
+            <version>${commons.csv.version}</version>
         </dependency>
 
         <!-- Guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.1.2-jre</version>
+            <version>${guava.version}</version>
         </dependency>
 
         <!-- Open API (Swagger) -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.6.0</version>
+            <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- 圖片處理工具 -->
-        <!-- https://mvnrepository.com/artifact/net.coobird/thumbnailator -->
+        <!-- 圖片處理工具 Thumbnailator -->
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.20</version>
+            <version>${thumbnailator.version}</version>
         </dependency>
 
-        <!-- 圖片處理工具 -->
-        <!-- https://mvnrepository.com/artifact/com.jhlabs/filters -->
+        <!-- 圖片處理工具 JHLabs Filters -->
         <dependency>
             <groupId>com.jhlabs</groupId>
             <artifactId>filters</artifactId>
-            <version>2.0.235-1</version>
+            <version>${jhlabs.filters.version}</version>
         </dependency>
-
 
         <!-- =================================================================== -->
         <dependency>
@@ -257,7 +266,7 @@
     </dependencies>
 
     <build>
-        <finalName>TangDong</finalName>
+        <finalName>LineGroup</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -265,6 +274,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>

@@ -36,6 +36,7 @@ public class TimeUtils {
      *     <li>114.2.14</li>
      *     <li>民國 114 年 02 月 14 日</li>
      *     <li>112/10/03</li>
+     *     <li>109-08-27</li>
      * </ul>
      * <p>
      * 無論是否有額外空格、是否有「民國」字串，或是分隔符號為「年」、「.」或「/」都能正確解析。
@@ -44,17 +45,36 @@ public class TimeUtils {
      * @return 轉換後的西元日期字串，格式為 "yyyy-MM-dd"；若格式不符則回傳原始輸入字串
      */
     public static String convertTaiwanDate(String input) {
-        // 調整正規表達式，允許分隔符號為 年、. 或 /
-        Pattern pattern = Pattern.compile("^(?:民國\\s*)?(\\d{2,3})\\s*[年./]\\s*(\\d{1,2})\\s*[月./]\\s*(\\d{1,2})(?:\\s*日)?$");
+        if (input == null || input.trim().isEmpty()) {
+            return input;
+        }
+
+        // 使用正規表達式處理多種格式
+        String regex = "^\\s*(?:(?:民國|中華民國)\\s*)?(\\d{1,3})\\s*(?:年|[./-])\\s*(\\d{1,2})\\s*(?:月|[./-])\\s*(\\d{1,2})\\s*日?\\s*$";
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input.trim());
 
         if (matcher.find()) {
-            int taiwanYear = Integer.parseInt(matcher.group(1));
-            int month = Integer.parseInt(matcher.group(2));
-            int day = Integer.parseInt(matcher.group(3));
+            try {
+                int taiwanYear = Integer.parseInt(matcher.group(1));
+                int month = Integer.parseInt(matcher.group(2));
+                int day = Integer.parseInt(matcher.group(3));
 
-            int gregorianYear = taiwanYear + 1911;
-            return String.format("%04d-%02d-%02d", gregorianYear, month, day);
+                // 確保年份、月份和日期在合理範圍內
+                if (taiwanYear >= 1 && taiwanYear <= 999 &&
+                        month >= 1 && month <= 12 &&
+                        day >= 1 && day <= 31) {
+
+                    // 處理前導零的情況（如 099 年）
+                    int gregorianYear = taiwanYear + 1911;
+
+                    // 格式化輸出 YYYY-MM-DD
+                    return String.format("%04d-%02d-%02d", gregorianYear, month, day);
+                }
+            } catch (NumberFormatException e) {
+                log.warn("ERR:{}", e.getMessage());
+                return input;
+            }
         }
 
         return input;

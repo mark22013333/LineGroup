@@ -842,6 +842,9 @@ function highlightRestaurantCard(placeId) {
 }
 
 // 獲取地點詳細資訊 (需要額外 API 請求)
+// 全域變數，用於保存詳細資訊
+let currentPlaceDetails = null;
+
 // 獲取地點詳細資訊 (需要額外 API 請求)
 function fetchPlaceDetails(placeId, marker) {
     if (!placesService || !placeId) return;
@@ -855,7 +858,10 @@ function fetchPlaceDetails(placeId, marker) {
     placesService.getDetails(request, (placeDetails, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
             console.log("Place details received:", placeDetails);
-            // 建立資訊視窗內容
+            // 保存詳細資訊以便在浮窗中使用
+            currentPlaceDetails = placeDetails;
+            
+            // 建立地圖資訊視窗內容（較簡短的版本）
             let content = `<div class="info-window-content" style="max-width: 300px;">`;
 
             // 標題與基本資訊
@@ -865,7 +871,6 @@ function fetchPlaceDetails(placeId, marker) {
             if (placeDetails.formatted_address) content += `<p style="margin: 5px 0;"><i class="fas fa-map-marker-alt"></i> ${placeDetails.formatted_address}</p>`;
             if (placeDetails.formatted_phone_number) content += `<p style="margin: 5px 0;"><i class="fas fa-phone"></i> <a href="tel:${placeDetails.formatted_phone_number}">${placeDetails.formatted_phone_number}</a></p>`;
 
-            // 網站連結
             // 網站連結
             if (placeDetails.website) content += `<p style="margin: 5px 0;"><a href="${placeDetails.website}" target="_blank" style="color: #1a73e8;">訪問網站</a></p>`;
 
@@ -886,39 +891,20 @@ function fetchPlaceDetails(placeId, marker) {
                 content += `<div style="margin-top: 10px;">${statusInfo}</div>`;
             }
 
-            // 評論區塊
-            if (placeDetails.reviews && placeDetails.reviews.length > 0) {
-                content += `<div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                    <h5 style="margin-bottom: 10px;">使用者評論</h5>`;
-
-                // 最多顯示3則評論
-                const reviewsToShow = placeDetails.reviews.slice(0, 3);
-                reviewsToShow.forEach(review => {
-                    const reviewDate = new Date(review.time * 1000).toLocaleDateString();
-                    content += `<div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5;">
-                        <div style="font-weight: bold;">${review.author_name}</div>
-                        <div style="color: #e7711b; font-size: 0.9em; margin: 3px 0;">評分: ${review.rating} ⭐ (${reviewDate})</div>
-                        <div style="font-size: 0.9em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">${review.text}</div>
-                    </div>`;
-                });
-
-                // 如果有超過3則評論，添加「查看更多評論」按鈕
-                if (placeDetails.reviews.length > 3) {
-                    content += `<div style="text-align: center; margin-top: 10px;">
-                        <a href="${placeDetails.url}#reviews" target="_blank" style="color: #1a73e8; text-decoration: none;">
-                            查看更多評論 (${placeDetails.reviews.length - 3}+)
-                        </a>
-                    </div>`;
-                }
-
-                content += `</div>`;
-            }
-
             // 照片區域
             if (placeDetails.photos && placeDetails.photos.length > 0) {
                 const photoUrl = placeDetails.photos[0].getUrl({ maxWidth: 300, maxHeight: 200 });
                 content += `<div style="margin-top: 15px; text-align: center;">
                     <img src="${photoUrl}" alt="${placeDetails.name}" style="max-width: 100%; max-height: 150px; object-fit: cover; border-radius: 4px;">
+                </div>`;
+            }
+
+            // 查看評論按鈕
+            if (placeDetails.reviews && placeDetails.reviews.length > 0) {
+                content += `<div style="margin-top: 15px; text-align: center;">
+                    <button id="viewReviewsBtn" style="background-color: #4CAF50; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;">
+                        查看 ${placeDetails.reviews.length} 則評論
+                    </button>
                 </div>`;
             }
 
@@ -937,6 +923,16 @@ function fetchPlaceDetails(placeId, marker) {
             // 確保視窗仍然附著在正確的標記上 (以防使用者在載入期間點擊其他標記)
             if (infowindow.getAnchor() === marker) {
                 infowindow.open(map, marker);
+                
+                // 為查看評論按鈕添加事件監聽器
+                google.maps.event.addListenerOnce(infowindow, 'domready', () => {
+                    const viewReviewsBtn = document.getElementById('viewReviewsBtn');
+                    if (viewReviewsBtn && placeDetails.reviews) {
+                        viewReviewsBtn.addEventListener('click', () => {
+                            showReviewsModal(placeDetails);
+                        });
+                    }
+                });
             }
 
         } else {
@@ -948,6 +944,135 @@ function fetchPlaceDetails(placeId, marker) {
             }
         }
     });
+}
+
+// 顯示評論浮窗
+function showReviewsModal(placeDetails) {
+    if (!placeDetails || !placeDetails.reviews) return;
+    
+    // 檢查是否已存在評論浮窗，如果存在則先移除
+    const existingModal = document.getElementById('reviewsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // 建立評論浮窗元素
+    const modal = document.createElement('div');
+    modal.id = 'reviewsModal';
+    modal.classList.add('reviews-modal');
+    
+    // 建立評論浮窗內容
+    let modalContent = `
+        <div class="reviews-modal-content">
+            <div class="reviews-modal-header">
+                <h3 class="reviews-modal-title">${placeDetails.name} - 評論</h3>
+                <button class="reviews-modal-close">&times;</button>
+            </div>
+            <div class="reviews-modal-body">`;
+    
+    // 評分和評論數量摘要
+    if (placeDetails.rating) {
+        modalContent += `
+            <div class="reviews-summary">
+                <div class="reviews-rating">
+                    <span class="reviews-rating-value">${placeDetails.rating}</span>
+                    <div class="reviews-rating-stars">
+                        ${getStarsHTML(placeDetails.rating)}
+                    </div>
+                </div>
+                <div class="reviews-count">${placeDetails.user_ratings_total || placeDetails.reviews.length} 則評論</div>
+            </div>`;
+    }
+    
+    // 評論列表
+    modalContent += `<div class="reviews-list">`;
+    placeDetails.reviews.forEach(review => {
+        const reviewDate = new Date(review.time * 1000).toLocaleDateString();
+        modalContent += `
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="review-author">${review.author_name}</div>
+                    <div class="review-date">${reviewDate}</div>
+                </div>
+                <div class="review-rating">
+                    ${getStarsHTML(review.rating)}
+                    <span class="review-rating-value">${review.rating}</span>
+                </div>
+                <div class="review-text">${review.text}</div>
+            </div>`;
+    });
+    
+    modalContent += `</div>`; // 結束評論列表
+    
+    // 添加前往 Google Maps 查看更多評論的連結
+    if (placeDetails.url) {
+        modalContent += `
+            <div class="reviews-more">
+                <a href="${placeDetails.url}#reviews" target="_blank" class="reviews-more-link">
+                    在 Google 地圖上查看更多評論
+                </a>
+            </div>`;
+    }
+    
+    modalContent += `
+            </div>
+        </div>`;
+    
+    modal.innerHTML = modalContent;
+    document.body.appendChild(modal);
+    
+    // 添加關閉按鈕事件
+    const closeButton = modal.querySelector('.reviews-modal-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            modal.remove();
+        });
+    }
+    
+    // 點擊浮窗外部區域關閉浮窗
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // 添加鍵盤事件 (ESC 鍵關閉浮窗)
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && document.getElementById('reviewsModal')) {
+            document.getElementById('reviewsModal').remove();
+        }
+    });
+    
+    // 浮窗顯示後滾動至頂部
+    setTimeout(() => {
+        modal.querySelector('.reviews-modal-body').scrollTop = 0;
+    }, 100);
+}
+
+// 生成星星 HTML
+function getStarsHTML(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    
+    let starsHTML = '';
+    
+    // 添加滿星
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<span class="star full-star">★</span>';
+    }
+    
+    // 添加半星 (如果有)
+    if (halfStar) {
+        starsHTML += '<span class="star half-star">★</span>';
+    }
+    
+    // 添加空星
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<span class="star empty-star">☆</span>';
+    }
+    
+    return starsHTML;
 }
 
 
@@ -986,12 +1111,16 @@ function displayResults(places) {
         const address = place.vicinity || place.formatted_address || '無地址資訊';
         cardHTML += `<p class="card-text text-muted mb-2">${address}</p>`;
 
-        // 4. 評分與評論數
+        // 4. 評分與評論數 (可點擊查看評論)
         if (place.rating) {
-            cardHTML += `<div class="d-flex align-items-center mb-2">
-                <span class="me-2">評分:</span>
-                <span class="badge bg-warning text-dark me-1">${place.rating}</span>
-                <small class="text-muted">(${place.user_ratings_total || 0} 則評論)</small>
+            cardHTML += `<div class="mb-2">
+                <div class="d-flex align-items-center mb-1">
+                    <span class="me-2">評分:</span>
+                    <span class="badge bg-warning text-dark me-1">${place.rating}</span>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary comments-btn w-100" data-place-id="${place.place_id}">
+                    <i class="fas fa-comments me-1"></i>查看 ${place.user_ratings_total || 0} 則評論
+                </button>
             </div>`;
         }
 
@@ -1013,7 +1142,7 @@ function displayResults(places) {
 
         li.innerHTML = cardHTML;
 
-        // 添加點擊事件處理
+        // 添加查看詳情按鈕點擊事件
         li.querySelector('.view-details-btn').addEventListener('click', (e) => {
             e.stopPropagation(); // 防止事件冒泡到卡片
 
@@ -1027,6 +1156,42 @@ function displayResults(places) {
                 console.warn("Marker not found for place:", place.name);
             }
         });
+
+        // 添加查看評論按鈕事件
+        const commentsBtn = li.querySelector('.comments-btn');
+        if (commentsBtn) {
+            commentsBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 防止事件冒泡到卡片
+                
+                const placeId = commentsBtn.getAttribute('data-place-id');
+                if (!placeId) return;
+                
+                // 如果已存在詳細信息，直接顯示評論浮窗
+                if (currentPlaceDetails && currentPlaceDetails.place_id === placeId && currentPlaceDetails.reviews) {
+                    showReviewsModal(currentPlaceDetails);
+                    return;
+                }
+                
+                // 否則先獲取詳細信息
+                showStatus("正在載入評論資訊...", "info");
+                const request = {
+                    placeId: placeId,
+                    fields: ['name', 'rating', 'user_ratings_total', 'reviews', 'url', 'photos', 'place_id']
+                };
+                
+                placesService.getDetails(request, (placeDetails, status) => {
+                    hideStatus();
+                    if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
+                        currentPlaceDetails = placeDetails; // 保存供後續使用
+                        showReviewsModal(placeDetails);
+                    } else {
+                        console.error("Failed to fetch place details for reviews:", status);
+                        showError("無法載入評論資訊，請稍後再試");
+                        setTimeout(hideError, 3000);
+                    }
+                });
+            });
+        }
 
         // 整個卡片的點擊事件 (可選，如果你希望整個卡片都可點擊)
         li.addEventListener('click', () => {

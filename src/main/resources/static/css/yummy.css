@@ -1,0 +1,198 @@
+body {
+    font-family: 'Arial', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+#map {
+    height: 400px;
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 按鈕樣式 */
+#findRestaurants, #findMeButton {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#findRestaurants:hover, #findMeButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 訊息樣式 */
+.error-message {
+    color: #d32f2f;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #ffebee;
+    border-radius: 8px;
+    display: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #666;
+    display: none;
+}
+
+.status-message {
+    text-align: center;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    display: none;
+}
+
+.status-message.info {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-message.success {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-message.error {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+
+/* 權限指南樣式 */
+.permission-guide {
+    background-color: #e3f2fd;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: none;
+}
+
+.permission-guide h3 {
+    color: #1976d2;
+    margin-top: 0;
+}
+
+.permission-guide ol {
+    padding-left: 20px;
+}
+
+.permission-guide li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* 標題樣式 */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.header p {
+    color: #666;
+    margin: 0;
+}
+
+/* 瀏覽器檢查樣式 */
+.browser-check {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff3e0;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: none;
+}
+
+.browser-check h3 {
+    color: #f57c00;
+    margin-top: 0;
+}
+
+.browser-list {
+    list-style: none;
+    padding: 0;
+}
+
+.browser-list li {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 4px;
+}
+
+/* 餐廳卡片樣式 */
+#restaurantList {
+    margin: 0;
+    padding: 0;
+}
+
+.restaurant-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+}
+
+.restaurant-card .card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.restaurant-card .card-text {
+    margin-bottom: 0.75rem;
+    color: #6c757d;
+}
+
+/* 焦點卡片樣式 */
+.restaurant-card.border-primary {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.5) !important;
+    border-color: #0d6efd !important;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+/* 載入更多按鈕 */
+#loadMoreButton {
+    display: none;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+#loadMoreButton:hover {
+    background-color: #198754;
+    color: white;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .restaurant-card {
+        margin-bottom: 15px;
+    }
+    
+    #map {
+        height: 300px;
+    }
+}

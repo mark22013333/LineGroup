@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>附近餐廳搜尋</title>
+    <!-- 新增 Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/yummy.css}">
+</head>
+<body>
+    <div class="header">
+        <h1>附近餐廳搜尋</h1>
+        <p>點擊下方按鈕，尋找您附近的餐廳</p>
+    </div>
+
+    <div id="browserCheck" class="browser-check">
+        <h3>瀏覽器相容性提示</h3>
+        <p>您的瀏覽器可能不完全支援地理位置功能，建議使用以下瀏覽器：</p>
+        <ul class="browser-list">
+            <li>Google Chrome（推薦）</li>
+            <li>Mozilla Firefox</li>
+            <li>Safari（iOS 裝置）</li>
+        </ul>
+    </div>
+    
+    <!-- Opera 瀏覽器特別提示 -->
+    <div id="operaBrowserInfo" class="browser-check" style="display: none;">
+        <h3>Opera 瀏覽器使用提示</h3>
+        <p>我們偵測到您正在使用 Opera 瀏覽器。部分用戶在使用 Opera 瀏覽器時可能會遇到定位超時問題。請確保：</p>
+        <ol>
+            <li>您已在 Opera 設定中允許此網站的位置存取權限</li>
+            <li>您的位置服務已開啟</li>
+            <li>瀏覽器已更新至最新版本</li>
+        </ol>
+        <p>如仍然無法使用，請嘗試使用 Chrome 瀏覽器。</p>
+    </div>
+
+    <div class="d-flex justify-content-between mb-3">
+        <button id="findRestaurants" class="btn btn-success flex-grow-1 me-2">尋找附近餐廳</button>
+        <button id="findMeButton" class="btn btn-primary flex-grow-1">回到我的位置</button>
+    </div>
+    
+    <div id="statusMessage" class="status-message"></div>
+    <div id="error" class="error-message"></div>
+    <div id="loading" class="loading">正在搜尋附近餐廳...</div>
+    
+    <div id="permissionGuide" class="permission-guide">
+        <h3>如何允許位置存取權限？</h3>
+        <ol>
+            <li><strong>iOS 裝置：</strong>
+                <ul>
+                    <li>點擊瀏覽器地址欄左側的「位置」圖示</li>
+                    <li>選擇「允許」或「允許一次」</li>
+                    <li>如果沒有看到提示，請到「設定」>「Safari」>「位置服務」中開啟</li>
+                </ul>
+            </li>
+            <li><strong>Android 裝置：</strong>
+                <ul>
+                    <li>點擊瀏覽器地址欄左側的「鎖頭」或「資訊」圖示</li>
+                    <li>找到「位置」權限並選擇「允許」</li>
+                    <li>如果沒有看到提示，請到「設定」>「應用程式」>「瀏覽器」> 「權限」中開啟位置權限</li>
+                </ul>
+            </li>
+        </ol>
+        <p>如果您已經允許權限但仍無法使用，請嘗試：</p>
+        <ol>
+            <li>重新整理頁面</li>
+            <li>清除瀏覽器快取</li>
+            <li>確認手機的定位服務已開啟</li>
+            <li>嘗試使用其他瀏覽器</li>
+        </ol>
+    </div>
+
+    <!-- 地圖區域 -->
+    <div id="map" class="mb-4"></div>
+    
+    <!-- 餐廳列表區域 -->
+    <div class="container-fluid px-0 mb-4">
+        <h3 class="mb-3">附近餐廳</h3>
+        <div class="row" id="restaurantContainer">
+            <ul id="restaurantList" class="list-unstyled row"></ul>
+        </div>
+        <button id="loadMoreButton" class="btn btn-outline-success w-100 mb-3" style="display: none;">載入更多結果</button>
+    </div>
+
+    <!-- Google Maps API 載入腳本 -->
+    <script th:src="@{/js/yummy.js}"></script>
+</body>
+</html>

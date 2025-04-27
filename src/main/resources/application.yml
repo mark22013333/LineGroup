@@ -35,3 +35,7 @@ image:
   base-path: /Users/cheng/Downloads/pic/
   domain: ENC(b2Rp9g0MIx+2cTCAWyggDCtD/m3QvcvCIGIMXdSQzS2kip50tO9kn8vPj77UDMlN)
   subscript-url: https://www.patreon.com/user?u=108014565
+
+google:
+  maps:
+    api-key: ENC(aT9NB6ct/q73p9HkdmT0xo77a5rrZ3mW5DWNwAFAHpivpLkLi6gPOUOfAPif9ABeqU7F4Etecqw=)

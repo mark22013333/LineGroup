@@ -25,8 +25,8 @@ public class MessageContentResponse {
     private String message;
 
     /**
-     * processing: 準備獲取內容
-     * succeeded: 可以獲取用戶發送的內容
+     * processing: 準備取得內容
+     * succeeded: 可以取得用戶發送的內容
      * failed: 取得內容失敗
      */
     private String status;

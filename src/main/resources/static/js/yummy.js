@@ -9,69 +9,283 @@
  * Google Maps API KEY
  * @type {string}
  */
-const API_KEY = 'REMOVED';
+let API_KEY = '';
+
+/**
+ * 客戶端唯一識別碼，用於非對稱加密
+ * @type {string}
+ */
+let CLIENT_ID = '';
+
+/**
+ * 初始化客戶端識別碼 - 從localStorage讀取或創建新的
+ */
+function initClientId() {
+    // 檢查localStorage中是否已有CLIENT_ID
+    CLIENT_ID = localStorage.getItem('maps_client_id');
+
+    // 如果沒有，則生成新的UUID並保存
+    if (!CLIENT_ID) {
+        CLIENT_ID = generateUUID();
+        localStorage.setItem('maps_client_id', CLIENT_ID);
+    }
+    console.log(`Client ID: ${CLIENT_ID}`);
+    return CLIENT_ID;
+}
+
+/**
+ * 生成UUID v4
+ * @returns {string} UUID
+ */
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+/**
+ * 檢查是否已有密鑰對，如果沒有則生成並註冊公鑰到後端
+ * @returns {Promise<void>}
+ */
+async function ensureKeyPair() {
+    // 檢查localStorage中是否已有私鑰
+    const privateKeyStore = localStorage.getItem('maps_private_key');
+
+    if (!privateKeyStore) {
+        console.log("生成新的RSA密鑰對...");
+        try {
+            // 清除任何可能存在的舊密鑰
+            localStorage.removeItem('maps_private_key');
+            localStorage.removeItem('maps_client_id');
+
+            // 使用JSEncrypt生成新的RSA密鑰對
+            const crypt = new JSEncrypt({default_key_size: 2048});
+            const privateKey = crypt.getPrivateKey();
+            const publicKey = crypt.getPublicKey();
+
+            // 保存私鑰到localStorage
+            localStorage.setItem('maps_private_key', privateKey);
+
+            // 獲取或生成客戶端ID
+            initClientId();
+
+            // 保存完整的公鑰，便於調試
+            localStorage.setItem('maps_public_key', publicKey);
+
+            // 從PEM格式提取具體的密鑰內容(不進行額外的base64編碼)
+            const publicKeyData = publicKey
+                .replace('-----BEGIN PUBLIC KEY-----', '')
+                .replace('-----END PUBLIC KEY-----', '')
+                .replace(/\r/g, '')
+                .replace(/\n/g, '')
+                .trim();
+
+            console.log("提取的公鑰數據：", publicKeyData.substring(0, 20) + "...");
+
+            await registerPublicKey(publicKeyData);
+
+            console.log("密鑰對生成並註冊成功");
+        } catch (error) {
+            console.error("生成或註冊密鑰對失敗:", error);
+            throw new Error("無法生成或註冊密鑰對");
+        }
+    } else {
+        console.log("已有RSA密鑰對，無需重新生成");
+    }
+}
+
+/**
+ * 向後端註冊公鑰
+ * @param {string} publicKeyData - 公鑰內容
+ * @returns {Promise<void>}
+ */
+async function registerPublicKey(publicKeyData) {
+    console.log("註冊公鑰, 數據長度: " + publicKeyData.length);
+    console.log("公鑰前20個字符: " + publicKeyData.substring(0, 20) + "...");
+
+    let apiUrl = buildApiUrl('/api/maps/register-key');
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            clientId: CLIENT_ID,
+            publicKey: publicKeyData
+        })
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        console.error("註冊公鑰失敗:", error);
+        throw new Error(`註冊公鑰失敗: ${error}`);
+    }
+
+    const result = await response.json();
+    console.log("公鑰註冊結果:", result);
+}
+
+/**
+ * 從後端取得加密的 Google Maps API KEY 並使用本地私鑰解密
+ */
+async function fetchEncryptedApiKey() {
+    try {
+        console.log("正在獲取加密的API Key...");
+
+        // 確保已初始化客戶端ID和密鑰對
+        initClientId();
+        await ensureKeyPair();
+
+        // 從後端取得加密的API Key
+        let apiUrl = buildApiUrl(`/api/maps/encrypted-key?clientId=${encodeURIComponent(CLIENT_ID)}`);
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error(`獲取API Key失敗: ${response.statusText}`);
+        }
+
+        const encryptedKey = await response.text();
+        console.log("已獲取加密的API Key，準備解密...");
+
+        // 解密API Key
+        const decryptedKey = decryptWithJSEncrypt(encryptedKey);
+        if (!decryptedKey) {
+            throw new Error("解密API Key失敗");
+        }
+
+        API_KEY = decryptedKey;
+        console.log("API Key 已成功解密");
+        return API_KEY;
+    } catch (error) {
+        console.error("取得或解密API Key失敗:", error);
+        showError("地圖服務初始化失敗：無法取得API Key");
+        throw error;
+    }
+}
+
+/**
+ * 使用JSEncrypt解密API Key
+ * @param {string} encryptedKeyBase64 - Base64編碼的加密API Key
+ * @returns {string} 解密後的API Key
+ */
+function decryptWithJSEncrypt(encryptedKeyBase64) {
+    try {
+        // 從localStorage獲取私鑰
+        const privateKey = localStorage.getItem('maps_private_key');
+        if (!privateKey) {
+            throw new Error("無法找到私鑰");
+        }
+
+        // 使用JSEncrypt解密
+        const decrypt = new JSEncrypt();
+        decrypt.setPrivateKey(privateKey);
+
+        const decryptedKey = decrypt.decrypt(encryptedKeyBase64);
+        if (!decryptedKey) {
+            console.error("JSEncrypt解密失敗");
+            throw new Error("解密失敗");
+        }
+
+        return decryptedKey;
+    } catch (error) {
+        console.error('解密API Key失敗:', error);
+        throw new Error('無法解密API Key');
+    }
+}
+
+/**
+ * 動態載入外部JavaScript
+ * @param {string} url - 腳本URL
+ * @returns {Promise} 腳本載入完成的Promise
+ */
+function loadScript(url) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+/**
+ * 將ArrayBuffer轉換為Base64字符串
+ * @param {ArrayBuffer} buffer - 要轉換的ArrayBuffer
+ * @returns {string} Base64編碼的字符串
+ */
+function arrayBufferToBase64(buffer) {
+    const binary = String.fromCharCode.apply(null, new Uint8Array(buffer));
+    return window.btoa(binary);
+}
+
+/**
+ * 將Base64字符串轉換為ArrayBuffer
+ * @param {string} base64 - Base64編碼的字符串
+ * @returns {ArrayBuffer} 解碼後的ArrayBuffer
+ */
+function base64ToArrayBuffer(base64) {
+    const binaryString = window.atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
 
 /**
  * 動態載入 Google Maps API，支援 Opera 特殊 callback。
  * Returns a Promise resolved when the script is loaded.
  */
-function loadGoogleMaps() {
-    return new Promise((resolve, reject) => {
-        // 移除任何已存在的 Google Maps API 腳本，防止重複載入
-        const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
-        existingScripts.forEach(script => {
-            console.log("Removing existing Google Maps script:", script.src);
-            script.remove();
-        });
-        // 清除可能殘留的回呼函式
-        delete window.initMap;
-        delete window.initMap_opera;
+async function loadGoogleMaps() {
+    try {
+        console.log("正在初始化 Google Maps...");
 
-        // 檢測 Opera 瀏覽器
-        const isOpera = /OPR|Opera/.test(navigator.userAgent);
-        let callbackFunctionName = 'initMap';
-        const script = document.createElement('script'); // ← 這行要提前宣告
+        // 確保已初始化客戶端ID和密鑰對
+        initClientId();
+        await ensureKeyPair();
 
-        if (isOpera) {
-            callbackFunctionName = 'initMap_opera';
-            window[callbackFunctionName] = function () {
-                console.log("Opera callback for map init");
-                initMap();
-            };
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places,geometry&callback=${callbackFunctionName}&v=quarterly&language=zh-TW`;
-        } else {
-            window[callbackFunctionName] = initMap;
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places,geometry&callback=${callbackFunctionName}&v=weekly&language=zh-TW`;
+        // 從後端取得API Key
+        API_KEY = await fetchEncryptedApiKey();
+        console.log("API Key 已成功取得並解密");
+
+        if (!API_KEY) {
+            throw new Error("無法獲取有效的API Key");
         }
 
-        script.async = true;
-        script.defer = true;
+        // 動態載入Google Maps API
+        await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places,geometry&callback=initMap`;
+            script.async = true;
+            script.defer = true;
 
-        // 載入超時處理
-        const timeoutDuration = isOpera ? 20000 : 10000;
-        const timeout = setTimeout(() => {
-            if (!window.google || !window.google.maps) {
-                console.error(`Google Maps API 載入超時 (${timeoutDuration}ms)`);
-                script.remove();
-                delete window[callbackFunctionName];
-                reject(new Error('Google Maps API 載入超時'));
-            }
-        }, timeoutDuration);
+            // 定義回調函數
+            window.initMap = function () {
+                console.log("Google Maps API 已載入完成，正在初始化地圖...");
+                // 調用頁面上已定義的全局 initMap 函數
+                // 由於 window.initMap 和全局 initMap 同名，我們使用間接方式調用全局函數
+                setTimeout(function() {
+                    initializeMapInternal();
+                    resolve();
+                }, 0);
+            };
 
-        script.onload = () => {
-            clearTimeout(timeout);
-            console.log("Google Maps API script loaded successfully.");
-            resolve();
-        };
-        script.onerror = (error) => {
-            clearTimeout(timeout);
-            console.error('Google Maps API 腳本載入失敗:', error);
-            delete window[callbackFunctionName];
-            reject(new Error('Google Maps API 腳本載入失敗'));
-        };
-        document.head.appendChild(script);
-        console.log("Appending Maps API script to head.");
-    });
+            script.onerror = function () {
+                reject(new Error("載入Google Maps API失敗"));
+            };
+
+            document.head.appendChild(script);
+        });
+
+        console.log("Google Maps 載入成功");
+    } catch (error) {
+        console.error("Initial Google Maps API load failed:", error);
+        showError(`地圖服務載入失敗: ${error.message}. 請檢查您的網路連線並重新整理頁面。`);
+        throw error;
+    }
 }
 
 // ===================== 頁面與網路狀態監聽 =====================
@@ -235,7 +449,7 @@ function animateGlow() {
  * Google Maps 初始化主程式
  * 會被 API callback 觸發
  */
-function initMap() {
+function initializeMapInternal() {
     console.log("Attempting to initialize map...");
     hideError(); // Hide any previous errors on init attempt
     showStatus("正在初始化地圖服務...", "info");
@@ -424,7 +638,7 @@ async function getCurrentLocationAndUpdateMarker(centerMap = false) {
     if (loadingElement) {
         loadingElement.style.display = 'block';
     }
-    if (findMeButton) findMeButton.disabled = true; // 防止重複點擊
+    if (findMeButton) findMeButton.disabled = true; // 搜尋開始時禁用按鈕
 
     try {
         const position = await new Promise((resolve, reject) => {
@@ -442,7 +656,7 @@ async function getCurrentLocationAndUpdateMarker(centerMap = false) {
             lng: position.coords.longitude
         };
         console.log("Geolocation successful:", userLocation);
-        currentSearchLocation = userLocation; // 將獲取到的位置設為搜尋中心
+        currentSearchLocation = userLocation; // 將取得到的位置設為搜尋中心
 
         updateUserMarker(userLocation, "您的目前位置 (可拖曳)"); // 更新標記
 
@@ -683,7 +897,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
                 // *** 重要：加入延遲以避免 OVER_QUERY_LIMIT ***
                 setTimeout(() => {
                     try {
-                        searchPagination.nextPage(); // 請求下一頁，會再次觸發 processPage 回呼
+                        searchPagination.nextPage(); // Google Maps API 會自動處理回呼
                     } catch (e) {
                         console.error("Error calling nextPage():", e);
                         showError("載入更多結果時發生錯誤。");
@@ -708,7 +922,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
                 // 在所有結果都載入後，調整地圖邊界
                 if (allResults.length > 0) {
                     adjustMapBounds(allResults);
-                    // 設置排序按鈕事件監聽器 (所有結果加載完後)
+                    // 設置排序按鈕事件監聽器 (所有結果載入完後)
                     if (isInitialSearch) {
                         setupSortButtons();
                     }
@@ -1068,18 +1282,18 @@ function getStarsHTML(rating) {
  * 設置排序按鈕的事件監聽器
  */
 function setupSortButtons() {
-    // 獲取所有排序按鈕
+    // 取得所有排序按鈕
     const sortByDefaultBtn = document.getElementById('sortByDefault');
     const sortByRatingBtn = document.getElementById('sortByRating');
     const sortByDistanceBtn = document.getElementById('sortByDistance');
     const sortByOpenNowBtn = document.getElementById('sortByOpenNow');
-    
+
     // 檢查按鈕是否存在
     if (!sortByDefaultBtn || !sortByRatingBtn || !sortByDistanceBtn || !sortByOpenNowBtn) {
         console.error("One or more sort buttons not found.");
         return;
     }
-    
+
     // 添加事件監聽器
     sortByDefaultBtn.addEventListener('click', () => sortRestaurants('default'));
     sortByRatingBtn.addEventListener('click', () => sortRestaurants('rating'));
@@ -1096,16 +1310,16 @@ function sortRestaurants(method) {
         console.warn("No restaurants to sort.");
         return;
     }
-    
+
     // 更新當前排序方法
     currentSortMethod = method;
-    
+
     // 更新按鈕狀態
     updateSortButtonsState(method);
-    
+
     // 複製結果陣列以避免修改原始數據
     const sortedResults = [...allResults];
-    
+
     // 根據選擇的方法進行排序
     switch (method) {
         case 'rating':
@@ -1117,7 +1331,7 @@ function sortRestaurants(method) {
                 return ratingB - ratingA;
             });
             break;
-            
+
         case 'distance':
             // 按距離排序 (近到遠)
             sortedResults.sort((a, b) => {
@@ -1126,37 +1340,37 @@ function sortRestaurants(method) {
                 return distanceA - distanceB;
             });
             break;
-            
+
         case 'open':
             // 先顯示營業中的
             sortedResults.sort((a, b) => {
                 const isOpenA = a.opening_hours && a.opening_hours.open_now ? 1 : 0;
                 const isOpenB = b.opening_hours && b.opening_hours.open_now ? 1 : 0;
-                
+
                 if (isOpenA !== isOpenB) {
                     return isOpenB - isOpenA; // 營業中的在前
                 }
-                
+
                 // 如果開業狀態相同，按評分排序
                 const ratingA = a.rating || 0;
                 const ratingB = b.rating || 0;
                 return ratingB - ratingA;
             });
             break;
-            
+
         case 'default':
         default:
             // 預設排序 (Google的相關性)
             // 不做額外排序，保留 Google API 返回的順序
             break;
     }
-    
+
     // 清空並重新顯示排序後的餐廳
     const restaurantList = document.getElementById('restaurantList');
     if (restaurantList) {
         restaurantList.innerHTML = '';
         displayResults(sortedResults);
-        
+
         // 顯示排序結果訊息
         showStatus(`已按 ${getSortMethodName(method)} 排序`, "success");
         setTimeout(hideStatus, 2000);
@@ -1168,19 +1382,19 @@ function sortRestaurants(method) {
  * @param {string} activeMethod - 當前激活的排序方法
  */
 function updateSortButtonsState(activeMethod) {
-    // 獲取所有排序按鈕
+    // 取得所有排序按鈕
     const buttons = {
         'default': document.getElementById('sortByDefault'),
         'rating': document.getElementById('sortByRating'),
         'distance': document.getElementById('sortByDistance'),
         'open': document.getElementById('sortByOpenNow')
     };
-    
+
     // 移除所有按鈕的 active 類
     Object.values(buttons).forEach(btn => {
         if (btn) btn.classList.remove('active');
     });
-    
+
     // 為當前選中的按鈕添加 active 類
     if (buttons[activeMethod]) {
         buttons[activeMethod].classList.add('active');
@@ -1188,7 +1402,7 @@ function updateSortButtonsState(activeMethod) {
 }
 
 /**
- * 獲取排序方法的顯示名稱
+ * 取得排序方法的顯示名稱
  * @param {string} method - 排序方法
  * @returns {string} 排序方法的顯示名稱
  */
@@ -1199,7 +1413,7 @@ function getSortMethodName(method) {
         'distance': '距離',
         'open': '營業狀態'
     };
-    
+
     return methodNames[method] || '預設';
 }
 
@@ -1224,10 +1438,10 @@ function displayResults(places) {
             const userLatLng = new google.maps.LatLng(currentSearchLocation.lat, currentSearchLocation.lng);
             const placeLatLng = place.geometry.location;
             const distance = google.maps.geometry.spherical.computeDistanceBetween(userLatLng, placeLatLng);
-            
+
             // 保存距離值用於排序
             distanceValue = distance;
-            
+
             // 轉換為公里或米
             if (distance >= 1000) {
                 distanceText = `${(distance / 1000).toFixed(1)} 公里`;
@@ -1239,7 +1453,7 @@ function displayResults(places) {
         // 保存距離值於place對象中
         place.distanceValue = distanceValue;
         place.distanceText = distanceText;
-        
+
         // 在這裡我們直接創建內容而不是使用 cardDiv 變量
         li.innerHTML = `
             <div class="card h-100 restaurant-card ${place.rating >= 4.5 ? 'high-rating' : place.rating >= 4 ? 'medium-rating' : place.rating < 4 ? 'low-rating' : ''}" data-place-id="${place.place_id}">
@@ -1254,7 +1468,7 @@ function displayResults(places) {
                     
                     <p class="card-text text-muted mb-2">${place.vicinity || place.formatted_address || '無地址資訊'}</p>
                     
-                    ${distanceText ? 
+                    ${distanceText ?
             `<p class="card-text mb-2">
                 <i class="fas fa-map-marker-alt me-1 text-danger"></i>距離: <span class="badge bg-info text-white">${distanceText}</span>
             </p>` : ''}
@@ -1316,7 +1530,7 @@ function displayResults(places) {
                     return;
                 }
 
-                // 否則先獲取詳細信息
+                // 否則先取得詳細信息
                 showStatus("正在載入評論資訊...", "info");
                 const request = {
                     placeId: placeId,

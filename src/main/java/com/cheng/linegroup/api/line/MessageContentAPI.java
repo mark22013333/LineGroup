@@ -43,8 +43,8 @@ public class MessageContentAPI {
      * {messageId} 主要取得視訊或音訊準備狀態<p>
      * <p>
      * response<p>
-     * processing: 準備獲取內容<p>
-     * succeeded: 可以獲取用戶發送的內容<p>
+     * processing: 準備取得內容<p>
+     * succeeded: 可以取得用戶發送的內容<p>
      * failed: 取得內容失敗<p>
      */
     public <T> T getVideoOrAudioStatus(String messageId, Class<T> messageContentResponse) {

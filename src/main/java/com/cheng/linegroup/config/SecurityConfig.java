@@ -42,6 +42,7 @@ public class SecurityConfig {
                                         Security.LOGIN.getUri(),
                                         "/ai/**",
                                         "/api/test/**",
+                                        "/api/maps/**",
                                         "/YummyQuest/**",
                                         "/webhook",
                                         "/img/**",

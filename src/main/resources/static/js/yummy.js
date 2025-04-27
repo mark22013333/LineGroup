@@ -38,10 +38,10 @@ function loadGoogleMaps() {
                 console.log("Opera callback for map init");
                 initMap();
             };
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=${callbackFunctionName}&v=quarterly&language=zh-TW`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places,geometry&callback=${callbackFunctionName}&v=quarterly&language=zh-TW`;
         } else {
             window[callbackFunctionName] = initMap;
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=${callbackFunctionName}&v=weekly&language=zh-TW`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places,geometry&callback=${callbackFunctionName}&v=weekly&language=zh-TW`;
         }
 
         script.async = true;
@@ -161,6 +161,7 @@ let confirmationInfoWindow = null;
 let currentRestaurantMarkers = [];
 let searchPagination = null;
 let allResults = [];
+let currentSortMethod = 'default'; // 追蹤當前排序方法
 
 // ===================== 權限與相容性輔助 =====================
 /** 顯示權限指南 */
@@ -476,14 +477,8 @@ async function getCurrentLocationAndUpdateMarker(centerMap = false) {
 
 /** 更新或建立使用者位置標記及其效果 */
 function updateUserMarker(location, title = "您的位置") {
-    if (!map) {
-        console.warn("Map not initialized yet, cannot update user marker.");
-        return;
-    }
-    if (!google || !google.maps) {
-        console.warn("Google Maps library not ready, cannot update user marker.");
-        return;
-    }
+    if (!map) return;
+    console.log(`Updating user marker to ${location.lat}, ${location.lng}`);
 
     const markerIcon = {
         path: google.maps.SymbolPath.CIRCLE, // 主要標記用圓形
@@ -641,7 +636,9 @@ function findNearbyRestaurants(isInitialSearch = true) {
     const resultsPanel = document.getElementById('results');
     const findButton = document.getElementById('findRestaurants');
 
-    if (loadingElement) loadingElement.style.display = 'block';
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
+    }
     if (findButton) findButton.disabled = true; // 搜尋開始時禁用按鈕
 
     // 清除先前的結果 (如果是新的搜尋)
@@ -711,6 +708,10 @@ function findNearbyRestaurants(isInitialSearch = true) {
                 // 在所有結果都載入後，調整地圖邊界
                 if (allResults.length > 0) {
                     adjustMapBounds(allResults);
+                    // 設置排序按鈕事件監聽器 (所有結果加載完後)
+                    if (isInitialSearch) {
+                        setupSortButtons();
+                    }
                 }
             }
         } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
@@ -1062,6 +1063,147 @@ function getStarsHTML(rating) {
     return starsHTML;
 }
 
+// ===================== 排序功能 =====================
+/**
+ * 設置排序按鈕的事件監聽器
+ */
+function setupSortButtons() {
+    // 獲取所有排序按鈕
+    const sortByDefaultBtn = document.getElementById('sortByDefault');
+    const sortByRatingBtn = document.getElementById('sortByRating');
+    const sortByDistanceBtn = document.getElementById('sortByDistance');
+    const sortByOpenNowBtn = document.getElementById('sortByOpenNow');
+    
+    // 檢查按鈕是否存在
+    if (!sortByDefaultBtn || !sortByRatingBtn || !sortByDistanceBtn || !sortByOpenNowBtn) {
+        console.error("One or more sort buttons not found.");
+        return;
+    }
+    
+    // 添加事件監聽器
+    sortByDefaultBtn.addEventListener('click', () => sortRestaurants('default'));
+    sortByRatingBtn.addEventListener('click', () => sortRestaurants('rating'));
+    sortByDistanceBtn.addEventListener('click', () => sortRestaurants('distance'));
+    sortByOpenNowBtn.addEventListener('click', () => sortRestaurants('open'));
+}
+
+/**
+ * 根據指定方式排序餐廳並重新顯示
+ * @param {string} method - 排序方法: 'default', 'rating', 'distance', 'open'
+ */
+function sortRestaurants(method) {
+    if (!allResults || allResults.length === 0) {
+        console.warn("No restaurants to sort.");
+        return;
+    }
+    
+    // 更新當前排序方法
+    currentSortMethod = method;
+    
+    // 更新按鈕狀態
+    updateSortButtonsState(method);
+    
+    // 複製結果陣列以避免修改原始數據
+    const sortedResults = [...allResults];
+    
+    // 根據選擇的方法進行排序
+    switch (method) {
+        case 'rating':
+            // 按評分排序 (高到低)
+            sortedResults.sort((a, b) => {
+                // 處理沒有評分的情況
+                const ratingA = a.rating || 0;
+                const ratingB = b.rating || 0;
+                return ratingB - ratingA;
+            });
+            break;
+            
+        case 'distance':
+            // 按距離排序 (近到遠)
+            sortedResults.sort((a, b) => {
+                const distanceA = a.distanceValue || Infinity;
+                const distanceB = b.distanceValue || Infinity;
+                return distanceA - distanceB;
+            });
+            break;
+            
+        case 'open':
+            // 先顯示營業中的
+            sortedResults.sort((a, b) => {
+                const isOpenA = a.opening_hours && a.opening_hours.open_now ? 1 : 0;
+                const isOpenB = b.opening_hours && b.opening_hours.open_now ? 1 : 0;
+                
+                if (isOpenA !== isOpenB) {
+                    return isOpenB - isOpenA; // 營業中的在前
+                }
+                
+                // 如果開業狀態相同，按評分排序
+                const ratingA = a.rating || 0;
+                const ratingB = b.rating || 0;
+                return ratingB - ratingA;
+            });
+            break;
+            
+        case 'default':
+        default:
+            // 預設排序 (Google的相關性)
+            // 不做額外排序，保留 Google API 返回的順序
+            break;
+    }
+    
+    // 清空並重新顯示排序後的餐廳
+    const restaurantList = document.getElementById('restaurantList');
+    if (restaurantList) {
+        restaurantList.innerHTML = '';
+        displayResults(sortedResults);
+        
+        // 顯示排序結果訊息
+        showStatus(`已按 ${getSortMethodName(method)} 排序`, "success");
+        setTimeout(hideStatus, 2000);
+    }
+}
+
+/**
+ * 更新排序按鈕的狀態 (active class)
+ * @param {string} activeMethod - 當前激活的排序方法
+ */
+function updateSortButtonsState(activeMethod) {
+    // 獲取所有排序按鈕
+    const buttons = {
+        'default': document.getElementById('sortByDefault'),
+        'rating': document.getElementById('sortByRating'),
+        'distance': document.getElementById('sortByDistance'),
+        'open': document.getElementById('sortByOpenNow')
+    };
+    
+    // 移除所有按鈕的 active 類
+    Object.values(buttons).forEach(btn => {
+        if (btn) btn.classList.remove('active');
+    });
+    
+    // 為當前選中的按鈕添加 active 類
+    if (buttons[activeMethod]) {
+        buttons[activeMethod].classList.add('active');
+    }
+}
+
+/**
+ * 獲取排序方法的顯示名稱
+ * @param {string} method - 排序方法
+ * @returns {string} 排序方法的顯示名稱
+ */
+function getSortMethodName(method) {
+    const methodNames = {
+        'default': '預設',
+        'rating': '評分',
+        'distance': '距離',
+        'open': '營業狀態'
+    };
+    
+    return methodNames[method] || '預設';
+}
+
+// ===================== 餐廳列表顯示 =====================
 /** 在結果面板中顯示餐廳列表（卡片式） */
 function displayResults(places) {
     const restaurantList = document.getElementById('restaurantList');
@@ -1075,6 +1217,29 @@ function displayResults(places) {
         // 添加 col-md-4 讓一行顯示三張卡片
         li.classList.add('col-md-4', 'col-sm-6', 'mb-4');
 
+        // 計算距離
+        let distanceText = '';
+        let distanceValue = Infinity;
+        if (currentSearchLocation && place.geometry && place.geometry.location) {
+            const userLatLng = new google.maps.LatLng(currentSearchLocation.lat, currentSearchLocation.lng);
+            const placeLatLng = place.geometry.location;
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(userLatLng, placeLatLng);
+            
+            // 保存距離值用於排序
+            distanceValue = distance;
+            
+            // 轉換為公里或米
+            if (distance >= 1000) {
+                distanceText = `${(distance / 1000).toFixed(1)} 公里`;
+            } else {
+                distanceText = `${Math.round(distance)} 公尺`;
+            }
+        }
+
+        // 保存距離值於place對象中
+        place.distanceValue = distanceValue;
+        place.distanceText = distanceText;
+        
         // 在這裡我們直接創建內容而不是使用 cardDiv 變量
         li.innerHTML = `
             <div class="card h-100 restaurant-card ${place.rating >= 4.5 ? 'high-rating' : place.rating >= 4 ? 'medium-rating' : place.rating < 4 ? 'low-rating' : ''}" data-place-id="${place.place_id}">
@@ -1089,6 +1254,11 @@ function displayResults(places) {
                     
                     <p class="card-text text-muted mb-2">${place.vicinity || place.formatted_address || '無地址資訊'}</p>
                     
+                    ${distanceText ? 
+            `<p class="card-text mb-2">
+                <i class="fas fa-map-marker-alt me-1 text-danger"></i>距離: <span class="badge bg-info text-white">${distanceText}</span>
+            </p>` : ''}
+
                     ${place.rating ?
             `<div class="mb-2">
                             <div class="d-flex align-items-center mb-1">
@@ -1113,7 +1283,6 @@ function displayResults(places) {
                 </div>
             </div>
         `;
-
         // 添加查看詳情按鈕點擊事件
         const viewDetailsBtn = li.querySelector('.view-details-btn');
         if (viewDetailsBtn) {

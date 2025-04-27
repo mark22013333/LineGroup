@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
         ),
         servers = {
                 @Server(
-                        url = "https://cheng.tplinkdns.com/TangDong",
+                        url = "https://cheng.tplinkdns.com/apps/",
                         description = "General Url"
                 )
         },

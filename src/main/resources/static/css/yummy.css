@@ -145,6 +145,9 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     overflow: hidden;
+    border: 2px solid #ddd;  /* 默認所有卡片都有邊框 */
+    border-radius: 8px;
+    position: relative;
 }
 
 .restaurant-card:hover {
@@ -160,6 +163,129 @@ body {
 .restaurant-card .card-text {
     margin-bottom: 0.75rem;
     color: #6c757d;
+}
+
+/* 高評分餐廳金色呼吸燈效果 */
+.restaurant-card.high-rating {
+    animation: goldenBorderBreathing 2s infinite ease-in-out;
+    border-width: 4px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 製作光暈輪廓效果 */
+.restaurant-card.high-rating::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border-radius: 12px;
+    z-index: -1;
+    animation: glowOutline 2s infinite ease-in-out;
+    pointer-events: none;
+}
+
+/* 增強的呼吸燈效果 */
+@keyframes goldenBorderBreathing {
+    0% {
+        border-color: #D4AF37;  /* 淡金色 */
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+    }
+    50% {
+        border-color: #FFD700;  /* 亮金色 */
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+        transform: translateY(-2px);
+    }
+    100% {
+        border-color: #D4AF37;  /* 淡金色 */
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+    }
+}
+
+/* 外部光暈動畫 */
+@keyframes glowOutline {
+    0% {
+        box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.2);
+    }
+}
+
+/* 中評分餐廳樣式 */
+.restaurant-card.medium-rating {
+    border-color: #4CAF50;  /* 綠色邊框 */
+    border-width: 2px;
+}
+
+/* 低評分餐廳警示效果 */
+.restaurant-card.low-rating {
+    border-color: #ff4d4d;  /* 紅色邊框 */
+    border-width: 3px;
+}
+
+/* 雷標示樣式 - 印章效果 */
+.warning-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 56px;
+    height: 56px;
+    background-color: #ff2d2d;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: rotate(12deg);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    z-index: 5;
+    border: 2px dashed #ffcccc;
+    opacity: 0.95;
+    /* 添加印章凹凸效果 */
+    background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,0,0,0) 60%);
+}
+
+.warning-badge::before {
+    content: "雷";
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
+    text-shadow: 2px 2px 3px rgba(0,0,0,0.5);
+    /* 模擬印泥不均的效果 */
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0) 2px, rgba(255,255,255,0.1) 3px);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+/* 進階標記樣式 */
+.user-marker {
+    cursor: grab;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.user-marker:active {
+    cursor: grabbing;
+    transform: scale(1.2);
+}
+
+.user-marker-glow {
+    pointer-events: none;
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+}
+
+.restaurant-marker {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.restaurant-marker:hover {
+    transform: scale(1.2);
 }
 
 /* 焦點卡片樣式 */

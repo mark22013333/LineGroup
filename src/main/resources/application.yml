@@ -2,13 +2,13 @@ server:
   port: 8080
   forward-headers-strategy: framework
   servlet:
-    context-path: /TangDong
+    context-path: /apps
 spring:
   thymeleaf:
     mode: HTML
   profiles:
-#    active: local
-    active: dev
+    active: local
+#    active: dev
   messages:
     basename: i18n/messages
 logging:

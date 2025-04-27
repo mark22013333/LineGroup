@@ -1,11 +1,23 @@
-// --- Google Maps API 動態載入 ---
+// =========================================================
+//  YummyQuest Google Maps Integration & Restaurant Search
+//  Author: Cheng
+//  Description: Handles Google Maps loading, location, and restaurant logic
+// =========================================================
 
+// ===================== Google Maps API 載入 =====================
+/**
+ * Google Maps API KEY
+ * @type {string}
+ */
 const API_KEY = 'REMOVED';
 
-
+/**
+ * 動態載入 Google Maps API，支援 Opera 特殊 callback。
+ * Returns a Promise resolved when the script is loaded.
+ */
 function loadGoogleMaps() {
     return new Promise((resolve, reject) => {
-        // 移除任何已存在的Google Maps API腳本，防止重複載入
+        // 移除任何已存在的 Google Maps API 腳本，防止重複載入
         const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
         existingScripts.forEach(script => {
             console.log("Removing existing Google Maps script:", script.src);
@@ -15,39 +27,32 @@ function loadGoogleMaps() {
         delete window.initMap;
         delete window.initMap_opera;
 
-        // 檢測Opera瀏覽器 (雖然現代Opera基於Chromium，但保留此邏輯以防萬一)
+        // 檢測 Opera 瀏覽器
         const isOpera = /OPR|Opera/.test(navigator.userAgent);
+        let callbackFunctionName = 'initMap';
+        const script = document.createElement('script'); // ← 這行要提前宣告
 
-        const script = document.createElement('script');
-        let callbackFunctionName = 'initMap'; // Default callback name
-
-        // Opera需要特別處理，添加callback=initMap_opera參數
-        // Note: Modern Opera might not need this anymore, but kept for compatibility.
         if (isOpera) {
             callbackFunctionName = 'initMap_opera';
             window[callbackFunctionName] = function () {
-                console.log("Opera 專用地圖初始化函數已調用");
-                initMap(); // 呼叫主要的初始化函式
+                console.log("Opera callback for map init");
+                initMap();
             };
             script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=${callbackFunctionName}&v=quarterly&language=zh-TW`;
-            console.log("Loading Maps API for Opera with callback:", callbackFunctionName);
         } else {
-            // 將 initMap 設為全域函數供 callback 使用
             window[callbackFunctionName] = initMap;
             script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=${callbackFunctionName}&v=weekly&language=zh-TW`;
-            console.log("Loading Maps API with callback:", callbackFunctionName);
         }
 
         script.async = true;
-        script.defer = true; // defer 確保在 HTML 解析後執行
+        script.defer = true;
 
-        // 添加超時處理，防止API載入無回應
-        const timeoutDuration = isOpera ? 20000 : 10000; // Opera 給予更長時間
+        // 載入超時處理
+        const timeoutDuration = isOpera ? 20000 : 10000;
         const timeout = setTimeout(() => {
             if (!window.google || !window.google.maps) {
                 console.error(`Google Maps API 載入超時 (${timeoutDuration}ms)`);
-                script.remove(); // 清理超時的腳本標籤
-                 // 確保全域回呼被清理
+                script.remove();
                 delete window[callbackFunctionName];
                 reject(new Error('Google Maps API 載入超時'));
             }
@@ -56,53 +61,43 @@ function loadGoogleMaps() {
         script.onload = () => {
             clearTimeout(timeout);
             console.log("Google Maps API script loaded successfully.");
-            // Resolve 表示腳本已載入，但不保證 initMap 已執行 (由 API 的 callback 觸發)
             resolve();
         };
-
         script.onerror = (error) => {
             clearTimeout(timeout);
             console.error('Google Maps API 腳本載入失敗:', error);
-             // 確保全域回呼被清理
             delete window[callbackFunctionName];
             reject(new Error('Google Maps API 腳本載入失敗'));
         };
-
         document.head.appendChild(script);
         console.log("Appending Maps API script to head.");
     });
 }
 
-// --- 頁面和網路狀態監聽 ---
-
-// 確保 DOM 載入完成後再嘗試載入地圖 API
+// ===================== 頁面與網路狀態監聽 =====================
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed.");
-    // 添加網路狀態檢測
     if (navigator.onLine) {
         console.log("Network online, attempting to load Google Maps.");
         loadGoogleMaps().catch(error => {
             console.error('Initial Google Maps API load failed:', error);
-           showError(`地圖服務載入失敗: ${error.message}. 請檢查您的網路連線並重新整理頁面。`);
+            showError(`地圖服務載入失敗: ${error.message}. 請檢查您的網路連線並重新整理頁面。`);
         });
     } else {
-         console.warn("Network offline initially.");
+        console.warn("Network offline initially.");
         showError('您似乎處於離線狀態，請檢查網路連線後重試');
     }
 });
 
-
-// 監聽網路狀態變為線上
 window.addEventListener('online', () => {
     console.log("Network status changed to online.");
     const errorElement = document.getElementById('error');
-    // 如果之前有錯誤訊息，且 Google Maps 物件不存在，則嘗試重新載入
     if (errorElement && errorElement.style.display !== 'none' && (!window.google || !window.google.maps)) {
         console.log("Attempting to reload Google Maps after coming online.");
-        errorElement.style.display = 'none'; // Hide previous error
-        showStatus("偵測到網路連線，正在重新載入地圖服務...", "info"); // Show info message
+        errorElement.style.display = 'none';
+        showStatus("偵測到網路連線，正在重新載入地圖服務...", "info");
         loadGoogleMaps().then(() => {
-             hideStatus(); // Hide info on success
+            hideStatus();
         }).catch(error => {
             console.error('Google Maps API reload failed:', error);
             showError(`重新載入地圖服務失敗: ${error.message}`);
@@ -110,26 +105,35 @@ window.addEventListener('online', () => {
     }
 });
 
-// 監聽網路狀態變為離線
 window.addEventListener('offline', () => {
-     console.warn("Network status changed to offline.");
+    console.warn("Network status changed to offline.");
     showError('網路連線已中斷，部分功能可能無法使用');
 });
 
-// --- Helper Functions for Status/Error Display ---
-function showStatus(message, type = 'info') { // type can be 'info', 'error', 'success'
+// ===================== 狀態/錯誤訊息顯示工具 =====================
+/**
+ * 顯示狀態訊息於畫面上
+ * @param {string} message
+ * @param {string} [type='info'] - info, error, success
+ */
+function showStatus(message, type = 'info') {
     const statusElement = document.getElementById('statusMessage');
     if (!statusElement) return;
     statusElement.textContent = message;
-    statusElement.className = `status-message ${type}`; // Reset classes
+    statusElement.className = `status-message ${type}`;
     statusElement.style.display = 'block';
 }
 
+/** 隱藏狀態訊息 */
 function hideStatus() {
-     const statusElement = document.getElementById('statusMessage');
-     if (statusElement) statusElement.style.display = 'none';
+    const statusElement = document.getElementById('statusMessage');
+    if (statusElement) statusElement.style.display = 'none';
 }
 
+/**
+ * 顯示錯誤訊息於畫面上
+ * @param {string} message
+ */
 function showError(message) {
     const errorElement = document.getElementById('error');
     if (!errorElement) {
@@ -139,30 +143,27 @@ function showError(message) {
     errorElement.textContent = message;
     errorElement.style.display = 'block';
     console.error("Displayed Error:", message);
-    hideStatus(); // Hide any info messages when an error occurs
+    hideStatus();
 }
 
+/** 隱藏錯誤訊息 */
 function hideError() {
-     const errorElement = document.getElementById('error');
-     if (errorElement) errorElement.style.display = 'none';
+    const errorElement = document.getElementById('error');
+    if (errorElement) errorElement.style.display = 'none';
 }
 
-// --- End Helper Functions ---
-
-// --- Global Variables (Initialized Later) ---
+// ===================== 全域變數區 =====================
+// 地圖、標記、視窗、服務物件等
 let map, userMarker, infowindow, placesService;
-let userMarkerGlow, userInfoWindow; // Specific for user marker
-let glowIntervalId = null;
-let currentSearchLocation = null; // { lat: number, lng: number }
-let confirmationInfoWindow = null; // For map click confirmation
-let currentRestaurantMarkers = []; // Array to hold restaurant markers
-let searchPagination = null; // To handle 'load more' results
-let allResults = []; // 用於儲存所有分頁的結果
-// --- End Global Variables ---
+let userMarkerGlow, userInfoWindow, glowIntervalId = null;
+let currentSearchLocation = null; // { lat, lng }
+let confirmationInfoWindow = null;
+let currentRestaurantMarkers = [];
+let searchPagination = null;
+let allResults = [];
 
-// --- Utility Functions ---
-
-// 顯示權限指南
+// ===================== 權限與相容性輔助 =====================
+/** 顯示權限指南 */
 function showPermissionGuide() {
     const guide = document.getElementById('permissionGuide');
     if (guide) {
@@ -172,37 +173,33 @@ function showPermissionGuide() {
     }
 }
 
-// 清除地圖上的餐廳標記
+/** 清除餐廳標記 */
 function clearRestaurantMarkers() {
     console.log(`Clearing ${currentRestaurantMarkers.length} restaurant markers.`);
     currentRestaurantMarkers.forEach(marker => marker.setMap(null));
     currentRestaurantMarkers = [];
 }
 
-// 檢查瀏覽器地理位置相容性
+/** 檢查瀏覽器地理位置相容性 */
 function checkBrowserCompatibility() {
     const hasGeolocation = 'geolocation' in navigator;
     console.log("Geolocation support:", hasGeolocation);
     if (!hasGeolocation) {
-         const browserCheck = document.getElementById('browserCheck');
-         if(browserCheck) browserCheck.style.display = 'block';
-         showError("您的瀏覽器不支援地理位置功能。請嘗試更新瀏覽器或使用其他瀏覽器。");
-         return false;
+        const browserCheck = document.getElementById('browserCheck');
+        if (browserCheck) browserCheck.style.display = 'block';
+        showError("您的瀏覽器不支援地理位置功能。請嘗試更新瀏覽器或使用其他瀏覽器。");
+        return false;
     }
-     // Hide the check if geolocation is supported
-     const browserCheck = document.getElementById('browserCheck');
-     if(browserCheck) browserCheck.style.display = 'none';
+    // Hide the check if geolocation is supported
+    const browserCheck = document.getElementById('browserCheck');
+    if (browserCheck) browserCheck.style.display = 'none';
     return true;
 }
 
+// ===================== 標記動畫 =====================
+const baseGlowScale = 12, maxGlowScale = 18, baseGlowOpacity = 0.2, maxGlowOpacity = 0.5, glowSpeed = 2000;
 
-// 呼吸燈動畫函數
-const baseGlowScale = 12;
-const maxGlowScale = 18;
-const baseGlowOpacity = 0.2;
-const maxGlowOpacity = 0.5;
-const glowSpeed = 2000; // milliseconds
-
+/** 控制呼吸燈動畫效果 */
 function animateGlow() {
     // Check if marker exists and is on map
     if (!userMarkerGlow || !userMarkerGlow.getMap()) {
@@ -210,7 +207,6 @@ function animateGlow() {
         if (glowIntervalId) {
             clearInterval(glowIntervalId);
             glowIntervalId = null;
-            // console.log("Stopped glow animation: marker removed.");
         }
         return;
     }
@@ -233,13 +229,12 @@ function animateGlow() {
     });
 }
 
-// --- End Utility Functions ---
-
-// ********** END OF PART 1 **********
-// --- Map and Location Handling ---
-
-// 初始化地圖
-async function initMap() {
+// ===================== 地圖與定位處理 =====================
+/**
+ * Google Maps 初始化主程式
+ * 會被 API callback 觸發
+ */
+function initMap() {
     console.log("Attempting to initialize map...");
     hideError(); // Hide any previous errors on init attempt
     showStatus("正在初始化地圖服務...", "info");
@@ -257,19 +252,19 @@ async function initMap() {
     try {
         // 再次確認 Google Maps 物件是否存在
         if (typeof google === 'undefined' || !google.maps) {
-             console.error("Google Maps library not loaded when initMap called.");
-             showError("地圖服務尚未就緒，請稍後再試。");
-             hideStatus();
-             // 可以考慮在這裡安排重試
-             // setTimeout(initMap, 1000); // Example: Retry after 1 second
-             return;
+            console.error("Google Maps library not loaded when initMap called.");
+            showError("地圖服務尚未就緒，請稍後再試。");
+            hideStatus();
+            // 可以考慮在這裡安排重試
+            // setTimeout(initMap, 1000); // Example: Retry after 1 second
+            return;
         }
 
         console.log("Google Maps library loaded. Initializing map...");
 
         // 初始化地圖實例
         map = new google.maps.Map(mapElement, {
-            center: { lat: 25.0330, lng: 121.5654 }, // 預設中心點 (台北市)
+            center: {lat: 25.0330, lng: 121.5654}, // 預設中心點 (台北市)
             zoom: 15,
             gestureHandling: 'greedy', // 允許單指縮放/移動 (對行動裝置友好)
             mapTypeControl: false, // 隱藏地圖/衛星切換
@@ -283,8 +278,8 @@ async function initMap() {
         // 初始化 Places Service (用於搜尋餐廳)
         // 再次確認 Places library 是否載入成功
         if (google.maps.places && google.maps.places.PlacesService) {
-             placesService = new google.maps.places.PlacesService(map);
-             console.log("PlacesService initialized successfully.");
+            placesService = new google.maps.places.PlacesService(map);
+            console.log("PlacesService initialized successfully.");
         } else {
             console.error("Google Maps Places library failed to load!");
             showError("餐廳搜尋服務載入失敗，請重新整理頁面。");
@@ -340,7 +335,7 @@ async function initMap() {
                         setTimeout(hideStatus, 2000); // 2秒後自動隱藏成功訊息
                     };
                 } else {
-                     console.error("Confirm button not found in InfoWindow DOM.");
+                    console.error("Confirm button not found in InfoWindow DOM.");
                 }
 
                 if (cancelBtn) {
@@ -367,10 +362,10 @@ async function initMap() {
                     getCurrentLocationAndUpdateMarker(true); // true 表示定位後置中地圖
                     return;
                 }
-                 if (!placesService) {
-                     showError("餐廳搜尋服務尚未就緒，請稍後再試。");
-                     return;
-                 }
+                if (!placesService) {
+                    showError("餐廳搜尋服務尚未就緒，請稍後再試。");
+                    return;
+                }
                 findNearbyRestaurants(true); // true 表示這是初始搜尋
             });
         } else {
@@ -381,33 +376,33 @@ async function initMap() {
             findMeButton.addEventListener('click', () => {
                 // 檢查瀏覽器相容性後再定位
                 if (checkBrowserCompatibility()) {
-                     getCurrentLocationAndUpdateMarker(true); // true 表示定位後置中地圖
+                    getCurrentLocationAndUpdateMarker(true); // true 表示定位後置中地圖
                 }
             });
         } else {
             console.error("Button with ID 'findMeButton' not found!");
         }
 
-         if (loadMoreButton) {
+        if (loadMoreButton) {
             loadMoreButton.addEventListener('click', loadMoreResults);
             loadMoreButton.style.display = 'none'; // Initially hide 'Load More'
         } else {
-             console.error("Button with ID 'loadMoreButton' not found!");
+            console.error("Button with ID 'loadMoreButton' not found!");
         }
         // --- 結束按鈕事件監聽器 ---
 
         // 地圖初始化完成後，檢查相容性並嘗試自動取得初始位置
         if (checkBrowserCompatibility()) {
-             // 嘗試在不打擾使用者的情況下取得初始位置
-             // false 表示如果定位成功，不要強制置中地圖，除非使用者點擊 "Find Me"
-             getCurrentLocationAndUpdateMarker(false);
+            // 嘗試在不打擾使用者的情況下取得初始位置
+            // false 表示如果定位成功，不要強制置中地圖，除非使用者點擊 "Find Me"
+            getCurrentLocationAndUpdateMarker(false);
         } else {
             // 如果不支援地理定位，設定一個預設位置並告知使用者
-            currentSearchLocation = { lat: 25.0330, lng: 121.5654 }; // 預設台北
+            currentSearchLocation = {lat: 25.0330, lng: 121.5654}; // 預設台北
             updateUserMarker(currentSearchLocation, "預設搜尋中心 (無法自動定位)");
             map.setCenter(currentSearchLocation);
-             showError("無法自動定位，已顯示預設位置。");
-         }
+            showError("無法自動定位，已顯示預設位置。");
+        }
 
     } catch (error) {
         console.error("Critical error during map initialization:", error);
@@ -417,78 +412,78 @@ async function initMap() {
     }
 }
 
-// 取得目前位置並更新標記
+/** 取得目前位置並更新標記 */
 async function getCurrentLocationAndUpdateMarker(centerMap = false) {
-     console.log(`Attempting to get current location... (centerMap: ${centerMap})`);
-     hideError(); // 清除舊錯誤
-     showStatus("正在定位您的位置...", "info");
-     const loadingElement = document.getElementById('loading');
-     const findMeButton = document.getElementById('findMeButton');
+    console.log(`Attempting to get current location... (centerMap: ${centerMap})`);
+    hideError(); // 清除舊錯誤
+    showStatus("正在定位您的位置...", "info");
+    const loadingElement = document.getElementById('loading');
+    const findMeButton = document.getElementById('findMeButton');
 
-     if(loadingElement) {
-         loadingElement.style.display = 'block';
-     }
-      if(findMeButton) findMeButton.disabled = true; // 防止重複點擊
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
+    }
+    if (findMeButton) findMeButton.disabled = true; // 防止重複點擊
 
-     try {
-         const position = await new Promise((resolve, reject) => {
-              // 設定更合理的超時和緩存時間
-              const geoOptions = {
-                  enableHighAccuracy: true, // 盡可能提高精度
-                  timeout: 10000, // 10秒超時
-                  maximumAge: 30000 // 接受30秒內的緩存位置
-              };
-              navigator.geolocation.getCurrentPosition(resolve, reject, geoOptions);
-         });
+    try {
+        const position = await new Promise((resolve, reject) => {
+            // 設定更合理的超時和緩存時間
+            const geoOptions = {
+                enableHighAccuracy: true, // 盡可能提高精度
+                timeout: 10000, // 10秒超時
+                maximumAge: 30000 // 接受30秒內的緩存位置
+            };
+            navigator.geolocation.getCurrentPosition(resolve, reject, geoOptions);
+        });
 
-         const userLocation = {
-             lat: position.coords.latitude,
-             lng: position.coords.longitude
-         };
-         console.log("Geolocation successful:", userLocation);
-         currentSearchLocation = userLocation; // 將獲取到的位置設為搜尋中心
+        const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        };
+        console.log("Geolocation successful:", userLocation);
+        currentSearchLocation = userLocation; // 將獲取到的位置設為搜尋中心
 
-         updateUserMarker(userLocation, "您的目前位置 (可拖曳)"); // 更新標記
+        updateUserMarker(userLocation, "您的目前位置 (可拖曳)"); // 更新標記
 
-         if (centerMap && map) {
-             console.log("Centering map to user location.");
-             map.setCenter(userLocation);
-             map.setZoom(16); // 定位成功後稍微放大
-         }
+        if (centerMap && map) {
+            console.log("Centering map to user location.");
+            map.setCenter(userLocation);
+            map.setZoom(16); // 定位成功後稍微放大
+        }
 
-         hideStatus(); // 隱藏定位中訊息
-         showStatus("定位成功！", "success");
-         setTimeout(hideStatus, 2000); // 短暫顯示成功訊息
+        hideStatus(); // 隱藏定位中訊息
+        showStatus("定位成功！", "success");
+        setTimeout(hideStatus, 2000); // 短暫顯示成功訊息
 
-     } catch (error) {
-         console.error("Geolocation error:", error);
-         hideStatus(); // 隱藏定位中訊息
-         handleGeolocationError(error); // 使用統一的錯誤處理函數
-         // 定位失敗，可以考慮保留上一次的位置或預設位置
-         if (!currentSearchLocation) {
-            currentSearchLocation = { lat: 25.0330, lng: 121.5654 }; // 預設台北
+    } catch (error) {
+        console.error("Geolocation error:", error);
+        hideStatus(); // 隱藏定位中訊息
+        handleGeolocationError(error); // 使用統一的錯誤處理函數
+        // 定位失敗，可以考慮保留上一次的位置或預設位置
+        if (!currentSearchLocation) {
+            currentSearchLocation = {lat: 25.0330, lng: 121.5654}; // 預設台北
             updateUserMarker(currentSearchLocation, "預設搜尋中心 (定位失敗)");
-            if(map && centerMap) map.setCenter(currentSearchLocation);
+            if (map && centerMap) map.setCenter(currentSearchLocation);
             showError("定位失敗，已顯示預設位置。");
-         } else {
-             showError("定位失敗，將使用上一次的位置或您設定的中心點。");
-         }
-     } finally {
-          if(loadingElement) loadingElement.style.display = 'none';
-          if(findMeButton) findMeButton.disabled = false; // 重新啟用按鈕
-     }
+        } else {
+            showError("定位失敗，將使用上一次的位置或您設定的中心點。");
+        }
+    } finally {
+        if (loadingElement) loadingElement.style.display = 'none';
+        if (findMeButton) findMeButton.disabled = false; // 重新啟用按鈕
+    }
 }
 
-// 更新或建立使用者位置標記及其效果
+/** 更新或建立使用者位置標記及其效果 */
 function updateUserMarker(location, title = "您的位置") {
     if (!map) {
         console.warn("Map not initialized yet, cannot update user marker.");
         return;
     }
-     if (!google || !google.maps) {
-         console.warn("Google Maps library not ready, cannot update user marker.");
-         return;
-     }
+    if (!google || !google.maps) {
+        console.warn("Google Maps library not ready, cannot update user marker.");
+        return;
+    }
 
     const markerIcon = {
         path: google.maps.SymbolPath.CIRCLE, // 主要標記用圓形
@@ -499,7 +494,7 @@ function updateUserMarker(location, title = "您的位置") {
         strokeWeight: 2
     };
 
-     const glowIcon = {
+    const glowIcon = {
         path: google.maps.SymbolPath.CIRCLE, // 光暈也用圓形
         scale: baseGlowScale, // 初始大小
         fillColor: '#FFD700', // 黃色光暈
@@ -525,53 +520,53 @@ function updateUserMarker(location, title = "您的位置") {
 
         // --- 為主要標記添加拖曳事件 ---
         userMarker.addListener('dragstart', () => {
-             console.log("User marker drag start.");
-             if (userInfoWindow) userInfoWindow.close(); // 拖曳時關閉資訊視窗
-             if (glowIntervalId) clearInterval(glowIntervalId); // 拖曳時暫停動畫
-             if (userMarkerGlow) userMarkerGlow.setVisible(false); // 隱藏光暈
+            console.log("User marker drag start.");
+            if (userInfoWindow) userInfoWindow.close(); // 拖曳時關閉資訊視窗
+            if (glowIntervalId) clearInterval(glowIntervalId); // 拖曳時暫停動畫
+            if (userMarkerGlow) userMarkerGlow.setVisible(false); // 隱藏光暈
         });
 
         userMarker.addListener('dragend', () => {
             const newPosition = userMarker.getPosition().toJSON();
             console.log("User marker dragged to:", newPosition);
             currentSearchLocation = newPosition; // 更新搜尋中心點
-             if (userMarkerGlow) {
-                 userMarkerGlow.setPosition(newPosition); // 同步光暈位置
-                 userMarkerGlow.setVisible(true); // 重新顯示光暈
-             }
-             if (glowIntervalId) clearInterval(glowIntervalId); // 停止舊的動畫計時器
-             glowIntervalId = setInterval(animateGlow, 50); // 重新啟動動畫
+            if (userMarkerGlow) {
+                userMarkerGlow.setPosition(newPosition); // 同步光暈位置
+                userMarkerGlow.setVisible(true); // 重新顯示光暈
+            }
+            if (glowIntervalId) clearInterval(glowIntervalId); // 停止舊的動畫計時器
+            glowIntervalId = setInterval(animateGlow, 50); // 重新啟動動畫
 
-             // 更新資訊視窗內容
-             updateUserInfoWindowContent("搜尋中心點 (點擊或拖曳設定)");
-             if(userInfoWindow) userInfoWindow.open(map, userMarker); // 拖曳結束後重新打開
+            // 更新資訊視窗內容
+            updateUserInfoWindowContent("搜尋中心點 (點擊或拖曳設定)");
+            if (userInfoWindow) userInfoWindow.open(map, userMarker); // 拖曳結束後重新打開
 
-              showStatus("搜尋中心點已更新", "success");
-              setTimeout(hideStatus, 2000);
+            showStatus("搜尋中心點已更新", "success");
+            setTimeout(hideStatus, 2000);
         });
 
-         // --- 為主要標記添加點擊事件 (顯示資訊視窗) ---
-         userMarker.addListener('click', () => {
-             if (!userInfoWindow) {
-                 userInfoWindow = new google.maps.InfoWindow({
+        // --- 為主要標記添加點擊事件 (顯示資訊視窗) ---
+        userMarker.addListener('click', () => {
+            if (!userInfoWindow) {
+                userInfoWindow = new google.maps.InfoWindow({
                     content: `<h3>${userMarker.getTitle()}</h3>`, // 初始內容
-                     maxWidth: 200
-                 });
-             } else {
-                  // 更新內容以防標題變化
-                 userInfoWindow.setContent(`<h3>${userMarker.getTitle()}</h3>`);
-             }
-             userInfoWindow.open(map, userMarker);
-         });
+                    maxWidth: 200
+                });
+            } else {
+                // 更新內容以防標題變化
+                userInfoWindow.setContent(`<h3>${userMarker.getTitle()}</h3>`);
+            }
+            userInfoWindow.open(map, userMarker);
+        });
     }
 
     // --- 更新或建立光暈標記 ---
     if (userMarkerGlow) {
         userMarkerGlow.setPosition(location);
-         if (!userMarkerGlow.getMap()) { // 如果之前被隱藏了，重新顯示
-             userMarkerGlow.setMap(map);
-         }
-         userMarkerGlow.setVisible(true);
+        if (!userMarkerGlow.getMap()) { // 如果之前被隱藏了，重新顯示
+            userMarkerGlow.setMap(map);
+        }
+        userMarkerGlow.setVisible(true);
     } else {
         console.log("Creating user marker glow effect.");
         userMarkerGlow = new google.maps.Marker({
@@ -595,22 +590,20 @@ function updateUserMarker(location, title = "您的位置") {
     }
     // 設定新的計時器，頻繁更新以獲得平滑效果
     glowIntervalId = setInterval(animateGlow, 50); // 每 50ms 更新一次動畫幀
-
-
 }
 
-// Helper to update user InfoWindow content
+/** 更新使用者資訊視窗內容 */
 function updateUserInfoWindowContent(title) {
     if (userInfoWindow && userMarker) {
         userInfoWindow.setContent(`<h3>${title}</h3>`);
-         // 如果視窗是打開的，確保它仍然附著在標記上
-         if(userInfoWindow.getMap()) {
-             userInfoWindow.open(map, userMarker);
-         }
+        // 如果視窗是打開的，確保它仍然附著在標記上
+        if (userInfoWindow.getMap()) {
+            userInfoWindow.open(map, userMarker);
+        }
     }
 }
 
-// 處理地理位置錯誤
+/** 處理地理位置錯誤 */
 function handleGeolocationError(error) {
     hideStatus(); // 隱藏任何進行中的狀態訊息
     let message = "定位時發生未知錯誤。";
@@ -633,13 +626,8 @@ function handleGeolocationError(error) {
     showError(message);
 }
 
-// --- End Map and Location Handling ---
-
-// ********** END OF PART 2 **********
-// --- Restaurant Search and Display ---
-
-// 搜尋附近餐廳
-// 搜尋附近餐廳 (修改後，會自動載入所有分頁)
+// ===================== 餐廳搜尋與顯示 =====================
+/** 搜尋附近餐廳（自動處理所有分頁） */
 function findNearbyRestaurants(isInitialSearch = true) {
     if (!map || !placesService || !currentSearchLocation) {
         console.error("Search prerequisites not met: map, placesService, or currentSearchLocation missing.");
@@ -670,7 +658,6 @@ function findNearbyRestaurants(isInitialSearch = true) {
     const request = {
         location: new google.maps.LatLng(currentSearchLocation.lat, currentSearchLocation.lng),
         radius: searchRadius,
-        // keyword: '餐廳', // 移除此行
         types: ['restaurant', 'cafe', 'bakery', 'meal_takeaway', 'food'], // 新增此行以包含多種類型
         language: 'zh-TW',
         rankBy: google.maps.places.RankBy.PROMINENCE, // 保留 PROMINENCE 或根據需要改為 DISTANCE
@@ -680,10 +667,10 @@ function findNearbyRestaurants(isInitialSearch = true) {
 
     // 定義遞迴處理分頁的回呼函式
     const processPage = (results, status, pagination) => {
-         // 先把 searchPagination 保存起來，即使 status 不是 OK 也可能有分頁資訊
-         if (pagination) {
-             searchPagination = pagination;
-         }
+        // 先把 searchPagination 保存起來，即使 status 不是 OK 也可能有分頁資訊
+        if (pagination) {
+            searchPagination = pagination;
+        }
 
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             console.log(`Received ${results.length} results for this page.`);
@@ -699,7 +686,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
                 // *** 重要：加入延遲以避免 OVER_QUERY_LIMIT ***
                 setTimeout(() => {
                     try {
-                         searchPagination.nextPage(); // 請求下一頁，會再次觸發 processPage 回呼
+                        searchPagination.nextPage(); // 請求下一頁，會再次觸發 processPage 回呼
                     } catch (e) {
                         console.error("Error calling nextPage():", e);
                         showError("載入更多結果時發生錯誤。");
@@ -708,7 +695,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
                         hideStatus();
                         // 即使 nextPage 出錯，還是可以嘗試調整現有結果的邊界
                         if (allResults.length > 0) {
-                             adjustMapBounds(allResults);
+                            adjustMapBounds(allResults);
                         }
                     }
                 }, 1500); // 延遲 1.5 秒
@@ -718,8 +705,8 @@ function findNearbyRestaurants(isInitialSearch = true) {
                 if (loadingElement) loadingElement.style.display = 'none';
                 if (findButton) findButton.disabled = false; // 所有結果載入完成後啟用按鈕
                 hideStatus(); // 隱藏載入訊息
-                 showStatus(`共找到 ${allResults.length} 間餐廳`, "success");
-                 setTimeout(hideStatus, 3000); // 短暫顯示最終結果數量
+                showStatus(`共找到 ${allResults.length} 間餐廳`, "success");
+                setTimeout(hideStatus, 3000); // 短暫顯示最終結果數量
 
                 // 在所有結果都載入後，調整地圖邊界
                 if (allResults.length > 0) {
@@ -728,18 +715,18 @@ function findNearbyRestaurants(isInitialSearch = true) {
             }
         } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
             console.log("No restaurants found for this request/page.");
-             // 如果是第一頁就沒有結果
-             if (allResults.length === 0) {
-                 showError("在您指定的位置附近找不到餐廳。");
-                 if (resultsPanel) resultsPanel.innerHTML = '<li>沒有找到符合條件的餐廳。</li>';
-             } else {
-                 // 如果是後續頁面沒有結果，表示已經載入完畢
-                 showStatus(`共找到 ${allResults.length} 間餐廳`, "success");
-                 setTimeout(hideStatus, 3000);
-                  if (allResults.length > 0) {
-                     adjustMapBounds(allResults); // 調整已載入結果的邊界
-                 }
-             }
+            // 如果是第一頁就沒有結果
+            if (allResults.length === 0) {
+                showError("在您指定的位置附近找不到餐廳。");
+                if (resultsPanel) resultsPanel.innerHTML = '<li>沒有找到符合條件的餐廳。</li>';
+            } else {
+                // 如果是後續頁面沒有結果，表示已經載入完畢
+                showStatus(`共找到 ${allResults.length} 間餐廳`, "success");
+                setTimeout(hideStatus, 3000);
+                if (allResults.length > 0) {
+                    adjustMapBounds(allResults); // 調整已載入結果的邊界
+                }
+            }
             if (loadingElement) loadingElement.style.display = 'none';
             if (findButton) findButton.disabled = false; // 找不到結果也要啟用按鈕
             hideStatus();
@@ -750,10 +737,10 @@ function findNearbyRestaurants(isInitialSearch = true) {
             if (loadingElement) loadingElement.style.display = 'none';
             if (findButton) findButton.disabled = false; // 出錯時啟用按鈕
             hideStatus();
-             // 即使出錯，也嘗試調整已載入結果的邊界
-             if (allResults.length > 0) {
-                 adjustMapBounds(allResults);
-             }
+            // 即使出錯，也嘗試調整已載入結果的邊界
+            if (allResults.length > 0) {
+                adjustMapBounds(allResults);
+            }
         }
     };
 
@@ -761,7 +748,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
     placesService.nearbySearch(request, processPage);
 }
 
-// 為地點列表建立地圖標記
+/** 為地點列表建立地圖標記 */
 function createMarkersForPlaces(places) {
     if (!map) return;
     console.log(`Creating markers for ${places.length} places.`);
@@ -775,13 +762,13 @@ function createMarkersForPlaces(places) {
     });
 }
 
-// 建立單一餐廳標記
+/** 建立單一餐廳標記 */
 function createMarker(place) {
     if (!map || !place.geometry || !place.geometry.location) return;
 
     // 建立較小的餐廳標記圖示
     const restaurantIcon = {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: google.maps.SymbolPath.CIRCLE, // 主要標記用圓形
         scale: 6, // 縮小標記大小
         fillColor: '#FF5722', // 橙色
         fillOpacity: 0.9,
@@ -822,7 +809,7 @@ function createMarker(place) {
     currentRestaurantMarkers.push(marker); // 將標記添加到陣列中以便管理
 }
 
-// 突出顯示對應的餐廳卡片
+/** 突出顯示對應的餐廳卡片 */
 function highlightRestaurantCard(placeId) {
     // 首先移除所有卡片的高亮顯示
     document.querySelectorAll('.restaurant-card').forEach(card => {
@@ -837,15 +824,15 @@ function highlightRestaurantCard(placeId) {
         targetCard.classList.add('border-primary', 'shadow');
 
         // 滾動到卡片位置 (可選)
-        targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        targetCard.scrollIntoView({behavior: 'smooth', block: 'nearest'});
     }
 }
 
-// 獲取地點詳細資訊 (需要額外 API 請求)
+// 取得地點詳細資訊 (需要額外 API 請求)
 // 全域變數，用於保存詳細資訊
 let currentPlaceDetails = null;
 
-// 獲取地點詳細資訊 (需要額外 API 請求)
+/** 取得地點詳細資訊，並顯示於浮窗 */
 function fetchPlaceDetails(placeId, marker) {
     if (!placesService || !placeId) return;
     console.log("Fetching details for placeId:", placeId);
@@ -860,7 +847,7 @@ function fetchPlaceDetails(placeId, marker) {
             console.log("Place details received:", placeDetails);
             // 保存詳細資訊以便在浮窗中使用
             currentPlaceDetails = placeDetails;
-            
+
             // 建立地圖資訊視窗內容（較簡短的版本）
             let content = `<div class="info-window-content" style="max-width: 300px;">`;
 
@@ -893,7 +880,7 @@ function fetchPlaceDetails(placeId, marker) {
 
             // 照片區域
             if (placeDetails.photos && placeDetails.photos.length > 0) {
-                const photoUrl = placeDetails.photos[0].getUrl({ maxWidth: 300, maxHeight: 200 });
+                const photoUrl = placeDetails.photos[0].getUrl({maxWidth: 300, maxHeight: 200});
                 content += `<div style="margin-top: 15px; text-align: center;">
                     <img src="${photoUrl}" alt="${placeDetails.name}" style="max-width: 100%; max-height: 150px; object-fit: cover; border-radius: 4px;">
                 </div>`;
@@ -923,7 +910,7 @@ function fetchPlaceDetails(placeId, marker) {
             // 確保視窗仍然附著在正確的標記上 (以防使用者在載入期間點擊其他標記)
             if (infowindow.getAnchor() === marker) {
                 infowindow.open(map, marker);
-                
+
                 // 為查看評論按鈕添加事件監聽器
                 google.maps.event.addListenerOnce(infowindow, 'domready', () => {
                     const viewReviewsBtn = document.getElementById('viewReviewsBtn');
@@ -946,21 +933,21 @@ function fetchPlaceDetails(placeId, marker) {
     });
 }
 
-// 顯示評論浮窗
+/** 顯示評論浮窗 */
 function showReviewsModal(placeDetails) {
     if (!placeDetails || !placeDetails.reviews) return;
-    
+
     // 檢查是否已存在評論浮窗，如果存在則先移除
     const existingModal = document.getElementById('reviewsModal');
     if (existingModal) {
         existingModal.remove();
     }
-    
+
     // 建立評論浮窗元素
     const modal = document.createElement('div');
     modal.id = 'reviewsModal';
     modal.classList.add('reviews-modal');
-    
+
     // 建立評論浮窗內容
     let modalContent = `
         <div class="reviews-modal-content">
@@ -969,7 +956,7 @@ function showReviewsModal(placeDetails) {
                 <button class="reviews-modal-close">&times;</button>
             </div>
             <div class="reviews-modal-body">`;
-    
+
     // 評分和評論數量摘要
     if (placeDetails.rating) {
         modalContent += `
@@ -983,7 +970,7 @@ function showReviewsModal(placeDetails) {
                 <div class="reviews-count">${placeDetails.user_ratings_total || placeDetails.reviews.length} 則評論</div>
             </div>`;
     }
-    
+
     // 評論列表
     modalContent += `<div class="reviews-list">`;
     placeDetails.reviews.forEach(review => {
@@ -1001,9 +988,9 @@ function showReviewsModal(placeDetails) {
                 <div class="review-text">${review.text}</div>
             </div>`;
     });
-    
+
     modalContent += `</div>`; // 結束評論列表
-    
+
     // 添加前往 Google Maps 查看更多評論的連結
     if (placeDetails.url) {
         modalContent += `
@@ -1013,14 +1000,14 @@ function showReviewsModal(placeDetails) {
                 </a>
             </div>`;
     }
-    
+
     modalContent += `
             </div>
         </div>`;
-    
+
     modal.innerHTML = modalContent;
     document.body.appendChild(modal);
-    
+
     // 添加關閉按鈕事件
     const closeButton = modal.querySelector('.reviews-modal-close');
     if (closeButton) {
@@ -1028,55 +1015,54 @@ function showReviewsModal(placeDetails) {
             modal.remove();
         });
     }
-    
+
     // 點擊浮窗外部區域關閉浮窗
     modal.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.remove();
         }
     });
-    
+
     // 添加鍵盤事件 (ESC 鍵關閉浮窗)
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape' && document.getElementById('reviewsModal')) {
             document.getElementById('reviewsModal').remove();
         }
     });
-    
+
     // 浮窗顯示後滾動至頂部
     setTimeout(() => {
         modal.querySelector('.reviews-modal-body').scrollTop = 0;
     }, 100);
 }
 
-// 生成星星 HTML
+/** 生成星星 HTML */
 function getStarsHTML(rating) {
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-    
+
     let starsHTML = '';
-    
+
     // 添加滿星
     for (let i = 0; i < fullStars; i++) {
         starsHTML += '<span class="star full-star">★</span>';
     }
-    
+
     // 添加半星 (如果有)
     if (halfStar) {
         starsHTML += '<span class="star half-star">★</span>';
     }
-    
+
     // 添加空星
     for (let i = 0; i < emptyStars; i++) {
         starsHTML += '<span class="star empty-star">☆</span>';
     }
-    
+
     return starsHTML;
 }
 
-
-// 在結果面板中顯示餐廳列表（卡片式）
+/** 在結果面板中顯示餐廳列表（卡片式） */
 function displayResults(places) {
     const restaurantList = document.getElementById('restaurantList');
     if (!restaurantList) {
@@ -1089,96 +1075,85 @@ function displayResults(places) {
         // 添加 col-md-4 讓一行顯示三張卡片
         li.classList.add('col-md-4', 'col-sm-6', 'mb-4');
 
-        const cardDiv = document.createElement('div');
-        cardDiv.classList.add('card', 'h-100', 'restaurant-card');
-        cardDiv.setAttribute('data-place-id', place.place_id); // 儲存 place_id 方便後續操作
-
-        // --- 建立卡片內容 ---
-        let cardHTML = `<div class="card-body">`;
-
-        // 1. 卡片頂部 - 照片區域
-        if (place.photos && place.photos.length > 0) {
-            const photoUrl = place.photos[0].getUrl({ maxWidth: 500 });
-            cardHTML += `<div class="card-img-container mb-3">
-                <img src="${photoUrl}" class="card-img-top rounded" alt="${place.name || '餐廳照片'}" style="max-height: 180px; object-fit: cover; width: 100%;">
-            </div>`;
-        }
-
-        // 2. 餐廳名稱
-        cardHTML += `<h5 class="card-title">${place.name || '未命名餐廳'}</h5>`;
-
-        // 3. 地址
-        const address = place.vicinity || place.formatted_address || '無地址資訊';
-        cardHTML += `<p class="card-text text-muted mb-2">${address}</p>`;
-
-        // 4. 評分與評論數 (可點擊查看評論)
-        if (place.rating) {
-            cardHTML += `<div class="mb-2">
-                <div class="d-flex align-items-center mb-1">
-                    <span class="me-2">評分:</span>
-                    <span class="badge bg-warning text-dark me-1">${place.rating}</span>
+        // 在這裡我們直接創建內容而不是使用 cardDiv 變量
+        li.innerHTML = `
+            <div class="card h-100 restaurant-card ${place.rating >= 4.5 ? 'high-rating' : place.rating >= 4 ? 'medium-rating' : place.rating < 4 ? 'low-rating' : ''}" data-place-id="${place.place_id}">
+                ${place.rating && place.rating < 4 ? '<div class="warning-badge"></div>' : ''}
+                <div class="card-body">
+                    ${place.photos && place.photos.length > 0 ?
+            `<div class="card-img-container mb-3">
+                            <img src="${place.photos[0].getUrl({maxWidth: 500})}" class="card-img-top rounded" alt="${place.name || '餐廳照片'}" style="max-height: 180px; object-fit: cover; width: 100%;">
+                        </div>` : ''}
+                    
+                    <h5 class="card-title">${place.name || '未命名餐廳'}</h5>
+                    
+                    <p class="card-text text-muted mb-2">${place.vicinity || place.formatted_address || '無地址資訊'}</p>
+                    
+                    ${place.rating ?
+            `<div class="mb-2">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="me-2">評分:</span>
+                                <span class="badge bg-warning text-dark me-1">${place.rating}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary comments-btn w-100" data-place-id="${place.place_id}">
+                                <i class="fas fa-comments me-1"></i>查看 ${place.user_ratings_total || 0} 則評論
+                            </button>
+                        </div>` : ''}
+                    
+                    ${place.opening_hours ?
+            `<div class="mb-2">
+                            <span class="badge ${place.opening_hours.open_now ? 'bg-success' : 'bg-danger'}">
+                                ${place.opening_hours.open_now ? '營業中' : '休息中'}
+                            </span>
+                        </div>` : ''}
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-primary view-details-btn" data-place-id="${place.place_id}">查看詳情</button>
+                    </div>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary comments-btn w-100" data-place-id="${place.place_id}">
-                    <i class="fas fa-comments me-1"></i>查看 ${place.user_ratings_total || 0} 則評論
-                </button>
-            </div>`;
-        }
-
-        // 5. 營業狀態
-        if (place.opening_hours) {
-            cardHTML += `<div class="mb-2">
-                <span class="badge ${place.opening_hours.open_now ? 'bg-success' : 'bg-danger'}">
-                    ${place.opening_hours.open_now ? '營業中' : '休息中'}
-                </span>
-            </div>`;
-        }
-
-        // 6. 查看詳情按鈕
-        cardHTML += `<div class="mt-3">
-            <button class="btn btn-sm btn-outline-primary view-details-btn" data-place-id="${place.place_id}">查看詳情</button>
-        </div>`;
-
-        cardHTML += `</div>`; // 結束 card-body
-
-        li.innerHTML = cardHTML;
+            </div>
+        `;
 
         // 添加查看詳情按鈕點擊事件
-        li.querySelector('.view-details-btn').addEventListener('click', (e) => {
-            e.stopPropagation(); // 防止事件冒泡到卡片
+        const viewDetailsBtn = li.querySelector('.view-details-btn');
+        if (viewDetailsBtn) {
+            viewDetailsBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 防止事件冒泡到卡片
 
-            // 尋找對應的標記並觸發點擊
-            const marker = currentRestaurantMarkers.find(m => m.placeId === place.place_id);
-            if (marker) {
-                google.maps.event.trigger(marker, 'click');
-                // 滾動到地圖頂部
-                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.warn("Marker not found for place:", place.name);
-            }
-        });
+                // 尋找對應的標記並觸發點擊
+                const marker = currentRestaurantMarkers.find(m => m.placeId === place.place_id);
+                if (marker) {
+                    google.maps.event.trigger(marker, 'click');
+                    // 滾動到地圖頂部
+                    document.getElementById('map').scrollIntoView({behavior: 'smooth'});
+                } else {
+                    console.warn("Marker not found for place:", place.name);
+                }
+            });
+        }
 
         // 添加查看評論按鈕事件
         const commentsBtn = li.querySelector('.comments-btn');
         if (commentsBtn) {
             commentsBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // 防止事件冒泡到卡片
-                
+
                 const placeId = commentsBtn.getAttribute('data-place-id');
                 if (!placeId) return;
-                
+
                 // 如果已存在詳細信息，直接顯示評論浮窗
                 if (currentPlaceDetails && currentPlaceDetails.place_id === placeId && currentPlaceDetails.reviews) {
                     showReviewsModal(currentPlaceDetails);
                     return;
                 }
-                
+
                 // 否則先獲取詳細信息
                 showStatus("正在載入評論資訊...", "info");
                 const request = {
                     placeId: placeId,
                     fields: ['name', 'rating', 'user_ratings_total', 'reviews', 'url', 'photos', 'place_id']
                 };
-                
+
                 placesService.getDetails(request, (placeDetails, status) => {
                     hideStatus();
                     if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
@@ -1193,10 +1168,16 @@ function displayResults(places) {
             });
         }
 
-        // 整個卡片的點擊事件 (可選，如果你希望整個卡片都可點擊)
-        li.addEventListener('click', () => {
-            li.querySelector('.view-details-btn').click();
-        });
+        // 整個卡片的點擊事件
+        const card = li.querySelector('.restaurant-card');
+        if (card) {
+            card.addEventListener('click', () => {
+                const viewDetailsBtn = card.querySelector('.view-details-btn');
+                if (viewDetailsBtn) {
+                    viewDetailsBtn.click();
+                }
+            });
+        }
 
         restaurantList.appendChild(li);
     });
@@ -1204,7 +1185,7 @@ function displayResults(places) {
     console.log(`Added ${places.length} restaurant cards. Total: ${restaurantList.childElementCount}`);
 }
 
-// 載入更多結果
+/** 載入更多結果 */
 function loadMoreResults() {
     const loadMoreButton = document.getElementById('loadMoreButton');
     if (!searchPagination || !searchPagination.hasNextPage) {
@@ -1223,48 +1204,47 @@ function loadMoreResults() {
     // 且回呼函式會更新 'Load More' 按鈕的狀態
 
     // nearbySearch 的回呼會處理狀態更新和按鈕重新啟用
-     // Add a timeout to re-enable the button just in case the callback fails silently
-     setTimeout(() => {
-          if (loadMoreButton && loadMoreButton.disabled) {
-               console.warn("Re-enabling 'Load More' button after timeout.");
-               loadMoreButton.disabled = false;
-               hideStatus();
-          }
-     }, 8000); // 8 second timeout
+    // Add a timeout to re-enable the button just in case the callback fails silently
+    setTimeout(() => {
+        if (loadMoreButton && loadMoreButton.disabled) {
+            console.warn("Re-enabling 'Load More' button after timeout.");
+            loadMoreButton.disabled = false;
+            hideStatus();
+        }
+    }, 8000); // 8 second timeouts
 }
 
-// 調整地圖邊界以包含所有結果和使用者位置
+/** 調整地圖邊界以包含所有結果和使用者位置 */
 function adjustMapBounds(places) {
-     if (!map || (!userMarker && places.length === 0)) return; // Need map and at least one point
+    if (!map || (!userMarker && places.length === 0)) return; // Need map and at least one point
 
-     const bounds = new google.maps.LatLngBounds();
+    const bounds = new google.maps.LatLngBounds();
 
-     // 包含使用者位置
-     if (userMarker) {
-          bounds.extend(userMarker.getPosition());
-     } else if (currentSearchLocation) {
-          bounds.extend(new google.maps.LatLng(currentSearchLocation.lat, currentSearchLocation.lng));
-     }
+    // 包含使用者位置
+    if (userMarker) {
+        bounds.extend(userMarker.getPosition());
+    } else if (currentSearchLocation) {
+        bounds.extend(new google.maps.LatLng(currentSearchLocation.lat, currentSearchLocation.lng));
+    }
 
-     // 包含所有餐廳位置
-     places.forEach(place => {
-          if (place.geometry && place.geometry.location) {
-               bounds.extend(place.geometry.location);
-          }
-     });
+    // 包含所有餐廳位置
+    places.forEach(place => {
+        if (place.geometry && place.geometry.location) {
+            bounds.extend(place.geometry.location);
+        }
+    });
 
-     // 如果只有一個點 (例如只有使用者位置)，避免過度縮放
-     if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-          console.log("Adjusting bounds for single point.");
-          map.setCenter(bounds.getCenter());
-          map.setZoom(16); // Set a reasonable zoom level for a single point
-     } else {
-          console.log("Fitting map to bounds:", bounds.toJSON());
-          map.fitBounds(bounds, 100); // Add padding (e.g., 100px)
-     }
+    // 如果只有一個點 (例如只有使用者位置)，避免過度縮放
+    if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+        console.log("Adjusting bounds for single point.");
+        map.setCenter(bounds.getCenter());
+        map.setZoom(16); // Set a reasonable zoom level for a single point
+    } else {
+        console.log("Fitting map to bounds:", bounds.toJSON());
+        map.fitBounds(bounds, 100); // Add padding (e.g., 100px)
+    }
 }
 
-
-// --- End Restaurant Search and Display ---
-
-// ********** END OF PART 3 **********
+// =========================================================
+//  END OF YUMMYQUEST MAP SCRIPT
+// =========================================================

@@ -68,7 +68,7 @@ async function ensureKeyPair() {
             // 保存私鑰到localStorage
             localStorage.setItem('maps_private_key', privateKey);
 
-            // 獲取或生成客戶端ID
+            // 取得或生成客戶端ID
             initClientId();
 
             // 保存完整的公鑰，便於調試
@@ -133,7 +133,7 @@ async function registerPublicKey(publicKeyData) {
  */
 async function fetchEncryptedApiKey() {
     try {
-        console.log("正在獲取加密的API Key...");
+        console.log("正在取得加密的API Key...");
 
         // 確保已初始化客戶端ID和密鑰對
         initClientId();
@@ -144,11 +144,11 @@ async function fetchEncryptedApiKey() {
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
-            throw new Error(`獲取API Key失敗: ${response.statusText}`);
+            throw new Error(`取得API Key失敗: ${response.statusText}`);
         }
 
         const encryptedKey = await response.text();
-        console.log("已獲取加密的API Key，準備解密...");
+        console.log("已取得加密的API Key，準備解密...");
 
         // 解密API Key
         const decryptedKey = decryptWithJSEncrypt(encryptedKey);
@@ -173,7 +173,7 @@ async function fetchEncryptedApiKey() {
  */
 function decryptWithJSEncrypt(encryptedKeyBase64) {
     try {
-        // 從localStorage獲取私鑰
+        // 從localStorage取得私鑰
         const privateKey = localStorage.getItem('maps_private_key');
         if (!privateKey) {
             throw new Error("無法找到私鑰");
@@ -252,7 +252,7 @@ async function loadGoogleMaps() {
         console.log("API Key 已成功取得並解密");
 
         if (!API_KEY) {
-            throw new Error("無法獲取有效的API Key");
+            throw new Error("無法取得有效的API Key");
         }
 
         // 動態載入Google Maps API

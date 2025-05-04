@@ -222,7 +222,7 @@ public class GoogleMapsController {
 
             // 解析公鑰
             try {
-                // 記錄公鑰詳細信息用於調試
+                // 記錄公鑰詳細訊息用於調試
                 String publicKeyString = keyEntity.getPublicKey();
                 log.info("嘗試解析公鑰, 長度: {}, 前20個字符: {}...", 
                         publicKeyString.length(), 

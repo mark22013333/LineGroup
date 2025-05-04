@@ -21,24 +21,24 @@ const Login = () => {
       setLoading(true);
       const response = await authService.login(values.username, values.password);
       
-      // 假設後端返回的數據包含 token 和用戶信息
+      // 假設後端返回的數據包含 token 和使用者訊息
       const { accessToken, tokenType } = response.data;
       const token = `${tokenType} ${accessToken}`;
       
-      // 取得用戶信息
+      // 取得使用者訊息
       const userInfo = {
         username: values.username,
-        // 這裡可以添加其他必要的用戶信息
+        // 這裡可以新增其他必要的使用者訊息
       };
       
-      // 登入成功，保存認證信息
+      // 登入成功，保存認證訊息
       login(userInfo, token);
       
       message.success('登入成功！');
       navigate(from, { replace: true });
     } catch (error) {
       console.error('登入失敗:', error);
-      message.error('用戶名或密碼錯誤');
+      message.error('使用者名或密碼錯誤');
     } finally {
       setLoading(false);
     }
@@ -57,11 +57,11 @@ const Login = () => {
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: '請輸入您的用戶名！' }]}
+            rules={[{ required: true, message: '請輸入您的使用者名！' }]}
           >
             <Input 
               prefix={<UserOutlined />} 
-              placeholder="用戶名" 
+              placeholder="使用者名" 
               size="large"
             />
           </Form.Item>

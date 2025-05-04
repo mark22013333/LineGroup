@@ -1,9 +1,9 @@
 package com.cheng.linegroup.config;
 
 import com.cheng.linegroup.enums.Security;
-import com.cheng.linegroup.filter.JwtValidationFilter;
 import com.cheng.linegroup.exception.security.SystemAccessDeniedHandler;
 import com.cheng.linegroup.exception.security.SystemAuthenticationEntryPoint;
+import com.cheng.linegroup.security.token.SecureJwtValidationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +39,7 @@ public class SecurityConfig {
     private final SystemAuthenticationEntryPoint authenticationEntryPoint;
     private final SystemAccessDeniedHandler accessDeniedHandler;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final SecureJwtValidationFilter secureJwtValidationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -75,8 +76,8 @@ public class SecurityConfig {
 
         ;
 
-        // JWT
-        http.addFilterBefore(new JwtValidationFilter(redisTemplate), UsernamePasswordAuthenticationFilter.class);
+        // 使用安全增強型JWT過濾器代替舊的標準JWT過濾器
+        http.addFilterBefore(secureJwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

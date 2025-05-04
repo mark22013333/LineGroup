@@ -26,7 +26,7 @@ public class AdminConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         // 將 /admin 路由映射到 admin/index 視圖
         registry.addViewController("/admin").setViewName("admin/index");
-        // 確保所有 /admin/** 路由都使用相同的視圖，以支持前端路由
+        // 確保所有 /admin/** 路由都使用相同的視圖，以可用前端路由
         registry.addViewController("/admin/**").setViewName("admin/index");
     }
 }

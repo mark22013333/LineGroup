@@ -4,6 +4,8 @@ server:
   servlet:
     context-path: /apps
 spring:
+  main:
+    allow-bean-definition-overriding: true
   thymeleaf:
     mode: HTML
   profiles:

@@ -246,7 +246,7 @@ body {
     z-index: 5;
     border: 2px dashed #ffcccc;
     opacity: 0.95;
-    /* 添加印章凹凸效果 */
+    /* 新增印章凹凸效果 */
     background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,0,0,0) 60%);
 }
 
@@ -510,7 +510,7 @@ body {
     text-decoration: none;
 }
 
-/* 響應式設計 */
+/* 回應式設計 */
 @media (max-width: 768px) {
     body {
         padding: 10px;

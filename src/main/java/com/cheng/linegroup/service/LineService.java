@@ -107,7 +107,7 @@ public class LineService {
      * @param memberIds 用於儲存已取得的群組成員 UID 的集合。初次呼叫時應傳遞一個空集合。
      * @param times     當前的遞迴呼叫次數。用於限制最大呼叫次數，避免無限遞迴。
      * @return 一個包含群組所有成員 UID 的 Set 集合。如果達到呼叫次數限制，則返回當前已收集到的成員 UID。
-     * @throws IOException 當 LINE API 調用失敗或返回非預期響應時拋出。
+     * @throws IOException 當 LINE API 調用失敗或返回非預期回應時拋出。
      */
     public Set<String> getGroupMemberIds(String groupId, String nextToken, Set<String> memberIds, int times) throws IOException {
         final int MAX_TIMES = 50;

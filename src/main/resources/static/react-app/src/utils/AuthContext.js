@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 檢查本地存儲中是否有存儲的認證信息
+    // 檢查本機存儲中是否有存儲的認證訊息
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     

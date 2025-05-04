@@ -42,7 +42,7 @@ public class LoginUser implements UserDetails {
         Set<SimpleGrantedAuthority> authorities;
         if (roleIds != null && !roleIds.isEmpty()) {
             authorities = roleIds.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getCode()))
+                    .map(role -> new SimpleGrantedAuthority(role.getCode()))
                     .collect(Collectors.toSet());
         } else {
             authorities = Collections.emptySet();

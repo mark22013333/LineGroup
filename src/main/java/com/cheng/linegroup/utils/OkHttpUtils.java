@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * <pre>
  * 版本歷史：
  * - 1.0: 初始版本
- * - 1.1: 增加異步方法支持
+ * - 1.1: 增加異步方法可用
  * - 1.2: 新增LINE_REQUEST_ID_HEADER
  * - 1.3: 新增CSV解析方法
  * - 1.4: 修復{@link #addParam(Map)}, {@link #addParam(ObjectNode)}問題，避免參數被覆蓋
@@ -57,7 +57,7 @@ public class OkHttpUtils {
 
     static {
         VERSION_HISTORY.add(new VersionInfo(1.0, "初始版本", LocalDate.of(2023, 12, 3)));
-        VERSION_HISTORY.add(new VersionInfo(1.1, "增加異步方法支持", LocalDate.of(2023, 12, 4)));
+        VERSION_HISTORY.add(new VersionInfo(1.1, "增加異步方法可用", LocalDate.of(2023, 12, 4)));
         VERSION_HISTORY.add(new VersionInfo(1.2, "新增 LINE_REQUEST_ID_HEADER", LocalDate.of(2023, 12, 5)));
         VERSION_HISTORY.add(new VersionInfo(1.3, "新增 CSV 解析方法", LocalDate.of(2023, 12, 6)));
         VERSION_HISTORY.add(new VersionInfo(1.4, """

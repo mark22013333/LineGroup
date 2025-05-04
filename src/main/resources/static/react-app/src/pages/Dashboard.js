@@ -8,7 +8,7 @@ const Dashboard = () => {
   // 這些數據通常會從後端 API 取得
   const stats = [
     {
-      title: '總用戶數',
+      title: '總使用者數',
       value: 1024,
       icon: <UserOutlined />,
       color: '#1890ff'
@@ -46,7 +46,7 @@ const Dashboard = () => {
       key: '2',
       username: 'user1',
       loginTime: '2025-04-30 20:15:32',
-      action: '查詢用戶資料',
+      action: '查詢使用者資料',
       ip: '192.168.1.101',
     },
     {
@@ -67,7 +67,7 @@ const Dashboard = () => {
 
   const columns = [
     {
-      title: '用戶名',
+      title: '使用者名',
       dataIndex: 'username',
       key: 'username',
     },

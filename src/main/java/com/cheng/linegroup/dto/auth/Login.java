@@ -14,4 +14,5 @@ public class Login {
     private String tokenType;
     private String refreshToken;
     private Long expires;
+    private String secureToken; // 加密的安全JWT令牌
 }

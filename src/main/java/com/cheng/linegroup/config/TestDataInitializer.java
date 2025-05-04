@@ -17,7 +17,7 @@ import java.util.Optional;
 
 /**
  * 測試數據初始化器
- * 用於在應用啟動時創建測試帳號
+ * 用於在應用啟動時建立測試帳號
  *
  * @author cheng
  * @since 2025/04/30
@@ -34,31 +34,31 @@ public class TestDataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 創建管理員角色
+        // 建立管理員角色
         SysRole adminRole = createAdminRoleIfNotExists();
         
-        // 創建測試管理員
+        // 建立測試管理員
         createTestAdmin(adminRole);
         
         log.info("測試數據初始化完成");
     }
     
     private SysRole createAdminRoleIfNotExists() {
-        // 查詢所有角色，檢查是否已存在 ROLE_ADMIN
+        // 查詢所有角色，檢查是否已存在 code 為 ROLE_ADMIN 的角色
         List<SysRole> allRoles = sysRoleRepository.findAll();
         Optional<SysRole> existingRole = allRoles.stream()
-                .filter(role -> "ROLE_ADMIN".equals(role.getName()))
+                .filter(role -> "ROLE_ADMIN".equals(role.getCode()))
                 .findFirst();
         
         if (existingRole.isPresent()) {
-            log.info("管理員角色已存在，跳過創建");
+            log.info("管理員角色已存在，跳過建立");
             return existingRole.get();
         }
         
-        log.info("創建管理員角色");
+        log.info("建立管理員角色");
         SysRole adminRole = new SysRole();
-        adminRole.setName("ROLE_ADMIN");
-        adminRole.setCode("admin");
+        adminRole.setCode("ROLE_ADMIN");
+        adminRole.setName("管理者");
         adminRole.setSort(1);
         adminRole.setStatus(1); // 啟用
         adminRole.setDeleted(0); // 未刪除
@@ -69,16 +69,16 @@ public class TestDataInitializer implements CommandLineRunner {
     private void createTestAdmin(SysRole adminRole) {
         String testUsername = "admin";
         
-        // 檢查用戶是否已存在
+        // 檢查使用者是否已存在
         Optional<SysUser> existingUser = sysUserRepository.getSysUsersByUsername(testUsername);
         
         if (existingUser.isPresent()) {
-            log.info("測試管理員 '{}' 已存在，跳過創建", testUsername);
+            log.info("測試管理員 '{}' 已存在，跳過建立", testUsername);
             return;
         }
         
-        log.info("創建測試管理員帳號");
-        // 創建測試管理員
+        log.info("建立測試管理員帳號");
+        // 建立測試管理員
         SysUser adminUser = new SysUser();
         adminUser.setUsername(testUsername);
         adminUser.setPassword(passwordEncoder.encode("admin123")); // 設置初始密碼
@@ -94,6 +94,6 @@ public class TestDataInitializer implements CommandLineRunner {
         userRole.setRoleId(adminRole.getId());
         sysUserRoleRepository.save(userRole);
         
-        log.info("測試管理員 '{}' 創建成功，密碼: admin123", testUsername);
+        log.info("測試管理員 '{}' 建立成功，密碼: admin123", testUsername);
     }
 }

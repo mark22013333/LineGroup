@@ -18,13 +18,13 @@ let API_KEY = '';
 let CLIENT_ID = '';
 
 /**
- * 初始化客戶端識別碼 - 從localStorage讀取或創建新的
+ * 初始化客戶端識別碼 - 從localStorage讀取或建立新的
  */
 function initClientId() {
     // 檢查localStorage中是否已有CLIENT_ID
     CLIENT_ID = localStorage.getItem('maps_client_id');
 
-    // 如果沒有，則生成新的UUID並保存
+    // 如果沒有，則產生新的UUID並保存
     if (!CLIENT_ID) {
         CLIENT_ID = generateUUID();
         localStorage.setItem('maps_client_id', CLIENT_ID);
@@ -34,7 +34,7 @@ function initClientId() {
 }
 
 /**
- * 生成UUID v4
+ * 產生UUID v4
  * @returns {string} UUID
  */
 function generateUUID() {
@@ -46,7 +46,7 @@ function generateUUID() {
 }
 
 /**
- * 檢查是否已有密鑰對，如果沒有則生成並註冊公鑰到後端
+ * 檢查是否已有密鑰對，如果沒有則產生並註冊公鑰到後端
  * @returns {Promise<void>}
  */
 async function ensureKeyPair() {
@@ -54,13 +54,13 @@ async function ensureKeyPair() {
     const privateKeyStore = localStorage.getItem('maps_private_key');
 
     if (!privateKeyStore) {
-        console.log("生成新的RSA密鑰對...");
+        console.log("產生新的RSA密鑰對...");
         try {
             // 清除任何可能存在的舊密鑰
             localStorage.removeItem('maps_private_key');
             localStorage.removeItem('maps_client_id');
 
-            // 使用JSEncrypt生成新的RSA密鑰對
+            // 使用JSEncrypt產生新的RSA密鑰對
             const crypt = new JSEncrypt({default_key_size: 2048});
             const privateKey = crypt.getPrivateKey();
             const publicKey = crypt.getPublicKey();
@@ -68,7 +68,7 @@ async function ensureKeyPair() {
             // 保存私鑰到localStorage
             localStorage.setItem('maps_private_key', privateKey);
 
-            // 取得或生成客戶端ID
+            // 取得或產生客戶端ID
             initClientId();
 
             // 保存完整的公鑰，便於調試
@@ -86,13 +86,13 @@ async function ensureKeyPair() {
 
             await registerPublicKey(publicKeyData);
 
-            console.log("密鑰對生成並註冊成功");
+            console.log("密鑰對產生並註冊成功");
         } catch (error) {
-            console.error("生成或註冊密鑰對失敗:", error);
-            throw new Error("無法生成或註冊密鑰對");
+            console.error("產生或註冊密鑰對失敗:", error);
+            throw new Error("無法產生或註冊密鑰對");
         }
     } else {
-        console.log("已有RSA密鑰對，無需重新生成");
+        console.log("已有RSA密鑰對，無需重新產生");
     }
 }
 
@@ -129,7 +129,7 @@ async function registerPublicKey(publicKeyData) {
 }
 
 /**
- * 從後端取得加密的 Google Maps API KEY 並使用本地私鑰解密
+ * 從後端取得加密的 Google Maps API KEY 並使用本機私鑰解密
  */
 async function fetchEncryptedApiKey() {
     try {
@@ -236,7 +236,7 @@ function base64ToArrayBuffer(base64) {
 }
 
 /**
- * 動態載入 Google Maps API，支援 Opera 特殊 callback。
+ * 動態載入 Google Maps API，可用 Opera 特殊 callback。
  * Returns a Promise resolved when the script is loaded.
  */
 async function loadGoogleMaps() {
@@ -402,7 +402,7 @@ function checkBrowserCompatibility() {
     if (!hasGeolocation) {
         const browserCheck = document.getElementById('browserCheck');
         if (browserCheck) browserCheck.style.display = 'block';
-        showError("您的瀏覽器不支援地理位置功能。請嘗試更新瀏覽器或使用其他瀏覽器。");
+        showError("您的瀏覽器不可用地理位置功能。請嘗試更新瀏覽器或使用其他瀏覽器。");
         return false;
     }
     // Hide the check if geolocation is supported
@@ -612,7 +612,7 @@ function initializeMapInternal() {
             // false 表示如果定位成功，不要強制置中地圖，除非使用者點擊 "Find Me"
             getCurrentLocationAndUpdateMarker(false);
         } else {
-            // 如果不支援地理定位，設定一個預設位置並告知使用者
+            // 如果不可用地理定位，設定一個預設位置並告知使用者
             currentSearchLocation = {lat: 25.0330, lng: 121.5654}; // 預設台北
             updateUserMarker(currentSearchLocation, "預設搜尋中心 (無法自動定位)");
             map.setCenter(currentSearchLocation);
@@ -727,7 +727,7 @@ function updateUserMarker(location, title = "您的位置") {
             zIndex: 10 // 讓使用者標記在餐廳標記之上
         });
 
-        // --- 為主要標記添加拖曳事件 ---
+        // --- 為主要標記新增拖曳事件 ---
         userMarker.addListener('dragstart', () => {
             console.log("User marker drag start.");
             if (userInfoWindow) userInfoWindow.close(); // 拖曳時關閉資訊視窗
@@ -754,7 +754,7 @@ function updateUserMarker(location, title = "您的位置") {
             setTimeout(hideStatus, 2000);
         });
 
-        // --- 為主要標記添加點擊事件 (顯示資訊視窗) ---
+        // --- 為主要標記新增點擊事件 (顯示資訊視窗) ---
         userMarker.addListener('click', () => {
             if (!userInfoWindow) {
                 userInfoWindow = new google.maps.InfoWindow({
@@ -885,7 +885,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
 
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             console.log(`Received ${results.length} results for this page.`);
-            allResults = allResults.concat(results); // 將當前頁結果添加到總結果中
+            allResults = allResults.concat(results); // 將當前頁結果新增到總結果中
 
             displayResults(results); // 顯示當前頁的結果
             createMarkersForPlaces(results); // 為當前頁建立標記
@@ -1000,7 +1000,7 @@ function createMarker(place) {
         icon: restaurantIcon // 使用較小的自訂圖示
     });
 
-    // 為標記添加點擊事件，打開資訊視窗
+    // 為標記新增點擊事件，打開資訊視窗
     marker.addListener('click', () => {
         // 關閉可能已開啟的其他資訊視窗
         if (infowindow) infowindow.close();
@@ -1021,7 +1021,7 @@ function createMarker(place) {
         highlightRestaurantCard(place.place_id);
     });
 
-    currentRestaurantMarkers.push(marker); // 將標記添加到陣列中以便管理
+    currentRestaurantMarkers.push(marker); // 將標記新增到陣列中以便管理
 }
 
 /** 突出顯示對應的餐廳卡片 */
@@ -1035,7 +1035,7 @@ function highlightRestaurantCard(placeId) {
     const targetCard = document.querySelector(`.restaurant-card[data-place-id="${placeId}"]`);
 
     if (targetCard) {
-        // 添加高亮樣式
+        // 新增高亮樣式
         targetCard.classList.add('border-primary', 'shadow');
 
         // 滾動到卡片位置 (可選)
@@ -1126,7 +1126,7 @@ function fetchPlaceDetails(placeId, marker) {
             if (infowindow.getAnchor() === marker) {
                 infowindow.open(map, marker);
 
-                // 為查看評論按鈕添加事件監聽器
+                // 為查看評論按鈕新增事件監聽器
                 google.maps.event.addListenerOnce(infowindow, 'domready', () => {
                     const viewReviewsBtn = document.getElementById('viewReviewsBtn');
                     if (viewReviewsBtn && placeDetails.reviews) {
@@ -1206,7 +1206,7 @@ function showReviewsModal(placeDetails) {
 
     modalContent += `</div>`; // 結束評論列表
 
-    // 添加前往 Google Maps 查看更多評論的連結
+    // 新增前往 Google Maps 查看更多評論的連結
     if (placeDetails.url) {
         modalContent += `
             <div class="reviews-more">
@@ -1223,7 +1223,7 @@ function showReviewsModal(placeDetails) {
     modal.innerHTML = modalContent;
     document.body.appendChild(modal);
 
-    // 添加關閉按鈕事件
+    // 新增關閉按鈕事件
     const closeButton = modal.querySelector('.reviews-modal-close');
     if (closeButton) {
         closeButton.addEventListener('click', () => {
@@ -1238,7 +1238,7 @@ function showReviewsModal(placeDetails) {
         }
     });
 
-    // 添加鍵盤事件 (ESC 鍵關閉浮窗)
+    // 新增鍵盤事件 (ESC 鍵關閉浮窗)
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape' && document.getElementById('reviewsModal')) {
             document.getElementById('reviewsModal').remove();
@@ -1251,7 +1251,7 @@ function showReviewsModal(placeDetails) {
     }, 100);
 }
 
-/** 生成星星 HTML */
+/** 產生星星 HTML */
 function getStarsHTML(rating) {
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
@@ -1259,17 +1259,17 @@ function getStarsHTML(rating) {
 
     let starsHTML = '';
 
-    // 添加滿星
+    // 新增滿星
     for (let i = 0; i < fullStars; i++) {
         starsHTML += '<span class="star full-star">★</span>';
     }
 
-    // 添加半星 (如果有)
+    // 新增半星 (如果有)
     if (halfStar) {
         starsHTML += '<span class="star half-star">★</span>';
     }
 
-    // 添加空星
+    // 新增空星
     for (let i = 0; i < emptyStars; i++) {
         starsHTML += '<span class="star empty-star">☆</span>';
     }
@@ -1294,7 +1294,7 @@ function setupSortButtons() {
         return;
     }
 
-    // 添加事件監聽器
+    // 新增事件監聽器
     sortByDefaultBtn.addEventListener('click', () => sortRestaurants('default'));
     sortByRatingBtn.addEventListener('click', () => sortRestaurants('rating'));
     sortByDistanceBtn.addEventListener('click', () => sortRestaurants('distance'));
@@ -1395,7 +1395,7 @@ function updateSortButtonsState(activeMethod) {
         if (btn) btn.classList.remove('active');
     });
 
-    // 為當前選中的按鈕添加 active 類
+    // 為當前選中的按鈕新增 active 類
     if (buttons[activeMethod]) {
         buttons[activeMethod].classList.add('active');
     }
@@ -1428,7 +1428,7 @@ function displayResults(places) {
 
     places.forEach((place) => {
         const li = document.createElement('li');
-        // 添加 col-md-4 讓一行顯示三張卡片
+        // 新增 col-md-4 讓一行顯示三張卡片
         li.classList.add('col-md-4', 'col-sm-6', 'mb-4');
 
         // 計算距離
@@ -1454,7 +1454,7 @@ function displayResults(places) {
         place.distanceValue = distanceValue;
         place.distanceText = distanceText;
 
-        // 在這裡我們直接創建內容而不是使用 cardDiv 變量
+        // 在這裡我們直接建立內容而不是使用 cardDiv 變量
         li.innerHTML = `
             <div class="card h-100 restaurant-card ${place.rating >= 4.5 ? 'high-rating' : place.rating >= 4 ? 'medium-rating' : place.rating < 4 ? 'low-rating' : ''}" data-place-id="${place.place_id}">
                 ${place.rating && place.rating < 4 ? '<div class="warning-badge"></div>' : ''}
@@ -1497,7 +1497,7 @@ function displayResults(places) {
                 </div>
             </div>
         `;
-        // 添加查看詳情按鈕點擊事件
+        // 新增查看詳情按鈕點擊事件
         const viewDetailsBtn = li.querySelector('.view-details-btn');
         if (viewDetailsBtn) {
             viewDetailsBtn.addEventListener('click', (e) => {
@@ -1515,7 +1515,7 @@ function displayResults(places) {
             });
         }
 
-        // 添加查看評論按鈕事件
+        // 新增查看評論按鈕事件
         const commentsBtn = li.querySelector('.comments-btn');
         if (commentsBtn) {
             commentsBtn.addEventListener('click', (e) => {
@@ -1524,13 +1524,13 @@ function displayResults(places) {
                 const placeId = commentsBtn.getAttribute('data-place-id');
                 if (!placeId) return;
 
-                // 如果已存在詳細信息，直接顯示評論浮窗
+                // 如果已存在詳細訊息，直接顯示評論浮窗
                 if (currentPlaceDetails && currentPlaceDetails.place_id === placeId && currentPlaceDetails.reviews) {
                     showReviewsModal(currentPlaceDetails);
                     return;
                 }
 
-                // 否則先取得詳細信息
+                // 否則先取得詳細訊息
                 showStatus("正在載入評論資訊...", "info");
                 const request = {
                     placeId: placeId,

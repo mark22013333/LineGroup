@@ -54,7 +54,7 @@ public class JwtUtils {
     /**
      * 建立Token
      *
-     * @param authentication 使用者認證信息
+     * @param authentication 使用者認證訊息
      * @return Token
      */
     public static String generateToken(Authentication authentication) {
@@ -116,10 +116,36 @@ public class JwtUtils {
 
         userDetails.setUsername(String.valueOf(payload.get(JwtClaim.SUBJECT)));
 
-        Set<SimpleGrantedAuthority> authorities = Arrays.stream(String.valueOf(payload.get(JwtClaim.AUTHORITIES)).split(Sign.COMMA))
-                .map(String::trim)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+        // 取得角色權限
+        Object authoritiesObj = payload.get(JwtClaim.AUTHORITIES);
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+
+        if (authoritiesObj instanceof List) {
+            // 如果已經是 List 類型，直接使用
+            @SuppressWarnings("unchecked")
+            List<String> authList = (List<String>) authoritiesObj;
+            authorities = authList.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toSet());
+        } else {
+            // 如果是字符串類型 (如 JSON 數組字符串)
+            String authStr = String.valueOf(authoritiesObj);
+            if (authStr.startsWith("[") && authStr.endsWith("]")) {
+                // 移除方括號並分割
+                authStr = authStr.substring(1, authStr.length() - 1);
+                authorities = Arrays.stream(authStr.split(","))
+                        .map(String::trim)
+                        .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toSet());
+            } else {
+                // 原始逗號分隔方式
+                authorities = Arrays.stream(authStr.split(Sign.COMMA))
+                        .map(String::trim)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toSet());
+            }
+        }
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }

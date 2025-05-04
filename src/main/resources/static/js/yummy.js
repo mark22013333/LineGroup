@@ -24,7 +24,7 @@ function initClientId() {
     // 檢查localStorage中是否已有CLIENT_ID
     CLIENT_ID = localStorage.getItem('maps_client_id');
 
-    // 如果沒有，則產生新的UUID並保存
+    // 如果沒有，則產生新的UUID並儲存
     if (!CLIENT_ID) {
         CLIENT_ID = generateUUID();
         localStorage.setItem('maps_client_id', CLIENT_ID);
@@ -65,16 +65,16 @@ async function ensureKeyPair() {
             const privateKey = crypt.getPrivateKey();
             const publicKey = crypt.getPublicKey();
 
-            // 保存私鑰到localStorage
+            // 儲存私鑰到localStorage
             localStorage.setItem('maps_private_key', privateKey);
 
             // 取得或產生客戶端ID
             initClientId();
 
-            // 保存完整的公鑰，便於調試
+            // 儲存完整的公鑰，便於調試
             localStorage.setItem('maps_public_key', publicKey);
 
-            // 從PEM格式提取具體的密鑰內容(不進行額外的base64編碼)
+            // 從PEM格式取出具體的密鑰內容(不進行額外的base64編碼)
             const publicKeyData = publicKey
                 .replace('-----BEGIN PUBLIC KEY-----', '')
                 .replace('-----END PUBLIC KEY-----', '')
@@ -82,7 +82,7 @@ async function ensureKeyPair() {
                 .replace(/\n/g, '')
                 .trim();
 
-            console.log("提取的公鑰數據：", publicKeyData.substring(0, 20) + "...");
+            console.log("取出的公鑰數據：", publicKeyData.substring(0, 20) + "...");
 
             await registerPublicKey(publicKeyData);
 
@@ -103,7 +103,7 @@ async function ensureKeyPair() {
  */
 async function registerPublicKey(publicKeyData) {
     console.log("註冊公鑰, 數據長度: " + publicKeyData.length);
-    console.log("公鑰前20個字符: " + publicKeyData.substring(0, 20) + "...");
+    console.log("公鑰前20個字串: " + publicKeyData.substring(0, 20) + "...");
 
     let apiUrl = buildApiUrl('/api/maps/register-key');
 
@@ -212,9 +212,9 @@ function loadScript(url) {
 }
 
 /**
- * 將ArrayBuffer轉換為Base64字符串
+ * 將ArrayBuffer轉換為Base64字串
  * @param {ArrayBuffer} buffer - 要轉換的ArrayBuffer
- * @returns {string} Base64編碼的字符串
+ * @returns {string} Base64編碼的字串
  */
 function arrayBufferToBase64(buffer) {
     const binary = String.fromCharCode.apply(null, new Uint8Array(buffer));
@@ -222,8 +222,8 @@ function arrayBufferToBase64(buffer) {
 }
 
 /**
- * 將Base64字符串轉換為ArrayBuffer
- * @param {string} base64 - Base64編碼的字符串
+ * 將Base64字串轉換為ArrayBuffer
+ * @param {string} base64 - Base64編碼的字串
  * @returns {ArrayBuffer} 解碼後的ArrayBuffer
  */
 function base64ToArrayBuffer(base64) {
@@ -878,7 +878,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
 
     // 定義遞迴處理分頁的回呼函式
     const processPage = (results, status, pagination) => {
-        // 先把 searchPagination 保存起來，即使 status 不是 OK 也可能有分頁資訊
+        // 先把 searchPagination 儲存起來，即使 status 不是 OK 也可能有分頁資訊
         if (pagination) {
             searchPagination = pagination;
         }
@@ -890,7 +890,7 @@ function findNearbyRestaurants(isInitialSearch = true) {
             displayResults(results); // 顯示當前頁的結果
             createMarkersForPlaces(results); // 為當前頁建立標記
 
-            // 使用保存的 searchPagination 檢查是否有下一頁
+            // 使用儲存的 searchPagination 檢查是否有下一頁
             if (searchPagination && searchPagination.hasNextPage) {
                 console.log("More results available, fetching next page...");
                 showStatus(`正在載入更多餐廳 (${allResults.length} 已載入)...`, "info");
@@ -1044,7 +1044,7 @@ function highlightRestaurantCard(placeId) {
 }
 
 // 取得地點詳細資訊 (需要額外 API 請求)
-// 全域變數，用於保存詳細資訊
+// 全域變數，用於儲存詳細資訊
 let currentPlaceDetails = null;
 
 /** 取得地點詳細資訊，並顯示於浮窗 */
@@ -1060,7 +1060,7 @@ function fetchPlaceDetails(placeId, marker) {
     placesService.getDetails(request, (placeDetails, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
             console.log("Place details received:", placeDetails);
-            // 保存詳細資訊以便在浮窗中使用
+            // 儲存詳細資訊以便在浮窗中使用
             currentPlaceDetails = placeDetails;
 
             // 建立地圖資訊視窗內容（較簡短的版本）
@@ -1439,7 +1439,7 @@ function displayResults(places) {
             const placeLatLng = place.geometry.location;
             const distance = google.maps.geometry.spherical.computeDistanceBetween(userLatLng, placeLatLng);
 
-            // 保存距離值用於排序
+            // 儲存距離值用於排序
             distanceValue = distance;
 
             // 轉換為公里或米
@@ -1450,7 +1450,7 @@ function displayResults(places) {
             }
         }
 
-        // 保存距離值於place對象中
+        // 儲存距離值於place物件中
         place.distanceValue = distanceValue;
         place.distanceText = distanceText;
 
@@ -1540,7 +1540,7 @@ function displayResults(places) {
                 placesService.getDetails(request, (placeDetails, status) => {
                     hideStatus();
                     if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-                        currentPlaceDetails = placeDetails; // 保存供後續使用
+                        currentPlaceDetails = placeDetails; // 儲存供後續使用
                         showReviewsModal(placeDetails);
                     } else {
                         console.error("Failed to fetch place details for reviews:", status);

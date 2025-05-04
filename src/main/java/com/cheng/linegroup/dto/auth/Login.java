@@ -10,9 +10,8 @@ import lombok.Data;
 @Data
 @Builder
 public class Login {
-    private String accessToken;
     private String tokenType;
     private String refreshToken;
     private Long expires;
-    private String secureToken; // 加密的安全JWT令牌
+    private String secureToken; // 加密的JWT令牌 (JWE)，系統唯一使用的令牌類型
 }

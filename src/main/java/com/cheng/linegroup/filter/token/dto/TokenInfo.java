@@ -1,4 +1,4 @@
-package com.cheng.linegroup.security.token;
+package com.cheng.linegroup.filter.token.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 令牌訊息類，用於存儲活躍令牌的相關訊息
+ * 令牌訊息類，用於儲存活躍令牌的相關訊息
  * 
  * @author cheng
  */

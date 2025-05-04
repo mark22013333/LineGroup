@@ -1,9 +1,8 @@
-package com.cheng.linegroup.service;
+package com.cheng.linegroup.services;
 
-import com.cheng.linegroup.dto.common.PageResponse;
 import com.cheng.linegroup.dto.user.UserDTO;
 import com.cheng.linegroup.dto.user.UserQueryParams;
-import com.cheng.linegroup.service.common.BaseQueryService;
+import com.cheng.linegroup.services.common.BaseQueryService;
 
 /**
  * 使用者管理服務介面

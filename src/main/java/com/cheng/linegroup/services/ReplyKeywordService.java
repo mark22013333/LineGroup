@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service;
+package com.cheng.linegroup.services;
 
 import com.cheng.linegroup.common.contants.RedisPrefix;
 import com.cheng.linegroup.dao.ReplyKeywordRepository;

@@ -1,6 +1,6 @@
 package com.cheng.schedule;
 
-import com.cheng.linegroup.service.ImageSentRecordsService;
+import com.cheng.linegroup.services.ImageSentRecordsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

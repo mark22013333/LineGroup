@@ -1,8 +1,8 @@
-package com.cheng.linegroup.service.impl;
+package com.cheng.linegroup.services.impl;
 
 import com.cheng.linegroup.dao.SysRoleRepository;
 import com.cheng.linegroup.entity.SysRole;
-import com.cheng.linegroup.service.RoleService;
+import com.cheng.linegroup.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 角色管理服務實現類

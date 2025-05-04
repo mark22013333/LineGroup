@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service;
+package com.cheng.linegroup.services;
 
 import com.cheng.linegroup.dao.ImageSentRecordsRepository;
 import com.cheng.linegroup.entity.ImageSentRecords;

@@ -145,7 +145,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     overflow: hidden;
-    border: 2px solid #ddd;  /* 默認所有卡片都有邊框 */
+    border: 2px solid #ddd;  /* 預設所有卡片都有邊框 */
     border-radius: 8px;
     position: relative;
 }

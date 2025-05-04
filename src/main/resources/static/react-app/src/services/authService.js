@@ -1,4 +1,4 @@
-import apiService, { setAuthToken } from './apiService';
+import apiService, {setAuthToken} from './apiService';
 
 /**
  * 使用者認證服務
@@ -15,27 +15,23 @@ const authService = {
         console.log('登入回應完整數據:', response.data);
 
         // 如果登入成功，設置 token
-        if (response.data && response.data.data && response.data.data.accessToken) {
-            const {accessToken, tokenType, secureToken} = response.data.data;
-            console.log('Token數據解析:', {accessToken, tokenType, secureToken});
-            
-            // 使用安全令牌（如果可用）
+        if (response.data && response.data.data) {
+            const {secureToken} = response.data.data;
+
+            // 確保有加密令牌
             if (secureToken) {
-                console.log('使用加密安全令牌:', secureToken);
-                // 保存加密令牌 - 不需要新增前綴
-                setAuthToken(secureToken);
+                console.log('使用加密安全令牌');
+                // 儲存加密令牌 - 加上Bearer前綴
+                setAuthToken(`Bearer ${secureToken}`);
+
+                // 儲存使用者資訊
+                if (response.data.data.user) {
+                    localStorage.setItem('user', JSON.stringify(response.data.data.user));
+                }
             } else {
-                // 向後兼容，使用標準 JWT
-                console.log('使用標準JWT令牌 (secureToken不存在)');
-                const normalizedTokenType = (tokenType || 'Bearer').trim();
-                const token = `${normalizedTokenType} ${accessToken}`;
-                console.log('設置標準JWT:', token);
-                setAuthToken(token);
-            }
-            
-            // 保存使用者資訊
-            if (response.data.data.user) {
-                localStorage.setItem('user', JSON.stringify(response.data.data.user));
+                // 找不到加密令牌，視為登入失敗
+                console.error('登入失敗: 系統沒有返回加密令牌');
+                throw new Error('系統錯誤: 無法取得安全令牌');
             }
         }
 
@@ -58,7 +54,7 @@ const authService = {
                 }
             }
 
-            // 清除本機存儲的認證訊息
+            // 清除本機儲存的認證訊息
             setAuthToken(null);
             localStorage.removeItem('user');
 

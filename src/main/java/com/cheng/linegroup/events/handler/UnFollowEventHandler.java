@@ -4,7 +4,7 @@ import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.entity.LineUser;
 import com.cheng.linegroup.enums.LineEvent;
 import com.cheng.linegroup.events.EventHandler;
-import com.cheng.linegroup.service.LineUserService;
+import com.cheng.linegroup.services.LineUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

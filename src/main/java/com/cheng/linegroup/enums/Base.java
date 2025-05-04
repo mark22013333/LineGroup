@@ -47,7 +47,7 @@ public interface Base<T> {
      * 根據值返回相對應的枚舉的標籤
      *
      * @param value 要匹配的值，不能為null。
-     * @param clazz 枚舉的Class對象。
+     * @param clazz 枚舉的Class物件。
      * @return 匹配提供的值的枚舉標籤的Optional封裝，如果沒有找到匹配則為Optional.empty()
      * @throws NullPointerException 如果value為null
      */
@@ -60,7 +60,7 @@ public interface Base<T> {
      * 根據標籤返回相對應的枚舉的值
      *
      * @param label 要匹配的標籤，不能為null
-     * @param clazz 枚舉的Class對象
+     * @param clazz 枚舉的Class物件
      * @return 匹配標籤的枚舉值的Optional封裝，如果沒有找到匹配則為Optional.empty()
      * @throws NullPointerException 如果label為null
      */

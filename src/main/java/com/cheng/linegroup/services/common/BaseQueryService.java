@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service.common;
+package com.cheng.linegroup.services.common;
 
 import com.cheng.linegroup.dto.common.BaseQueryParams;
 import com.cheng.linegroup.dto.common.PageResponse;

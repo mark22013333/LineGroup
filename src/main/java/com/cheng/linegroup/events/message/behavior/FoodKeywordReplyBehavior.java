@@ -2,9 +2,9 @@ package com.cheng.linegroup.events.message.behavior;
 
 import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.enums.Api;
-import com.cheng.linegroup.service.LineService;
-import com.cheng.linegroup.service.ReplyKeywordService;
-import com.cheng.linegroup.service.dto.LineMessage;
+import com.cheng.linegroup.services.LineService;
+import com.cheng.linegroup.services.ReplyKeywordService;
+import com.cheng.linegroup.services.dto.LineMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

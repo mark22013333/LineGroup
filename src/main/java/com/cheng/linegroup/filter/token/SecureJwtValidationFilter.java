@@ -1,9 +1,9 @@
-package com.cheng.linegroup.security.token;
+package com.cheng.linegroup.filter.token;
 
-import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.common.contants.RedisPrefix;
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.utils.ResponseUtils;
+import com.cheng.linegroup.utils.SecureJwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * 安全JWT驗證過濾器
  * 用於驗證加密JWT令牌並檢查設備指紋
- * 
+ *
  * @author cheng
  */
 @Slf4j
@@ -41,42 +41,61 @@ public class SecureJwtValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        
+        String tokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         try {
-            if (StringUtils.isNoneEmpty(token)) {
-                // 解析和驗證安全令牌（包括設備綁定驗證）
-                Map<String, Object> payload = secureJwtUtils.parseAndVerifySecureToken(token, request);
-                
-                if (payload.isEmpty()) {
-                    log.warn("安全令牌驗證失敗");
+            if (StringUtils.isNoneEmpty(tokenHeader)) {
+                // 取出令牌，移除 Bearer 前綴（如果存在）
+                String token = tokenHeader;
+                if (tokenHeader.startsWith("Bearer ")) {
+                    token = tokenHeader.substring(7);
+                    log.debug("移除了Bearer前綴");
+                }
+
+                // 檢查令牌長度，避免處理短令牌或空令牌
+                if (token.length() < 50) {
+                    log.warn("令牌長度不足，可能不是有效的加密JWT: {}", token.length());
                     SecurityContextHolder.clearContext();
                     ResponseUtils.writeErrMsg(response, ApiResult.TOKEN_INVALID);
                     return;
                 }
-                
+
+                log.debug("開始驗證加密JWT: {}", token.substring(0, 20) + "...");
+
+                // 解析和驗證安全令牌（包括設備綁定驗證）
+                Map<String, Object> payload = secureJwtUtils.parseAndVerifySecureToken(token, request);
+
+                if (payload.isEmpty()) {
+                    log.warn("加密JWT驗證失敗");
+                    SecurityContextHolder.clearContext();
+                    ResponseUtils.writeErrMsg(response, ApiResult.TOKEN_INVALID);
+                    return;
+                }
+
                 // 檢查令牌是否在黑名單中
                 String jti = String.valueOf(payload.get("jti"));
                 Boolean isTokenBlacklisted = redisTemplate.hasKey(RedisPrefix.BLACKLIST_TOKEN + jti);
-                
+
                 if (isTokenBlacklisted) {
-                    log.warn("令牌已被列入黑名單");
+                    log.warn("令牌已被列入黑名單: {}", jti);
                     SecurityContextHolder.clearContext();
                     ResponseUtils.writeErrMsg(response, ApiResult.TOKEN_BLOCK);
                     return;
                 }
-                
+
                 // 設置認證
-                Authentication authentication = SecureJwtUtils.getAuthentication(payload);
+                Authentication authentication = SecureJwtUtils.createAuthenticationFromPayload(payload);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                
-                log.debug("安全令牌驗證成功: {}", authentication.getName());
+
+                log.debug("加密JWT驗證成功: 使用者={}, 角色={}",
+                        authentication.getName(),
+                        authentication.getAuthorities());
             }
         } catch (Exception ex) {
-            log.error("處理令牌時發生錯誤: {}", ex.getMessage());
+            log.error("處理加密JWT時發生錯誤: {}", ex.getMessage());
             SecurityContextHolder.clearContext();
         }
-        
+
         filterChain.doFilter(request, response);
     }
 }

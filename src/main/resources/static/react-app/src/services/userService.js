@@ -11,7 +11,7 @@ const userService = {
      */
     getUsers: async (queryParams) => {
         console.log('發送使用者查詢參數:', queryParams);
-        // axios 要求 GET 請求的參數應該在 config 對象的 params 屬性中
+        // axios 要求 GET 請求的參數應該在 config 物件的 params 屬性中
         const response = await apiService.get('/users', {params: queryParams});
         console.log('使用者查詢回應:', response.data);
         return response.data.data;

@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service.security;
+package com.cheng.linegroup.services.security;
 
 import com.cheng.linegroup.dao.SysRoleRepository;
 import com.cheng.linegroup.dao.SysUserRepository;

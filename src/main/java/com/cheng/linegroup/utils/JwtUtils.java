@@ -9,6 +9,10 @@ import com.cheng.linegroup.common.contants.Sign;
 import com.cheng.linegroup.dto.auth.LoginUser;
 import com.cheng.linegroup.dto.security.SysUserDetails;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.*;
 
 import lombok.RequiredArgsConstructor;
@@ -118,32 +122,39 @@ public class JwtUtils {
 
         // 取得角色權限
         Object authoritiesObj = payload.get(JwtClaim.AUTHORITIES);
-        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        Set<SimpleGrantedAuthority> authorities;
 
         if (authoritiesObj instanceof List) {
             // 如果已經是 List 類型，直接使用
-            @SuppressWarnings("unchecked")
-            List<String> authList = (List<String>) authoritiesObj;
-            authorities = authList.stream()
+            authorities = ((List<?>) authoritiesObj).stream()
+                    .map(String::valueOf)
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toSet());
         } else {
-            // 如果是字符串類型 (如 JSON 數組字符串)
+            // 如果是字串類型 (如 JSON 陣列字串)
             String authStr = String.valueOf(authoritiesObj);
-            if (authStr.startsWith("[") && authStr.endsWith("]")) {
-                // 移除方括號並分割
-                authStr = authStr.substring(1, authStr.length() - 1);
-                authorities = Arrays.stream(authStr.split(","))
-                        .map(String::trim)
-                        .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
+            
+            // 解析JSON字串為List<String>
+            List<String> roleList = JacksonUtils.fromJson(authStr, new TypeReference<>() {});
+            
+            if (roleList != null) {
+                authorities = roleList.stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toSet());
             } else {
-                // 原始逗號分隔方式
-                authorities = Arrays.stream(authStr.split(Sign.COMMA))
-                        .map(String::trim)
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toSet());
+                // 解析失敗時的備用方案
+                log.warn("解析權限JSON字串失敗，使用備用方案");
+                if (authStr.startsWith("[") && authStr.endsWith("]")) {
+                    // 移除括號並分割
+                    authStr = authStr.substring(1, authStr.length() - 1);
+                    authorities = Arrays.stream(authStr.split(","))
+                            .map(String::trim)
+                            .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toSet());
+                } else {
+                    authorities = new HashSet<>();
+                }
             }
         }
 

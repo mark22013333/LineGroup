@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service;
+package com.cheng.linegroup.services;
 
 import com.cheng.linegroup.api.line.GroupAPI;
 import com.cheng.linegroup.api.line.MessageContentAPI;
@@ -8,8 +8,8 @@ import com.cheng.linegroup.common.domain.Line;
 import com.cheng.linegroup.enums.Api;
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.exception.BizException;
-import com.cheng.linegroup.service.dto.LineMessage;
-import com.cheng.linegroup.service.dto.LineUserDto;
+import com.cheng.linegroup.services.dto.LineMessage;
+import com.cheng.linegroup.services.dto.LineUserDto;
 import com.cheng.linegroup.utils.ApiUtils;
 import com.cheng.linegroup.utils.JacksonUtils;
 import com.cheng.linegroup.utils.OkHttpUtils;

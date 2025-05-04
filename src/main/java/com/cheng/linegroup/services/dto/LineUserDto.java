@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service.dto;
+package com.cheng.linegroup.services.dto;
 
 import lombok.Builder;
 import lombok.Data;

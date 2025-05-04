@@ -20,6 +20,11 @@ public final class JwtClaim {
     public static final String USER_ID = "userId";
 
     /**
+     * 設備指紋（用於綁定設備）
+     */
+    public static final String FINGERPRINT = "fingerprint";
+
+    /**
      * 權限（角色集合）
      */
     public static final String AUTHORITIES = "authorities";

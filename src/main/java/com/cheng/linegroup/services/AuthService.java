@@ -1,8 +1,10 @@
-package com.cheng.linegroup.service;
+package com.cheng.linegroup.services;
 
 import com.cheng.linegroup.common.contants.OAuth2;
 import com.cheng.linegroup.dto.auth.Login;
-import com.cheng.linegroup.security.token.SecureJwtUtils;
+import com.cheng.linegroup.enums.ApiResult;
+import com.cheng.linegroup.exception.BizException;
+import com.cheng.linegroup.utils.SecureJwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,35 +34,22 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(username.trim(), password);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         
-        // 生成標準 JWT 令牌（向後兼容）
-        String accessToken = secureJwtUtils.generateStandardJwt(authentication, request);
-        log.info("標準JWT令牌生成: {}", accessToken);
-        
         try {
-            // 生成加密的安全 JWT 令牌
+            // 僅產生加密的安全 JWT 令牌
             String secureToken = secureJwtUtils.generateSecureToken(authentication, request);
-            log.info("加密JWT令牌生成: {}", secureToken);
+            log.info("加密JWT令牌產產生功");
             
             Login loginResponse = Login.builder()
                     .tokenType(OAuth2.BEARER.trim())
-                    .accessToken(accessToken)
-                    .secureToken(secureToken)  // 新增加密令牌
+                    .secureToken(secureToken)  // 僅返回加密令牌
                     .build();
             
-            // 記錄完整的登入回應
-            log.info("登入回應生成: accessToken={}, tokenType={}, secureToken={}",
-                    loginResponse.getAccessToken(),
-                    loginResponse.getTokenType(),
-                    loginResponse.getSecureToken());
-            
+            log.info("登入回應產生完成，使用加密JWT");
             return loginResponse;
         } catch (Exception e) {
-            log.error("生成加密令牌失敗", e);
-            // 若加密令牌生成失敗，仍返回標準JWT
-            return Login.builder()
-                    .tokenType(OAuth2.BEARER.trim())
-                    .accessToken(accessToken)
-                    .build();
+            log.error("產生加密令牌失敗", e);
+            // 加密令牌產生失敗是嚴重錯誤，不提供降級處理
+            throw BizException.create(ApiResult.ERROR, "系統無法產生安全令牌，請稍後再試");
         }
     }
     

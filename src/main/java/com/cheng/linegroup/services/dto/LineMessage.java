@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service.dto;
+package com.cheng.linegroup.services.dto;
 
 import com.cheng.linegroup.enums.MessageType;
 import com.fasterxml.jackson.annotation.JsonInclude;

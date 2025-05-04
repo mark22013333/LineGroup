@@ -3,7 +3,7 @@ package com.cheng.linegroup.config;
 import com.cheng.linegroup.enums.Security;
 import com.cheng.linegroup.exception.security.SystemAccessDeniedHandler;
 import com.cheng.linegroup.exception.security.SystemAuthenticationEntryPoint;
-import com.cheng.linegroup.security.token.SecureJwtValidationFilter;
+import com.cheng.linegroup.filter.token.SecureJwtValidationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

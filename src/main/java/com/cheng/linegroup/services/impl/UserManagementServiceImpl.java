@@ -1,4 +1,4 @@
-package com.cheng.linegroup.service.impl;
+package com.cheng.linegroup.services.impl;
 
 import com.cheng.linegroup.dao.SysUserRepository;
 import com.cheng.linegroup.dao.SysRoleRepository;
@@ -9,7 +9,7 @@ import com.cheng.linegroup.dto.user.UserQueryParams;
 import com.cheng.linegroup.entity.SysRole;
 import com.cheng.linegroup.entity.SysUser;
 import com.cheng.linegroup.entity.SysUserRole;
-import com.cheng.linegroup.service.UserManagementService;
+import com.cheng.linegroup.services.UserManagementService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -52,7 +52,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<UserDTO> findByPage(UserQueryParams queryParams) {
-        // 建立分頁對象
+        // 建立分頁物件
         Pageable pageable = PageRequest.of(
                 queryParams.getPage(),
                 queryParams.getSize(),
@@ -149,7 +149,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             
             // 角色 ID 條件 - 使用子查詢而非錯誤的關聯方式
             if (queryParams.getRoleId() != null) {
-                // 創建關聯表的子查詢，查詢指定角色ID相關的使用者
+                // 建立關聯表的子查詢，查詢指定角色ID相關的使用者
                 Subquery<Long> subquery = query.subquery(Long.class);
                 Root<SysUserRole> userRoleRoot = subquery.from(SysUserRole.class);
                 subquery.select(userRoleRoot.get("userId"))

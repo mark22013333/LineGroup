@@ -3,7 +3,7 @@ package com.cheng.linegroup.controller;
 import com.cheng.linegroup.common.BaseResponse;
 import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.entity.SysRole;
-import com.cheng.linegroup.service.RoleService;
+import com.cheng.linegroup.services.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

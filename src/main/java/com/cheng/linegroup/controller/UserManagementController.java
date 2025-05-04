@@ -5,7 +5,7 @@ import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.dto.common.PageResponse;
 import com.cheng.linegroup.dto.user.UserDTO;
 import com.cheng.linegroup.dto.user.UserQueryParams;
-import com.cheng.linegroup.service.UserManagementService;
+import com.cheng.linegroup.services.UserManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -33,7 +33,7 @@ public class SysUserDetailsService implements UserDetailsService {
         }
 
         SysUser sysUser = user.get();
-        if (Status.DISABLE.getValue().equals(sysUser.getDeleted())) {
+        if (Status.ENABLE.getValue().equals(sysUser.getDeleted())) {
             log.info("使用者:{} 已被刪除", username);
             throw BizException.error("帳號：" + username + " 已被刪除");
         }

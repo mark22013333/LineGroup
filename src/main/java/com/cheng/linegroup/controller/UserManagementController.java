@@ -53,7 +53,7 @@ public class UserManagementController {
             }
     )
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('admin')")
     public BaseResponse findByPage(
             @Parameter(description = "使用者查詢參數") @Validated UserQueryParams queryParams) {
         PageResponse<UserDTO> pageResponse = userManagementService.findByPage(queryParams);
@@ -77,7 +77,7 @@ public class UserManagementController {
             }
     )
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('admin')")
     public BaseResponse findById(@PathVariable Long id) {
         UserDTO userDTO = userManagementService.findById(id);
         return R.success(userDTO);

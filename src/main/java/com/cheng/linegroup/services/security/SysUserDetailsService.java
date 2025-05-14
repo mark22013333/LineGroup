@@ -33,14 +33,16 @@ public class SysUserDetailsService implements UserDetailsService {
         }
 
         SysUser sysUser = user.get();
+        // 判斷使用者是否被刪除 (deleted=1表示已刪除)
         if (Status.ENABLE.getValue().equals(sysUser.getDeleted())) {
             log.info("使用者:{} 已被刪除", username);
             throw BizException.error("帳號：" + username + " 已被刪除");
         }
 
+        // 判斷使用者是否啟用，啟用狀態才可以登入
         if (Status.DISABLE.getValue().equals(sysUser.getStatus())) {
-            log.info("使用者:{} 已被停用.", username);
-            throw BizException.error("使用者：" + username + " 已被停用");
+            log.info("使用者:{} 未啟用或已停用.", username);
+            throw BizException.error("使用者：" + username + " 未啟用或已停用");
         }
 
         return createLoginUser(sysUser);

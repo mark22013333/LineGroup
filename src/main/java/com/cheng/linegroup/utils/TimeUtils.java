@@ -50,7 +50,8 @@ public class TimeUtils {
         }
 
         // 使用正規表達式處理多種格式
-        String regex = "^\\s*(?:(?:民國|中華民國)\\s*)?(\\d{1,3})\\s*(?:年|[./-])\\s*(\\d{1,2})\\s*(?:月|[./-])\\s*(\\d{1,2})\\s*日?\\s*$";
+        // 修改正則表達式，移除 $ 結尾符號，允許「日」後面有其他文字
+        String regex = "^\\s*(?:(?:民國|中華民國)\\s*)?(\\d{1,3})\\s*(?:年|[./-])\\s*(\\d{1,2})\\s*(?:月|[./-])\\s*(\\d{1,2})\\s*日?";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input.trim());
 

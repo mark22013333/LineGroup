@@ -45,24 +45,41 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requestMatcherRegistry ->
-                        requestMatcherRegistry.requestMatchers(
+                        requestMatcherRegistry
+                                // 公開資源，無需驗證
+                                .requestMatchers(
                                         Security.LOGIN.getUri(),
-                                        "/ai/**",
-                                        "/api/test/**",
-                                        "/api/maps/**",
-                                        "/YummyQuest/**",
                                         "/webhook",
                                         "/img/**",
                                         "/webjars/**",
                                         "/css/**",
                                         "/js/**",
-                                        "/admin/**", // 允許訪問管理後台頁面
-                                        "/react-admin/**", // 允許訪問 React 管理後台靜態資源
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/swagger-resources/**",
                                         "/v3/api-docs/**"
                                 ).permitAll()
+                                
+                                // 測試相關的 API，公開
+                                .requestMatchers(
+                                        "/api/test/**",
+                                        "/api/maps/**",
+                                        "/YummyQuest/**",
+                                        "/ai/**"
+                                ).permitAll()
+                                
+                                // 管理後台頁面相關，需要登入（不限特定角色）
+                                .requestMatchers(
+                                        "/admin/login",
+                                        "/admin/index.html",
+                                        "/admin/static/**",
+                                        "/react-admin/**"
+                                ).permitAll()
+                                
+                                // 後台管理 API，需要 ADMIN 角色
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                
+                                // 其他請求都需要驗證
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

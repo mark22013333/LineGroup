@@ -14,6 +14,7 @@ import org.springframework.boot.web.server.WebServer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
 
 import java.net.InetAddress;
@@ -29,6 +30,7 @@ import java.net.InetAddress;
 @Slf4j
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableJpaRepositories(basePackages = {"com.cheng.linegroup.dao", "com.cheng.linegroup.repository"})
 @EnableEncryptableProperties
 public class LineGroupApplication implements ApplicationListener<WebServerInitializedEvent> {
 

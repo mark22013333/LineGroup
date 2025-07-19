@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import RoleManagement from './pages/RoleManagement';
+import PermissionManagement from './pages/PermissionManagement';
 import NotFound from './pages/NotFound';
 import {AuthProvider} from './utils/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
@@ -18,6 +20,8 @@ function App() {
                 <Route path="/" element={<PrivateRoute><DashboardLayout/></PrivateRoute>}>
                     <Route path="dashboard" element={<Dashboard/>}/>
                     <Route path="users" element={<UserManagement/>}/>
+                    <Route path="settings/roles" element={<RoleManagement/>}/>
+                    <Route path="settings/permissions" element={<PermissionManagement/>}/>
                     {/* 其他需要認證的路由將在這裡新增 */}
                 </Route>
 

@@ -465,7 +465,11 @@ public class SecureJwtUtils {
         // 設置使用者訊息
         long userId = Long.parseLong(String.valueOf(payload.get(JwtClaim.USER_ID)));
         userDetails.setUserId(userId);
-        userDetails.setUsername(String.valueOf(payload.get(JwtClaim.SUBJECT)));
+        String username = String.valueOf(payload.get(JwtClaim.SUBJECT));
+        userDetails.setUsername(username);
+        
+        // 記錄使用者資訊以便調試
+        log.debug("從JWT提取使用者資訊 - ID: {}, 使用者名稱: {}", userId, username);
 
         // 取得角色權限
         Object authoritiesObj = payload.get(JwtClaim.AUTHORITIES);
@@ -474,8 +478,19 @@ public class SecureJwtUtils {
         if (authoritiesObj instanceof List) {
             @SuppressWarnings("unchecked")
             List<String> authList = (List<String>) authoritiesObj;
+            
+            // 新增偵錯日誌
+            log.debug("JWT中的權限清單: {}", authList);
+            
             authorities = authList.stream()
-                    .map(SimpleGrantedAuthority::new)
+                    .map(role -> {
+                        // 確保角色有 ROLE_ 前綴，沒有的話就加上
+                        if (!role.startsWith("ROLE_") && role.startsWith("ADMIN") || role.startsWith("USER") || role.startsWith("OPERATOR")) {
+                            log.debug("角色 {} 沒有 ROLE_ 前綴，添加前綴", role);
+                            return new SimpleGrantedAuthority("ROLE_" + role);
+                        }
+                        return new SimpleGrantedAuthority(role);
+                    })
                     .collect(Collectors.toSet());
         } else {
             String authStr = String.valueOf(authoritiesObj);
@@ -485,8 +500,18 @@ public class SecureJwtUtils {
             });
 
             if (roleList != null) {
+                // 新增偵錯日誌
+                log.debug("從JSON解析的權限清單: {}", roleList);
+                
                 authorities = roleList.stream()
-                        .map(SimpleGrantedAuthority::new)
+                        .map(role -> {
+                            // 確保角色有 ROLE_ 前綴，沒有的話就加上
+                            if (!role.startsWith("ROLE_") && (role.startsWith("ADMIN") || role.startsWith("USER") || role.startsWith("OPERATOR"))) {
+                                log.debug("角色 {} 沒有 ROLE_ 前綴，添加前綴", role);
+                                return new SimpleGrantedAuthority("ROLE_" + role);
+                            }
+                            return new SimpleGrantedAuthority(role);
+                        })
                         .collect(Collectors.toSet());
             } else {
                 // 解析失敗時的備用方案
@@ -497,19 +522,34 @@ public class SecureJwtUtils {
                     authorities = Arrays.stream(authStr.split(","))
                             .map(String::trim)
                             .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
-                            .map(SimpleGrantedAuthority::new)
+                            .map(role -> {
+                                // 確保角色有 ROLE_ 前綴，沒有的話就加上
+                                if (!role.startsWith("ROLE_") && (role.startsWith("ADMIN") || role.startsWith("USER") || role.startsWith("OPERATOR"))) {
+                                    log.debug("角色 {} 沒有 ROLE_ 前綴，添加前綴", role);
+                                    return new SimpleGrantedAuthority("ROLE_" + role);
+                                }
+                                return new SimpleGrantedAuthority(role);
+                            })
                             .collect(Collectors.toSet());
                 } else {
                     // 純文字格式，直接按逗號分割
                     authorities = Arrays.stream(authStr.split(","))
                             .map(String::trim)
-                            .map(SimpleGrantedAuthority::new)
+                            .map(role -> {
+                                // 確保角色有 ROLE_ 前綴，沒有的話就加上
+                                if (!role.startsWith("ROLE_") && (role.startsWith("ADMIN") || role.startsWith("USER") || role.startsWith("OPERATOR"))) {
+                                    log.debug("角色 {} 沒有 ROLE_ 前綴，添加前綴", role);
+                                    return new SimpleGrantedAuthority("ROLE_" + role);
+                                }
+                                return new SimpleGrantedAuthority(role);
+                            })
                             .collect(Collectors.toSet());
                 }
             }
         }
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        // 使用使用者名稱作為認證對象的principal，確保Authentication.getName()返回使用者名稱
+        return new UsernamePasswordAuthenticationToken(username, "", authorities);
     }
 
     /**

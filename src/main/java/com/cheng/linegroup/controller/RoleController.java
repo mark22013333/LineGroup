@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/roles")
+@RequestMapping("/api/v1/roles")
 @Tag(name = "RoleAPI", description = "角色管理API")
 public class RoleController {
 

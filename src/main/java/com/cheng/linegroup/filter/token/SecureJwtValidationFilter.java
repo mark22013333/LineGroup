@@ -83,13 +83,32 @@ public class SecureJwtValidationFilter extends OncePerRequestFilter {
                     return;
                 }
 
+                // 輸出載荷資訊，用於除錯
+                log.debug("JWT 載荷資訊: 使用者ID={}, 使用者名稱={}, 角色={}", 
+                    payload.get("uid"), 
+                    payload.get("sub"),
+                    payload.get("authorities"));
+
                 // 設置認證
                 Authentication authentication = SecureJwtUtils.createAuthenticationFromPayload(payload);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                log.debug("加密JWT驗證成功: 使用者={}, 角色={}",
-                        authentication.getName(),
-                        authentication.getAuthorities());
+                // 更詳細的權限診斷日誌
+                if (authentication != null) {
+                    log.debug("加密JWT驗證成功: 使用者={}, 角色={}, Principal類別={}",
+                            authentication.getName(),
+                            authentication.getAuthorities(),
+                            authentication.getPrincipal().getClass().getName());
+                    
+                    // 檢查是否具有 ROLE_ADMIN 權限
+                    boolean hasAdminRole = authentication.getAuthorities().stream()
+                            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+                    log.debug("使用者 {} {} ROLE_ADMIN 權限", 
+                              authentication.getName(), 
+                              hasAdminRole ? "具有" : "不具有");
+                } else {
+                    log.warn("無法從JWT創建認證對象");
+                }
             }
         } catch (Exception ex) {
             log.error("處理加密JWT時發生錯誤: {}", ex.getMessage());

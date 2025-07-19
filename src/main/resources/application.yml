@@ -6,6 +6,8 @@ server:
 spring:
   main:
     allow-bean-definition-overriding: true
+    # 啟用 debug 模式，獲取更詳細的自動配置資訊
+    debug: true
   thymeleaf:
     mode: HTML
   profiles:

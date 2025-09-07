@@ -142,8 +142,9 @@ public class SecureJwtUtils {
                 log.info("驗證令牌儲存成功，使用者ID: {}", savedTokenInfo.getUserId());
             }
         } catch (Exception e) {
-            log.error("儲存令牌到Redis失敗: {}", e.getMessage(), e);
-            throw BizException.create(ApiResult.ERROR, "儲存令牌失敗");
+            // 降級策略：Redis 不可用時不阻斷登入流程（非生產環境或暫時性錯誤）
+            log.error("儲存令牌到Redis失敗: {}，將使用無狀態JWT繼續登入（略過Redis）", e.getMessage(), e);
+            // 注意：略過 Redis 後，將無法進行伺服端主動註銷/黑名單控制，但 JWT 仍受過期與簽章保護。
         }
 
         // 加密JWT令牌
@@ -165,13 +166,17 @@ public class SecureJwtUtils {
     public String generateRefreshToken(Long userId, String username) {
         String refreshTokenId = UUID.randomUUID().toString();
 
-        // 儲存重整令牌訊息到Redis
-        redisTemplate.opsForValue().set(
-                RedisPrefix.REFRESH_TOKEN + refreshTokenId,
-                userId + "###" + username,
-                refreshTokenExpire,
-                TimeUnit.SECONDS
-        );
+        // 儲存重整令牌訊息到Redis（失敗時降級為無狀態：僅回傳加密的 refreshTokenId，將在 refresh 時失效）
+        try {
+            redisTemplate.opsForValue().set(
+                    RedisPrefix.REFRESH_TOKEN + refreshTokenId,
+                    userId + "###" + username,
+                    refreshTokenExpire,
+                    TimeUnit.SECONDS
+            );
+        } catch (Exception e) {
+            log.warn("無法儲存重整令牌至 Redis，將以無狀態 refreshToken（僅ID）運作: {}", e.getMessage());
+        }
 
         // 加密重整令牌ID
         try {
@@ -198,10 +203,15 @@ public class SecureJwtUtils {
             // 解密重整令牌
             String refreshTokenId = decryptToken(encryptedRefreshToken);
 
-            // 從Redis取得對應使用者訊息
-            String userInfo = (String) redisTemplate.opsForValue().get(RedisPrefix.REFRESH_TOKEN + refreshTokenId);
+            // 從Redis取得對應使用者訊息（若Redis不可用或無資料，視為無狀態 refreshToken，不允許刷新）
+            String userInfo = null;
+            try {
+                userInfo = (String) redisTemplate.opsForValue().get(RedisPrefix.REFRESH_TOKEN + refreshTokenId);
+            } catch (Exception ex) {
+                log.warn("無法從 Redis 取得重整令牌，可能為無狀態 refreshToken 或 Redis 不可用: {}", ex.getMessage());
+            }
             if (userInfo == null) {
-                throw BizException.create(ApiResult.TOKEN_INVALID, "重整令牌已過期");
+                throw BizException.create(ApiResult.TOKEN_INVALID, "重整令牌已過期或無效");
             }
 
             // 分離使用者ID和使用者名

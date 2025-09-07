@@ -1,6 +1,7 @@
 package com.cheng.linegroup.filter.token;
 
 import com.cheng.linegroup.common.contants.RedisPrefix;
+import com.cheng.linegroup.common.contants.JwtClaim;
 import com.cheng.linegroup.enums.ApiResult;
 import com.cheng.linegroup.utils.ResponseUtils;
 import com.cheng.linegroup.utils.SecureJwtUtils;
@@ -74,7 +75,13 @@ public class SecureJwtValidationFilter extends OncePerRequestFilter {
 
                 // 檢查令牌是否在黑名單中
                 String jti = String.valueOf(payload.get("jti"));
-                Boolean isTokenBlacklisted = redisTemplate.hasKey(RedisPrefix.BLACKLIST_TOKEN + jti);
+                boolean isTokenBlacklisted = false;
+                try {
+                    isTokenBlacklisted = redisTemplate.hasKey(RedisPrefix.BLACKLIST_TOKEN + jti);
+                } catch (Exception ex) {
+                    // 降級策略：Redis 不可用時，略過黑名單檢查，僅依靠JWT簽章/過期
+                    log.warn("無法連線 Redis 以檢查黑名單，將略過黑名單檢查: {}", ex.getMessage());
+                }
 
                 if (isTokenBlacklisted) {
                     log.warn("令牌已被列入黑名單: {}", jti);
@@ -83,11 +90,11 @@ public class SecureJwtValidationFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                // 輸出載荷資訊，用於除錯
+                // 輸出載荷資訊，用於除錯（改用 JwtClaim 常數鍵名）
                 log.debug("JWT 載荷資訊: 使用者ID={}, 使用者名稱={}, 角色={}", 
-                    payload.get("uid"), 
-                    payload.get("sub"),
-                    payload.get("authorities"));
+                    payload.get(JwtClaim.USER_ID), 
+                    payload.get(JwtClaim.SUBJECT),
+                    payload.get(JwtClaim.AUTHORITIES));
 
                 // 設置認證
                 Authentication authentication = SecureJwtUtils.createAuthenticationFromPayload(payload);

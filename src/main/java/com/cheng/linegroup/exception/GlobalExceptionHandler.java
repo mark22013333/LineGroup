@@ -2,7 +2,7 @@ package com.cheng.linegroup.exception;
 
 import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.enums.ApiResult;
-import com.cheng.linegroup.service.LineNotifyService;
+import com.cheng.linegroup.services.LineNotifyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

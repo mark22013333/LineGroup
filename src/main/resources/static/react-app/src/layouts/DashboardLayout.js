@@ -33,7 +33,7 @@ const DashboardLayout = () => {
     navigate('/login');
   };
 
-  // 用戶選單項
+  // 使用者選單項
   const userMenuItems = [
     {
       key: '1',
@@ -77,7 +77,7 @@ const DashboardLayout = () => {
             {
               key: '/users',
               icon: <TeamOutlined />,
-              label: '用戶管理',
+              label: '使用者管理',
             },
             {
               key: 'settings',

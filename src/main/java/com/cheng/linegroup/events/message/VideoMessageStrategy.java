@@ -3,7 +3,7 @@ package com.cheng.linegroup.events.message;
 import com.cheng.linegroup.dto.WebhookEvent;
 import com.cheng.linegroup.entity.MessageEventRecord;
 import com.cheng.linegroup.enums.MessageType;
-import com.cheng.linegroup.service.MessageEventRecordService;
+import com.cheng.linegroup.services.MessageEventRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

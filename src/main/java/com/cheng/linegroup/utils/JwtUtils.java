@@ -9,6 +9,10 @@ import com.cheng.linegroup.common.contants.Sign;
 import com.cheng.linegroup.dto.auth.LoginUser;
 import com.cheng.linegroup.dto.security.SysUserDetails;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.*;
 
 import lombok.RequiredArgsConstructor;
@@ -54,7 +58,7 @@ public class JwtUtils {
     /**
      * 建立Token
      *
-     * @param authentication 使用者認證信息
+     * @param authentication 使用者認證訊息
      * @return Token
      */
     public static String generateToken(Authentication authentication) {
@@ -116,10 +120,43 @@ public class JwtUtils {
 
         userDetails.setUsername(String.valueOf(payload.get(JwtClaim.SUBJECT)));
 
-        Set<SimpleGrantedAuthority> authorities = Arrays.stream(String.valueOf(payload.get(JwtClaim.AUTHORITIES)).split(Sign.COMMA))
-                .map(String::trim)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+        // 取得角色權限
+        Object authoritiesObj = payload.get(JwtClaim.AUTHORITIES);
+        Set<SimpleGrantedAuthority> authorities;
+
+        if (authoritiesObj instanceof List) {
+            // 如果已經是 List 類型，直接使用
+            authorities = ((List<?>) authoritiesObj).stream()
+                    .map(String::valueOf)
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toSet());
+        } else {
+            // 如果是字串類型 (如 JSON 陣列字串)
+            String authStr = String.valueOf(authoritiesObj);
+            
+            // 解析JSON字串為List<String>
+            List<String> roleList = JacksonUtils.fromJson(authStr, new TypeReference<>() {});
+            
+            if (roleList != null) {
+                authorities = roleList.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toSet());
+            } else {
+                // 解析失敗時的備用方案
+                log.warn("解析權限JSON字串失敗，使用備用方案");
+                if (authStr.startsWith("[") && authStr.endsWith("]")) {
+                    // 移除括號並分割
+                    authStr = authStr.substring(1, authStr.length() - 1);
+                    authorities = Arrays.stream(authStr.split(","))
+                            .map(String::trim)
+                            .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toSet());
+                } else {
+                    authorities = new HashSet<>();
+                }
+            }
+        }
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }

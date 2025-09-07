@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -53,6 +54,9 @@ public class SysUser extends BaseEntity {
 
     @Column(columnDefinition = "tinyint(1) comment '是否刪除(0:否, 1:是)'")
     private Integer deleted;
+
+    @Column(columnDefinition = "TIMESTAMP comment '最後登入時間'")
+    private LocalDateTime lastLoginTime;
 
     @Transient
     private Long[] roleIds;

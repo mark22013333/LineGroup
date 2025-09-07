@@ -1,9 +1,9 @@
 package com.cheng.linegroup.config;
 
 import com.cheng.linegroup.enums.Security;
-import com.cheng.linegroup.filter.JwtValidationFilter;
 import com.cheng.linegroup.exception.security.SystemAccessDeniedHandler;
 import com.cheng.linegroup.exception.security.SystemAuthenticationEntryPoint;
+import com.cheng.linegroup.filter.token.SecureJwtValidationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,29 +39,47 @@ public class SecurityConfig {
     private final SystemAuthenticationEntryPoint authenticationEntryPoint;
     private final SystemAccessDeniedHandler accessDeniedHandler;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final SecureJwtValidationFilter secureJwtValidationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requestMatcherRegistry ->
-                        requestMatcherRegistry.requestMatchers(
+                        requestMatcherRegistry
+                                // 公開資源，無需驗證
+                                .requestMatchers(
                                         Security.LOGIN.getUri(),
-                                        "/ai/**",
-                                        "/api/test/**",
-                                        "/api/maps/**",
-                                        "/YummyQuest/**",
                                         "/webhook",
                                         "/img/**",
                                         "/webjars/**",
                                         "/css/**",
                                         "/js/**",
-                                        "/admin/**", // 允許訪問管理後台頁面
-                                        "/react-admin/**", // 允許訪問 React 管理後台靜態資源
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/swagger-resources/**",
                                         "/v3/api-docs/**"
                                 ).permitAll()
+                                
+                                // 測試相關的 API，公開
+                                .requestMatchers(
+                                        "/api/test/**",
+                                        "/api/maps/**",
+                                        "/YummyQuest/**",
+                                        "/ai/**"
+                                ).permitAll()
+                                
+                                // 管理後台頁面相關，需要登入（不限特定角色）
+                                .requestMatchers(
+                                        "/admin/login",
+                                        "/admin/index.html",
+                                        "/admin/static/**",
+                                        "/react-admin/**"
+                                ).permitAll()
+                                
+                                // 後台管理 API，需要 ADMIN 角色
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                
+                                // 其他請求都需要驗證
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -75,8 +93,8 @@ public class SecurityConfig {
 
         ;
 
-        // JWT
-        http.addFilterBefore(new JwtValidationFilter(redisTemplate), UsernamePasswordAuthenticationFilter.class);
+        // 使用安全增強型JWT過濾器代替舊的標準JWT過濾器
+        http.addFilterBefore(secureJwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

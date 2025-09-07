@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 /**
- * 存儲客戶端的公鑰信息，用於API Key的非對稱加密
+ * 儲存客戶端的公鑰訊息，用於API Key的非對稱加密
  */
 @Entity
 @Data

@@ -132,7 +132,7 @@ public class GoogleMapsController {
 
     /**
      * 記錄 API Key 存取，以便日後審核和監控
-     * 保存到資料庫並實現頻率限制
+     * 儲存到資料庫並實現頻率限制
      */
     private void logApiKeyAccess(String clientIp, Instant accessTime) {
         ApiKeyAccessLog accessLog = new ApiKeyAccessLog();
@@ -222,9 +222,9 @@ public class GoogleMapsController {
 
             // 解析公鑰
             try {
-                // 記錄公鑰詳細信息用於調試
+                // 記錄公鑰詳細訊息用於調試
                 String publicKeyString = keyEntity.getPublicKey();
-                log.info("嘗試解析公鑰, 長度: {}, 前20個字符: {}...", 
+                log.info("嘗試解析公鑰, 長度: {}, 前20個字串: {}...", 
                         publicKeyString.length(), 
                         publicKeyString.substring(0, Math.min(20, publicKeyString.length())));
                 

@@ -3,6 +3,7 @@ package com.cheng.linegroup.utils;
 import com.cheng.linegroup.common.domain.LineHeader;
 import com.cheng.linegroup.utils.dto.ApiResponse;
 import com.cheng.linegroup.utils.dto.IpProxy;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * <pre>
  * 版本歷史：
  * - 1.0: 初始版本
- * - 1.1: 增加異步方法支持
+ * - 1.1: 增加異步方法可用
  * - 1.2: 新增LINE_REQUEST_ID_HEADER
  * - 1.3: 新增CSV解析方法
  * - 1.4: 修復{@link #addParam(Map)}, {@link #addParam(ObjectNode)}問題，避免參數被覆蓋
@@ -57,7 +58,7 @@ public class OkHttpUtils {
 
     static {
         VERSION_HISTORY.add(new VersionInfo(1.0, "初始版本", LocalDate.of(2023, 12, 3)));
-        VERSION_HISTORY.add(new VersionInfo(1.1, "增加異步方法支持", LocalDate.of(2023, 12, 4)));
+        VERSION_HISTORY.add(new VersionInfo(1.1, "增加異步方法可用", LocalDate.of(2023, 12, 4)));
         VERSION_HISTORY.add(new VersionInfo(1.2, "新增 LINE_REQUEST_ID_HEADER", LocalDate.of(2023, 12, 5)));
         VERSION_HISTORY.add(new VersionInfo(1.3, "新增 CSV 解析方法", LocalDate.of(2023, 12, 6)));
         VERSION_HISTORY.add(new VersionInfo(1.4, """
@@ -179,11 +180,17 @@ public class OkHttpUtils {
     }
 
     public OkHttpUtils addParam(String key, String value) {
+        if (paramObj == null) {
+            paramObj = JacksonUtils.genJsonObject();
+        }
         paramObj.put(key, value);
         return this;
     }
 
     public OkHttpUtils addParam(String key, Object value) {
+        if (paramObj == null) {
+            paramObj = JacksonUtils.genJsonObject();
+        }
         paramObj.putPOJO(key, value);
         return this;
     }
@@ -210,13 +217,93 @@ public class OkHttpUtils {
 
     public OkHttpUtils addHeader(String key, String value) {
         if (key == null || value == null) {
-            throw new IllegalArgumentException("Header key and value must not be null");
+            return this;
         }
+        initHeaderMapIfNeeded();
+        headerMap.put(key, value);
+        return this;
+    }
+
+    /**
+     * 使用 Map 批次新增 HTTP 請求標頭
+     *
+     * @param headers 包含標頭名稱與值的 Map
+     * @return OkHttpUtils 實例，支援方法鏈結
+     */
+    public OkHttpUtils addHeader(Map<String, String> headers) {
+        if (headers == null || headers.isEmpty()) {
+            return this;
+        }
+        initHeaderMapIfNeeded();
+        headerMap.putAll(headers);
+        return this;
+    }
+
+    /**
+     * 使用 JsonNode 批次新增 HTTP 請求標頭
+     *
+     * @param headersNode 包含標頭名稱與值的 JsonNode
+     * @return OkHttpUtils 實例，支援方法鏈結
+     */
+    public OkHttpUtils addHeader(JsonNode headersNode) {
+        if (headersNode == null || !headersNode.isObject()) {
+            return this;
+        }
+        try {
+            initHeaderMapIfNeeded();
+            addJsonNodeHeadersToMap(headersNode);
+        } catch (Exception e) {
+            log.warn("新增 JsonNode 標頭時發生錯誤: {}", e.getMessage());
+        }
+        return this;
+    }
+
+    /**
+     * 使用 ObjectNode 批次新增 HTTP 請求標頭
+     *
+     * @param headersNode 包含標頭名稱與值的 ObjectNode
+     * @return OkHttpUtils 實例，支援方法鏈結
+     */
+    public OkHttpUtils addHeader(ObjectNode headersNode) {
+        if (headersNode == null) {
+            return this;
+        }
+        try {
+            initHeaderMapIfNeeded();
+            addJsonNodeHeadersToMap(headersNode);
+        } catch (Exception e) {
+            log.warn("新增 ObjectNode 標頭時發生錯誤: {}", e.getMessage());
+        }
+        return this;
+    }
+
+    /**
+     * 初始化 headerMap 如果為 null
+     */
+    private void initHeaderMapIfNeeded() {
         if (headerMap == null) {
             headerMap = new HashMap<>(10);
         }
-        headerMap.put(key, value);
-        return this;
+    }
+
+    /**
+     * 從 JsonNode 提取標頭並加到 headerMap
+     *
+     * @param node JsonNode 或 ObjectNode
+     */
+    private void addJsonNodeHeadersToMap(JsonNode node) {
+        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+        while (fields.hasNext()) {
+            try {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                if (entry.getValue() != null && entry.getValue().isTextual()) {
+                    headerMap.put(entry.getKey(), entry.getValue().asText());
+                }
+            } catch (Exception e) {
+                log.warn("處理標頭欄位時發生錯誤，略過此欄位: {}", e.getMessage());
+                // 略過此欄位但繼續處理其他欄位
+            }
+        }
     }
 
     public OkHttpUtils addBrowserHeader() {
@@ -457,7 +544,7 @@ public class OkHttpUtils {
     }
 
     public interface ICallBack {
-        void onSuccessful(Call call, String data);
+        void onSuccessful(Call call, String data) throws IOException;
 
         void onFailure(Call call, String errorMsg);
     }

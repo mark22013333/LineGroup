@@ -4,7 +4,7 @@ import com.cheng.linegroup.common.BaseResponse;
 import com.cheng.linegroup.common.R;
 import com.cheng.linegroup.dto.request.OnSignIn;
 import com.cheng.linegroup.dto.request.SignUpOrIn;
-import com.cheng.linegroup.service.AuthService;
+import com.cheng.linegroup.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

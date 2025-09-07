@@ -12,7 +12,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.util.List;
 
 /**
- * ApiResponse 類別提供HTTP響應的結構化格式，包含狀態碼、請求ID、結果及預覽資料。
+ * ApiResponse 類別提供HTTP回應的結構化格式，包含狀態碼、請求ID、結果及預覽資料。
  * 使用@Accessors(chain = true) 以啟用鏈式調用。
  *
  * @author Cheng

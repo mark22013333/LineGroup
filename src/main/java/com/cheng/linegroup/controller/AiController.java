@@ -1,7 +1,7 @@
 package com.cheng.linegroup.controller;
 
 import com.cheng.linegroup.config.AiConfig;
-import com.cheng.linegroup.service.ChatService;
+import com.cheng.linegroup.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;

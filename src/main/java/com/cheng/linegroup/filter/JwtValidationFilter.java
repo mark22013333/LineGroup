@@ -10,7 +10,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -28,10 +27,17 @@ import java.util.Map;
  * @since 2024/3/7 18:53
  **/
 @Slf4j
-@RequiredArgsConstructor
 public class JwtValidationFilter extends OncePerRequestFilter {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
+    
+    // 無參數構造函數，用於 Spring Security 配置
+    public JwtValidationFilter() {
+    }
+    
+    public JwtValidationFilter(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
@@ -40,11 +46,15 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             if (StringUtils.isNoneEmpty(token)) {
                 Map<String, Object> payload = JwtUtils.parseToken(token);
                 log.info("payload:{}", payload);
-                String jti = String.valueOf(payload.get(JwtClaim.JWT_ID));
-                Boolean isTokenBlacklisted = redisTemplate.hasKey(RedisPrefix.BLACKLIST_TOKEN + jti);
-                if (isTokenBlacklisted) {
-                    ResponseUtils.writeErrMsg(response, ApiResult.TOKEN_BLOCK);
-                    return;
+                
+                // 如果 redisTemplate 可用，則檢查黑名單 token
+                if (redisTemplate != null) {
+                    String jti = String.valueOf(payload.get(JwtClaim.JWT_ID));
+                    Boolean isTokenBlacklisted = redisTemplate.hasKey(RedisPrefix.BLACKLIST_TOKEN + jti);
+                    if (isTokenBlacklisted) {
+                        ResponseUtils.writeErrMsg(response, ApiResult.TOKEN_BLOCK);
+                        return;
+                    }
                 }
 
                 Authentication authentication = JwtUtils.getAuthentication(payload);

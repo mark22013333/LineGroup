@@ -14,7 +14,7 @@ function getContextPath() {
 }
 
 /**
- * 構建完整的 API URL，自動添加 context path
+ * 構建完整的 API URL，自動新增 context path
  * @param {string} endpoint - API 端點路徑，例如 "/api/maps/key"
  * @returns {string} 完整的 URL，例如 "/apps/api/maps/key"
  */

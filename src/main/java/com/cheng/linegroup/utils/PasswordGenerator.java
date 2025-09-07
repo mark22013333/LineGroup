@@ -3,8 +3,8 @@ package com.cheng.linegroup.utils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
- * 密碼雜湊生成工具類
- * 用於生成加密後的密碼以便直接插入數據庫
+ * 密碼雜湊產生工具類
+ * 用於產生加密後的密碼以便直接插入數據庫
  *
  * @author cheng
  * @since 2025/04/30
@@ -14,7 +14,7 @@ public class PasswordGenerator {
         // 使用與應用相同的加密算法
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         
-        // 生成 admin123 的雜湊值
+        // 產生 admin123 的雜湊值
         String password = "admin123";
         String encodedPassword = encoder.encode(password);
         

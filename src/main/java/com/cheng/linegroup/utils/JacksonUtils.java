@@ -3,6 +3,7 @@ package com.cheng.linegroup.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -148,6 +149,28 @@ public class JacksonUtils {
     }
 
     /**
+     * 使用TypeReference反序列化JSON為複雜泛型類型
+     * 這個方法主要用於處理複雜的泛型類型，例如List<String>, Map<String, Object>等
+     * 使用方法：JacksonUtils.fromJson(jsonStr, new TypeReference<List<String>>() {});
+     *
+     * @param json          JSON字串
+     * @param typeReference 泛型類型引用，例如new TypeReference<List<String>>() {}
+     * @return 解析後的對象，如果解析失敗則返回null
+     */
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        if (StringUtils.isBlank(json) || typeReference == null) {
+            return null;
+        }
+        try {
+            return MAPPER.readValue(json, typeReference);
+        } catch (Exception e) {
+            log.error("JSON解析為複雜類型失敗，json={}, typeReference={}, 錯誤={}",
+                    json, typeReference.getType().getTypeName(), ExceptionUtils.getStackTrace(e));
+            return null;
+        }
+    }
+
+    /**
      * 將 InputStream 轉換為指定類型的物件
      */
     public static <T> T streamToObject(InputStream is, Class<T> clazz) {
@@ -256,4 +279,3 @@ public class JacksonUtils {
                 || text.contains("\"");
     }
 }
-

@@ -49,7 +49,7 @@ public class ApiKeyAccessLog {
     private String accessResult;
 
     /**
-     * 額外資訊 (可存儲任何相關的附加資訊)
+     * 額外資訊 (可儲存任何相關的附加資訊)
      */
     @Column(length = 500)
     private String additionalInfo;

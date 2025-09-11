@@ -9,6 +9,13 @@ import PermissionManagement from './pages/PermissionManagement';
 import NotFound from './pages/NotFound';
 import {AuthProvider} from './utils/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import { 
+    Dashboard as InventoryDashboard,
+    ItemManagement,
+    BarcodeScanner,
+    BorrowRecordManagement,
+    ReportManagement
+} from './pages/inventory';
 
 function App() {
     return (
@@ -22,7 +29,12 @@ function App() {
                     <Route path="users" element={<UserManagement/>}/>
                     <Route path="settings/roles" element={<RoleManagement/>}/>
                     <Route path="settings/permissions" element={<PermissionManagement/>}/>
-                    {/* 其他需要認證的路由將在這裡新增 */}
+                    <Route path="inventory/dashboard" element={<InventoryDashboard/>}/>
+                    <Route path="inventory/barcode-scanner" element={<BarcodeScanner/>}/>
+                    <Route path="inventory/items" element={<ItemManagement/>}/>
+                    <Route path="inventory/borrow-return" element={<BorrowRecordManagement/>}/>
+                    <Route path="inventory/reports" element={<ReportManagement/>}/>
+                    {/* 其他需要認證的路由在這裡新增 */}
                 </Route>
 
                 <Route path="*" element={<NotFound/>}/>

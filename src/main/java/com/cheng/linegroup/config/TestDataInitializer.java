@@ -370,6 +370,34 @@ public class TestDataInitializer implements CommandLineRunner {
         
         modulePermissions.put("LINE Bot", lineBotPermissions);
         
+        // 庫存管理模組
+        List<SysPermission> inventoryPermissions = new ArrayList<>();
+        
+        // 物品管理權限
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "物品管理", "inventory:items:view", "查看物品列表", 10));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "物品管理", "inventory:items:add", "新增物品", 11));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "物品管理", "inventory:items:edit", "編輯物品", 12));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "物品管理", "inventory:items:delete", "刪除物品", 13));
+        
+        // 庫存管理權限
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "庫存管理", "inventory:stock:view", "查看庫存", 20));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "庫存管理", "inventory:stock:adjust", "調整庫存", 21));
+        
+        // 條碼管理權限
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "條碼管理", "inventory:barcode:scan", "掃描條碼", 30));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "條碼管理", "inventory:barcode:generate", "產生條碼", 31));
+        
+        // 借還管理權限
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "借還管理", "inventory:borrow:view", "查看借還記錄", 40));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "借還管理", "inventory:borrow:create", "建立借用", 41));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "借還管理", "inventory:borrow:return", "歸還物品", 42));
+        
+        // 報表權限
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "報表管理", "inventory:reports:view", "查看報表", 50));
+        inventoryPermissions.add(createPermissionIfNotExists("庫存管理", "報表管理", "inventory:reports:export", "匯出報表", 51));
+        
+        modulePermissions.put("庫存管理", inventoryPermissions);
+        
         // 分配權限給角色
         // 管理員角色擁有所有權限
         List<Long> adminPermissionIds = new ArrayList<>();
@@ -380,7 +408,7 @@ public class TestDataInitializer implements CommandLineRunner {
         }
         assignPermissionsToRole(adminRole.getId(), adminPermissionIds);
         
-        // 操作員角色僅擁有查看權限和 LINE Bot 的基本操作權限
+        // 操作員角色擁有查看權限、LINE Bot 操作權限和庫存管理權限
         List<Long> operatorPermissionIds = new ArrayList<>();
         // 系統管理中的查看權限
         for (SysPermission permission : modulePermissions.get("系統管理")) {
@@ -390,6 +418,10 @@ public class TestDataInitializer implements CommandLineRunner {
         }
         // LINE Bot 的所有權限
         for (SysPermission permission : modulePermissions.get("LINE Bot")) {
+            operatorPermissionIds.add(permission.getId());
+        }
+        // 庫存管理的所有權限
+        for (SysPermission permission : modulePermissions.get("庫存管理")) {
             operatorPermissionIds.add(permission.getId());
         }
         assignPermissionsToRole(operatorRole.getId(), operatorPermissionIds);

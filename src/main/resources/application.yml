@@ -11,8 +11,9 @@ spring:
   thymeleaf:
     mode: HTML
   profiles:
-    active: local
-#    active: dev
+    #    active: inventory
+    active: local,inventory
+  #    active: dev
   messages:
     basename: i18n/messages
 logging:

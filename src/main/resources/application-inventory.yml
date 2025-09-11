@@ -1,0 +1,59 @@
+# 庫存管理系統專用配置
+spring:
+
+  # Flyway 資料庫遷移配置 (暫時禁用以便啟動應用程式)
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+    clean-disabled: true
+    table: flyway_schema_history_inventory
+    schemas: Line-Group
+    
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: update  # 暫時使用 update 模式，讓 JPA 自動管理資料庫結構
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        
+# 庫存管理系統配置
+inventory:
+  # 條碼配置
+  barcode:
+    prefix: "INV"
+    qr-code:
+      width: 200
+      height: 200
+    bar-code:
+      width: 300
+      height: 100
+      
+  # 借用配置
+  borrow:
+    default-days: 7
+    max-days: 30
+    overdue-alert-days: 3
+    
+  # 報表配置
+  report:
+    retention-days: 90
+    export-path: "/tmp/inventory/reports"
+    max-file-size: 10485760  # 10MB
+    
+  # 庫存警告配置
+  alert:
+    low-stock-enabled: true
+    out-of-stock-enabled: true
+    email-notification-enabled: false
+    
+  # 檔案上傳配置
+  upload:
+    max-file-size: 5242880  # 5MB
+    allowed-types: "jpg,jpeg,png,gif,pdf,xlsx,xls"
+    upload-path: "/tmp/inventory/uploads"

@@ -79,6 +79,9 @@ public class SecurityConfig {
                                 // 後台管理 API，需要 ADMIN 角色
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 
+                                // 庫存管理 API，需要 USER、ADMIN、MANAGER 或 OPERATOR 角色
+                                .requestMatchers("/api/inventory/**").hasAnyRole("USER", "ADMIN", "MANAGER", "OPERATOR")
+                                
                                 // 其他請求都需要驗證
                                 .anyRequest().authenticated()
                 )

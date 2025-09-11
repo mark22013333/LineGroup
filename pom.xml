@@ -30,6 +30,11 @@
         <springdoc.version>2.6.0</springdoc.version>
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <jhlabs.filters.version>2.0.235-1</jhlabs.filters.version>
+        <!-- 庫存管理系統相關版本 -->
+        <poi.version>5.2.5</poi.version>
+        <itext.version>8.0.2</itext.version>
+        <zxing.version>3.5.3</zxing.version>
+        <flyway.version>10.10.0</flyway.version>
     </properties>
 
     <dependencyManagement>
@@ -112,23 +117,15 @@
             <version>4.3.0</version>
         </dependency>
 
-        <!-- javax.xml.bind 相關依賴 -->
+        <!-- Jakarta XML Bind 相關依賴 (JDK 17 compatible) -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-            <version>2.3.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.3.3</version>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
         <!-- Spring Security -->
@@ -252,6 +249,73 @@
             <version>${jhlabs.filters.version}</version>
         </dependency>
 
+        <!-- ======================= 庫存管理系統相關依賴 ======================= -->
+        
+        <!-- Flyway 資料庫遷移 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+
+        <!-- Apache POI - Excel 報表處理 -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.4</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.4</version>
+        </dependency>
+
+        <!-- iText - PDF 報表處理 -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-core</artifactId>
+            <version>${itext.version}</version>
+            <type>pom</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>${itext.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>${itext.version}</version>
+        </dependency>
+
+        <!-- ZXing - QR Code/Bar Code 處理 -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${zxing.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>${zxing.version}</version>
+        </dependency>
+
+        <!-- Validation API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         <!-- =================================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -282,21 +346,20 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <webResources>
-                        <resource>
-                            <directory>src/main/resources/lib</directory>
-                            <targetPath>WEB-INF/lib/</targetPath>
-                            <includes>
-                                <include>**/*.jar</include>
-                            </includes>
-                        </resource>
-                    </webResources>
+                    <!-- 移除不存在的資源目錄配置 -->
                 </configuration>
             </plugin>
             <plugin>

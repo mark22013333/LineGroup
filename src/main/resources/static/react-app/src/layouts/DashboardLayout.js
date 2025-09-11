@@ -8,7 +8,12 @@ import {
   DashboardOutlined,
   TeamOutlined,
   SettingOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  ShopOutlined,
+  ScanOutlined,
+  InboxOutlined,
+  SwapOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../utils/AuthContext';
 
@@ -78,6 +83,38 @@ const DashboardLayout = () => {
               key: '/users',
               icon: <TeamOutlined />,
               label: '使用者管理',
+            },
+            {
+              key: 'inventory',
+              icon: <ShopOutlined />,
+              label: '庫存管理',
+              children: [
+                {
+                  key: '/inventory/dashboard',
+                  icon: <DashboardOutlined />,
+                  label: '庫存儀表板',
+                },
+                {
+                  key: '/inventory/barcode-scanner',
+                  icon: <ScanOutlined />,
+                  label: '條碼掃描',
+                },
+                {
+                  key: '/inventory/items',
+                  icon: <InboxOutlined />,
+                  label: '物品管理',
+                },
+                {
+                  key: '/inventory/borrow-return',
+                  icon: <SwapOutlined />,
+                  label: '借還管理',
+                },
+                {
+                  key: '/inventory/reports',
+                  icon: <BarChartOutlined />,
+                  label: '報表管理',
+                },
+              ],
             },
             {
               key: 'settings',

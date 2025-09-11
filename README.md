@@ -1,6 +1,6 @@
-# LineGroup 多功能智慧助理
+# LineGroup 企業級智慧管理平台
 
-這是一個基於 **Spring Boot 3.4.5** 和 **Java 17** 的企業級多功能後端應用程式，主要作為一個與 LINE 平台深度整合的智慧助理。專案採用前後端分離架構，整合了 AI 對話、地理位置服務、圖片處理、權限管理以及一個完整的 React 管理後台。
+這是一個基於 **Spring Boot 3.4.5** 和 **Java 17** 的企業級多功能管理平台，整合了 **LINE Bot 智慧助理**、**庫存管理系統**、**條碼掃描功能** 以及 **React 管理後台**。專案採用現代化前後端分離架構，提供完整的企業級解決方案，包含 AI 對話、地理位置服務、圖片處理、權限管理等核心功能。
 
 ## 🚀 主要功能
 
@@ -16,9 +16,28 @@
 - 函式呼叫 (Function Calling) 功能，可執行外部操作
 - 完整的 AI 對話歷史記錄與分析
 
+### 📦 庫存管理系統
+- **完整的庫存管理**: 物品管理、分類管理、庫存調整
+- **借還記錄系統**: 完整的物品借用與歸還流程管理
+- **條碼掃描功能**: 支援 QR Code 和條碼掃描，快速借還操作
+- **手機端優化**: 專門的手機端全螢幕掃描體驗
+- **庫存警告系統**: 低庫存和缺貨自動提醒
+- **報表管理**: 庫存統計、借還分析、Excel 報表匯出
+- **庫存異動記錄**: 完整的庫存變動追蹤與審核機制
+
+### 📱 手機端條碼掃描
+- **全螢幕掃描體驗**: 專為手機優化的掃描介面
+- **智慧掃描識別**: 支援多種條碼格式 (QR Code、EAN、Code128 等)
+- **震動回饋**: 掃描成功時的觸覺提示
+- **離線掃描**: 即使無網路也能顯示掃描內容
+- **快速操作**: 掃描後立即進行借用或歸還操作
+- **響應式設計**: 自動適應不同螢幕尺寸
+
 ### 💻 React 管理後台
-- 基於 **React + Webpack** 的現代化單頁應用程式 (SPA)
+- 基於 **React 18 + Ant Design** 的現代化單頁應用程式 (SPA)
 - **RBAC 權限管理系統**: 完整的使用者、角色和權限管理
+- **庫存管理模組**: 物品管理、借還記錄、報表分析
+- **手機端導航**: 專為手機端設計的導航系統
 - **系統設定中心**: 動態配置應用程式參數
 - **LINE Notify 管理**: 權杖管理與推播設定
 - **API 測試工具**: 內建 API 測試介面
@@ -58,15 +77,27 @@
 
 ### 前端技術 (管理後台)
 - **核心框架**: React 18
+- **UI 組件庫**: Ant Design 5.x (完整的企業級 UI 組件)
+- **路由管理**: React Router 6
+- **狀態管理**: React Context API + Hooks
 - **模組打包**: Webpack 5
 - **轉譯工具**: Babel
-- **UI 樣式**: 自訂 CSS + Bootstrap
+- **條碼掃描**: react-qr-barcode-scanner
+- **圖表視覺化**: Ant Design Charts
 - **開發伺服器**: Webpack Dev Server
+- **響應式設計**: CSS Grid + Flexbox + Media Queries
 
 ### AI 與機器學習
 - **AI 框架**: Spring AI 1.0.0-M3
 - **語言模型**: OpenAI GPT API
 - **對話管理**: 自訂對話上下文處理
+
+### 庫存管理與條碼技術
+- **條碼處理**: ZXing (Zebra Crossing) 條碼生成與解析
+- **報表匯出**: Apache POI (Excel 檔案處理)
+- **檔案上傳**: Spring Boot File Upload
+- **資料驗證**: Bean Validation (JSR-303)
+- **分頁查詢**: Spring Data JPA Pagination
 
 ### 資料處理與工具
 - **圖片處理**: Thumbnailator 0.4.20 + JHLabs Filters
@@ -212,21 +243,41 @@ LineGroup/
 │   │   ├── LineController.java         # LINE Bot Webhook
 │   │   ├── GoogleMapsController.java   # 地圖服務 API
 │   │   ├── AiController.java           # AI 對話 API
-│   │   └── SystemSettingController.java # 系統設定 API
+│   │   ├── SystemSettingController.java # 系統設定 API
+│   │   └── inventory/                  # 庫存管理控制器
+│   │       ├── ItemController.java     # 物品管理 API
+│   │       ├── CategoryController.java # 分類管理 API
+│   │       ├── InventoryController.java # 庫存管理 API
+│   │       ├── BorrowRecordController.java # 借還記錄 API
+│   │       ├── InventoryTransactionController.java # 庫存異動 API
+│   │       └── ReportController.java   # 報表管理 API
 │   ├── dao/                            # 資料存取層
 │   ├── dto/                            # 資料傳輸物件
+│   │   ├── common/                     # 通用 DTO
+│   │   └── inventory/                  # 庫存管理 DTO
 │   ├── entity/                         # JPA 實體類別
+│   │   ├── User.java                   # 使用者實體
+│   │   ├── Role.java                   # 角色實體
+│   │   └── inventory/                  # 庫存管理實體
+│   │       ├── Item.java               # 物品實體
+│   │       ├── Category.java           # 分類實體
+│   │       ├── Inventory.java          # 庫存實體
+│   │       ├── BorrowRecord.java       # 借還記錄實體
+│   │       └── InventoryTransaction.java # 庫存異動實體
 │   ├── enums/                          # 列舉定義
+│   │   └── inventory/                  # 庫存管理列舉
 │   ├── events/                         # LINE 事件處理
 │   │   ├── handler/                    # 各類事件處理器
 │   │   └── message/                    # 訊息處理邏輯
 │   ├── exception/                      # 例外處理
 │   ├── filter/                         # HTTP 過濾器
 │   ├── repository/                     # Spring Data JPA Repository
+│   │   └── inventory/                  # 庫存管理 Repository
 │   ├── services/                       # 業務邏輯服務層
 │   │   ├── impl/                       # 服務實作
 │   │   ├── ai/                         # AI 相關服務
-│   │   └── security/                   # 安全相關服務
+│   │   ├── security/                   # 安全相關服務
+│   │   └── inventory/                  # 庫存管理服務
 │   └── utils/                          # 工具類別
 ├── src/main/resources/
 │   ├── application.yml                  # 主配置檔案
@@ -240,6 +291,29 @@ LineGroup/
 │   │   ├── js/                         # JavaScript 檔案
 │   │   └── react-app/                  # React 管理後台
 │   │       ├── src/                    # React 原始碼
+│   │       │   ├── components/         # 可重用組件
+│   │       │   │   ├── PrivateRoute.js # 私有路由保護
+│   │       │   │   └── MobileNavigation.js # 手機端導航
+│   │       │   ├── layouts/            # 佈局組件
+│   │       │   │   └── DashboardLayout.js # 管理後台佈局
+│   │       │   ├── pages/              # 頁面組件
+│   │       │   │   ├── Login.js        # 登入頁面
+│   │       │   │   ├── Dashboard.js    # 儀表板
+│   │       │   │   ├── UserManagement.js # 使用者管理
+│   │       │   │   └── inventory/      # 庫存管理頁面
+│   │       │   │       ├── Dashboard.js # 庫存儀表板
+│   │       │   │       ├── ItemManagement.js # 物品管理
+│   │       │   │       ├── BarcodeScanner.js # 條碼掃描
+│   │       │   │       ├── MobileBarcodeScanner.js # 手機端掃描
+│   │       │   │       ├── BorrowRecordManagement.js # 借還管理
+│   │       │   │       └── ReportManagement.js # 報表管理
+│   │       │   ├── services/           # API 服務層
+│   │       │   │   ├── apiService.js   # 通用 API 服務
+│   │       │   │   └── inventoryAPI.js # 庫存管理 API
+│   │       │   ├── utils/              # 工具函式
+│   │       │   │   └── AuthContext.js  # 認證上下文
+│   │       │   ├── App.js              # 應用程式主組件
+│   │       │   └── index.js            # 應用程式入口
 │   │       ├── public/                 # 公共資源
 │   │       ├── package.json            # Node.js 依賴
 │   │       ├── webpack.config.js       # Webpack 配置
@@ -251,7 +325,45 @@ LineGroup/
 └── LICENSE                             # 授權條款
 ```
 
+## 📱 手機端使用指南
+
+### 🚀 快速開始 (手機端)
+1. **登入系統**: 使用手機瀏覽器登入管理後台
+2. **自動適應**: 系統會自動檢測手機螢幕並切換到手機模式
+3. **快速掃描**: 點擊右下角藍色掃描浮動按鈕
+4. **全螢幕體驗**: 享受專為手機優化的全螢幕掃描介面
+
+### 📱 手機端特色功能
+- **🔵 浮動掃描按鈕**: 右下角快速進入掃描模式
+- **🎯 智慧掃描框**: 清楚的掃描指示區域和四角裝飾
+- **📳 震動回饋**: 掃描成功時的觸覺提示
+- **📋 底部抽屜**: 掃描結果以抽屜形式顯示，不遮擋攝影機
+- **🔄 即時顯示**: 掃描任何內容都會立即顯示，無需等待後端查詢
+- **🎨 深色介面**: 減少反光，提高掃描成功率
+
+### 🎯 掃描操作流程
+1. **啟動掃描**: 點擊浮動按鈕或選單中的「手機掃描」
+2. **掃描條碼**: 將 QR Code 或條碼對準中央框線
+3. **查看結果**: 掃描成功後自動顯示內容和物品資訊
+4. **執行操作**: 選擇借用、歸還或繼續掃描
+5. **完成流程**: 填寫相關資訊並確認操作
+
 ## 🔧 核心功能模組說明
+
+### 📦 庫存管理系統 (`services/inventory/`)
+- **物品管理**: 完整的物品資訊管理，支援分類、條碼、圖片
+- **庫存控制**: 即時庫存追蹤、低庫存警告、自動補貨提醒
+- **借還流程**: 完整的借用申請、審核、歸還流程
+- **條碼整合**: 支援多種條碼格式，快速掃描識別
+- **報表分析**: 庫存統計、借還分析、使用率報告
+- **權限控制**: 不同角色的操作權限管理
+
+### 📱 手機端條碼掃描 (`MobileBarcodeScanner.js`)
+- **全螢幕掃描**: 最大化攝影機視野，提供最佳掃描體驗
+- **多格式支援**: QR Code、EAN、Code128、Code39 等
+- **離線優先**: 掃描內容立即顯示，後續查詢庫存資訊
+- **智慧識別**: 自動識別條碼類型並優化掃描參數
+- **操作簡化**: 一鍵借用、歸還，簡化操作流程
 
 ### 🎯 事件處理系統 (`events/`)
 - **EventHandler**: 統一事件處理介面

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Avatar, Dropdown, theme } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -16,18 +16,34 @@ import {
   BarChartOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../utils/AuthContext';
+import MobileNavigation from '../components/MobileNavigation';
 
 const { Header, Sider, Content } = Layout;
 
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // 檢測螢幕尺寸變化
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768) {
+        setCollapsed(true); // 手機端預設收合側邊欄
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const handleMenuClick = ({ key }) => {
     navigate(key);
@@ -64,9 +80,36 @@ const DashboardLayout = () => {
     },
   ];
 
+  // 手機端使用不同的佈局
+  if (isMobile) {
+    return (
+      <>
+        <MobileNavigation />
+        <Layout style={{ minHeight: '100vh' }}>
+          <Content
+            style={{
+              padding: '16px',
+              background: colorBgContainer,
+              minHeight: '100vh',
+            }}
+          >
+            <Outlet />
+          </Content>
+        </Layout>
+      </>
+    );
+  }
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} theme="dark">
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed} 
+        theme="dark"
+        breakpoint="lg"
+        collapsedWidth={isMobile ? 0 : 80}
+      >
         <div className="demo-logo-vertical" style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)', borderRadius: 6 }} />
         <Menu
           theme="dark"
@@ -98,6 +141,11 @@ const DashboardLayout = () => {
                   key: '/inventory/barcode-scanner',
                   icon: <ScanOutlined />,
                   label: '條碼掃描',
+                },
+                {
+                  key: '/inventory/mobile-scanner',
+                  icon: <ScanOutlined />,
+                  label: '手機掃描',
                 },
                 {
                   key: '/inventory/items',

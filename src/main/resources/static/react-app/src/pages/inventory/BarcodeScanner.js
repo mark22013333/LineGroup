@@ -56,7 +56,27 @@ const BarcodeScanner = () => {
         
         if (result && result.text) {
             console.log('[BarcodeScanner] 掃描成功，條碼內容:', result.text);
-            message.info(`掃描到內容: ${result.text}`);
+            
+            // 先顯示掃描到的內容
+            message.success(`掃描到內容: ${result.text}`, 3);
+            
+            // 暫停掃描以避免重複掃描
+            stopScanning();
+            
+            // 建立一個簡單的掃描結果物件來顯示
+            const scannedResult = {
+                barcode: result.text,
+                itemCode: result.text,
+                itemName: `掃描內容: ${result.text}`,
+                categoryName: '未分類',
+                currentStock: 0,
+                availableStock: 0,
+                location: '未知',
+                status: 'SCANNED',
+                found: false
+            };
+            
+            setScannedItem(scannedResult);
             
             try {
                 console.log('[BarcodeScanner] 正在查詢後端 API...');
@@ -67,17 +87,19 @@ const BarcodeScanner = () => {
                 console.log('[BarcodeScanner] 後端 API 回應:', response);
 
                 if (response.success && response.data.found) {
-                    setScannedItem(response.data);
-                    message.success(`掃描成功！找到物品: ${response.data.itemName}`);
-                    stopScanning(); // 掃描成功後自動停止
+                    // 更新為真實的物品資訊
+                    setScannedItem({...response.data, found: true});
+                    message.success(`找到物品: ${response.data.itemName}`, 2);
                 } else {
-                    message.warning(`掃描到條碼 "${result.text}"，但在庫存中找不到對應物品`);
-                    setScannedItem(null);
+                    // 保持顯示掃描內容，但標記為未找到
+                    setScannedItem({...scannedResult, found: false});
+                    message.warning(`條碼 "${result.text}" 在庫存中找不到對應物品`, 2);
                 }
             } catch (error) {
                 console.error('[BarcodeScanner] 掃描查詢失敗:', error);
-                message.error('掃描查詢失敗: ' + error.message);
-                setScannedItem(null);
+                // 仍然顯示掃描內容，但標記為查詢失敗
+                setScannedItem({...scannedResult, found: false, error: error.message});
+                message.error('查詢失敗，但已掃描到內容: ' + result.text, 3);
             }
         } else {
             console.log('[BarcodeScanner] 掃描結果無效:', result);
@@ -353,62 +375,95 @@ const BarcodeScanner = () => {
                         {scannedItem ? (
                             <div>
                                 <Alert
-                                    message="掃描成功"
-                                    description={`找到物品: ${scannedItem.itemName}`}
-                                    type="success"
+                                    message={scannedItem.found ? "掃描成功" : "掃描到內容"}
+                                    description={
+                                        scannedItem.found 
+                                            ? `找到物品: ${scannedItem.itemName}`
+                                            : `掃描到條碼: ${scannedItem.barcode}${scannedItem.error ? ' (查詢失敗)' : ' (庫存中未找到)'}`
+                                    }
+                                    type={scannedItem.found ? "success" : "warning"}
                                     showIcon
                                     style={{ marginBottom: '20px' }}
                                 />
 
                                 <Descriptions column={1} size="small">
-                                    <Descriptions.Item label="物品代碼">
-                                        <strong>{scannedItem.itemCode}</strong>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="物品名稱">
-                                        {scannedItem.itemName}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="分類">
-                                        {scannedItem.categoryName}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="條碼">
+                                    <Descriptions.Item label="條碼內容">
                                         <Tag color="blue">{scannedItem.barcode}</Tag>
                                     </Descriptions.Item>
-                                    <Descriptions.Item label="庫存狀況">
-                                        <Space>
-                                            <Tag color={scannedItem.currentStock > 0 ? 'green' : 'red'}>
-                                                當前: {scannedItem.currentStock}
-                                            </Tag>
-                                            <Tag color={scannedItem.availableStock > 0 ? 'green' : 'orange'}>
-                                                可用: {scannedItem.availableStock}
-                                            </Tag>
-                                        </Space>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="存放位置">
-                                        {scannedItem.location || '-'}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="狀態">
-                                        <Tag color={scannedItem.status === 'ACTIVE' ? 'green' : 'orange'}>
-                                            {scannedItem.status === 'ACTIVE' ? '啟用' : '停用'}
-                                        </Tag>
-                                    </Descriptions.Item>
+                                    {scannedItem.found && (
+                                        <>
+                                            <Descriptions.Item label="物品代碼">
+                                                <strong>{scannedItem.itemCode}</strong>
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="物品名稱">
+                                                {scannedItem.itemName}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="分類">
+                                                {scannedItem.categoryName}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="庫存狀況">
+                                                <Space>
+                                                    <Tag color={scannedItem.currentStock > 0 ? 'green' : 'red'}>
+                                                        當前: {scannedItem.currentStock}
+                                                    </Tag>
+                                                    <Tag color={scannedItem.availableStock > 0 ? 'green' : 'orange'}>
+                                                        可用: {scannedItem.availableStock}
+                                                    </Tag>
+                                                </Space>
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="存放位置">
+                                                {scannedItem.location || '-'}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="狀態">
+                                                <Tag color={scannedItem.status === 'ACTIVE' ? 'green' : 'orange'}>
+                                                    {scannedItem.status === 'ACTIVE' ? '啟用' : '停用'}
+                                                </Tag>
+                                            </Descriptions.Item>
+                                        </>
+                                    )}
+                                    {!scannedItem.found && (
+                                        <Descriptions.Item label="狀態">
+                                            <Tag color="orange">未在庫存中找到</Tag>
+                                        </Descriptions.Item>
+                                    )}
+                                    {scannedItem.error && (
+                                        <Descriptions.Item label="錯誤訊息">
+                                            <Tag color="red">{scannedItem.error}</Tag>
+                                        </Descriptions.Item>
+                                    )}
                                 </Descriptions>
 
                                 <div style={{ marginTop: '20px', textAlign: 'center' }}>
                                     <Space>
-                                        <Button 
-                                            type="primary" 
-                                            icon={<ShoppingCartOutlined />}
-                                            onClick={handleBorrow}
-                                            disabled={scannedItem.availableStock <= 0}
-                                        >
-                                            借用
-                                        </Button>
-                                        <Button 
-                                            icon={<UndoOutlined />}
-                                            onClick={handleReturn}
-                                        >
-                                            歸還
-                                        </Button>
+                                        {scannedItem.found ? (
+                                            <>
+                                                <Button 
+                                                    type="primary" 
+                                                    icon={<ShoppingCartOutlined />}
+                                                    onClick={handleBorrow}
+                                                    disabled={scannedItem.availableStock <= 0}
+                                                >
+                                                    借用
+                                                </Button>
+                                                <Button 
+                                                    icon={<UndoOutlined />}
+                                                    onClick={handleReturn}
+                                                >
+                                                    歸還
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <Button 
+                                                type="primary" 
+                                                icon={<ScanOutlined />}
+                                                onClick={() => {
+                                                    setScannedItem(null);
+                                                    startScanning();
+                                                }}
+                                            >
+                                                重新掃描
+                                            </Button>
+                                        )}
                                     </Space>
                                 </div>
                             </div>

@@ -13,6 +13,7 @@ import {
     Dashboard as InventoryDashboard,
     ItemManagement,
     BarcodeScanner,
+    MobileBarcodeScanner,
     BorrowRecordManagement,
     ReportManagement
 } from './pages/inventory';
@@ -31,6 +32,7 @@ function App() {
                     <Route path="settings/permissions" element={<PermissionManagement/>}/>
                     <Route path="inventory/dashboard" element={<InventoryDashboard/>}/>
                     <Route path="inventory/barcode-scanner" element={<BarcodeScanner/>}/>
+                    <Route path="inventory/mobile-scanner" element={<MobileBarcodeScanner/>}/>
                     <Route path="inventory/items" element={<ItemManagement/>}/>
                     <Route path="inventory/borrow-return" element={<BorrowRecordManagement/>}/>
                     <Route path="inventory/reports" element={<ReportManagement/>}/>

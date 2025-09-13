@@ -24,7 +24,8 @@ apiClient.interceptors.request.use(
         
         const token = localStorage.getItem('token');
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            // 確保不重複新增Bearer前綴
+            config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
             console.log('[InventoryAPI] 使用 token:', token.substring(0, 20) + '...');
         } else {
             console.warn('[InventoryAPI] 警告: 沒有找到 token');
@@ -59,7 +60,8 @@ apiClient.interceptors.response.use(
         
         if (error.response?.status === 401) {
             console.warn('[InventoryAPI] 401 未授權，清除 token 並跳轉到登入頁');
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
             window.location.href = '/login';
         } else if (error.response?.status === 404) {
             console.error('[InventoryAPI] 404 找不到資源，可能是路徑配置問題');

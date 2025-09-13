@@ -337,7 +337,7 @@
     </dependencies>
 
     <build>
-        <finalName>LineGroup</finalName>
+        <finalName>apps</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -11,7 +11,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, '../../react-admin'),
     filename: 'static/js/[name].[contenthash:8].js',
-    publicPath: isProduction ? '/react-admin/' : '/',
+    publicPath: '/',
     clean: true
   },
   devtool: isProduction ? 'source-map' : 'eval-source-map',

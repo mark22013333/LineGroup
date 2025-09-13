@@ -21,8 +21,8 @@ const authService = {
             // 確保有加密令牌
             if (secureToken) {
                 console.log('使用加密安全令牌');
-                // 儲存加密令牌 - 加上Bearer前綴
-                setAuthToken(`Bearer ${secureToken}`);
+                // 儲存加密令牌 - 不加Bearer前綴，讓apiService統一處理
+                setAuthToken(secureToken);
 
                 // 儲存使用者資訊
                 if (response.data.data.user) {

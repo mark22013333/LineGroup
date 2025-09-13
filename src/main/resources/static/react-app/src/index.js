@@ -5,8 +5,8 @@ import App from './App';
 import {AuthProvider} from './utils/AuthContext';
 import './index.css';
 
-// 在開發模式下不使用 basename，生產環境使用 /admin
-const basename = process.env.NODE_ENV === 'production' ? '/admin' : '/';
+// 統一使用根路徑，不使用 basename
+const basename = '/';
 
 const root = createRoot(document.getElementById('root'));
 

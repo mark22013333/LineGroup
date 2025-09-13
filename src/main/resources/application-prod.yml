@@ -1,4 +1,11 @@
 spring:
+  ai:
+    openai:
+      api-key: ENC(SkoevxLe9vAxfGecJzhDSHYRbG0URh1hM9L+Fmu3EnGUjFBZXEtLv3Fsd4haxThOW2m38H54DpeR2uM3LsavpJeKly5f7fNuphSV0BpNS6Q=)
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama-3.1-70b-versatile
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ENC(NCLuQLAmaVNntetMxUYuiDkjcHdOnRpMY1WO1HKnsminRNATLuFWR9MPZg2nnFPofsaLF+14gJzTk3moOMCdpOtrpmea+UXe90GgSTgpbyQ9IofMM6WQJwmtkFkyRGnhDHvbT1jJGZMf10Y7uhyb5sDtKtBb4IzWe/5kB9Yc6d8c+8E9q2pUG3xh8Ry/OU8OLxpRxqtqHEET/QRlUlasyg==)
@@ -23,9 +30,9 @@ spring:
   data:
     redis:
       database: 1
-      host: ENC(V+gsQ5//ZpSKWOyIl1rHcMVRU+rRf6Ts/7rjifnvKqMxtyrOBjdD/w==)
-      port: ENC(96Yv1gtb5/tqCPWGisYsHALL8uMEZuiL)
-      password: ENC(ZzNA24hVjFBka6oNEk5FVVQ5rpsYgxb5)
+      host: ENC(HNI18PJ4ZE+VXrIhqqLK7C8+lk45jhAn3uodY209tfE=)
+      port: ENC(7yvqJMAkinGQ4ZTTscepHA8Zc/4KwCMG)
+      password: ENC(Pmmt1JumUhyWkQ4lsRVDOJxdJtnrcOKo)
       timeout: 10s
       lettuce:
         pool:

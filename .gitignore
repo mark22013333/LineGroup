@@ -51,3 +51,8 @@ build/
 ### node_modules ###
 node_modules/
 
+### Deployment files with sensitive info ###
+deploy/
+deployment-fix-summary.md
+*-local.*
+*.conf
